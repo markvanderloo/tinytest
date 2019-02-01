@@ -1,0 +1,15 @@
+Package: tinytest
+Maintainer: Mark van der Loo <mark.vanderloo@gmail.com>
+License: GPL-3
+Title: Simple and efficient unit testing package
+LazyData: no
+Type: Package
+LazyLoad: yes
+Authors@R: c( person("Mark", "van der Loo", role=c("aut","cre"),email="mark.vanderloo@gmail.com"))
+Description: Lightweight (zero-dependency) and easy to use unit testing 
+    framework for R functions and R packages.
+Version: 0.0.1
+URL: https://github.com/markvanderloo/tinytest
+BugReports: https://github.com/markvanderloo/tinytest/issues
+RoxygenNote: 6.1.1
+Encoding: UTF-8
