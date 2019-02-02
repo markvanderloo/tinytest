@@ -2,3 +2,4 @@
 
 export(expect_equal)
 export(run_test_file)
+export(tinytest)

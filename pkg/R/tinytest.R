@@ -1,23 +1,70 @@
+#' tinytest constructor
+#'
+#' Each individual test in the package generates a \code{tinytest} object.
+#' A \code{tinytest} object behaves like a \code{logical} scalar, but
+#' it is endowed with attributes allowing to trace back where the test
+#' was run.
+#'
+#' @param result \code{[logical]} scalar.
+#' @param call   \code{[call]} The call that created \code{result}.
+#' @param label  \code{[character]} a user-defined label.
+#' @param diff   \code{[character]} difference between current and target value
+#'     (if any).
+#' @param file   \code{[character]} file location of the test.
+#' @param fst    \code{[integer]} First line number in the test file.
+#' @param lst    \code{[integer]} Last line number in the test file (differs
+#'    from \code{fst} if the call spans multiple lines).
+#'
+#' @return A \code{tinytest} object.
+#'
+#'
+#' @examples
+#' tt <- expect_equal(1+1, 2)
+#' if (isTRUE(tt)) print("w00p w00p!")
+#' else print("Oh no!")
+#'
+#' 
+#'
+#' @keywords internal
+#' @export
+tinytest <- function(result, call
+    , diff = NA_character_
+    , file = NA_character_
+    , fst  = NA_integer_
+    , lst  = NA_integer_
+    ,...){
 
-tinytest <- function(result=NA, label=NA_character_, diff=NA_character_,...){
-  stopifnot(
-    length(result)==1
-    , length(label) == length(result)
-    , length(diff) == length(result)
-    , is.logical(result)
-    , isTRUE(result)|isFALSE(result)|is.na(result)
-    , is.character(label)
-    , is.character(diff)
+  structure(result         # logical TRUE/FALSE
+    , class    = "tinytest"   
+    , call     = call  # call creating the object
+    , diff     = diff  # diff if isFALSE(result)
+    , file     = file  # test file location
+    , fst      = fst   # first line of test call
+    , lst      = lst   # last line of test call
     , ...)
-  structure(result, class="tinytest",label=label, diff=diff,...)
 }
 
-format.tinytest <- function(x,...){
-  label <- attr(x,'label')
-  diff  <- attr(x,'diff')
-  if (isTRUE(x[1])) sprintf("PASSED test with label %s", label)
-  else if (isFALSE(x[1])) sprintf("FAILED test with label %s\n%s",label, diff)
-  else sprintf("No test result")
+
+na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
+
+oneline <- function(x) sub("\\n.+","...",x)
+indent <- function(x, with="     ") gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
+
+format.tinytest <- function(x,type=c("short","full"),...){
+  type <- match.arg(type)
+
+  d <- attributes(x)
+  call  <- deparse(d$call)
+  d$call <- NULL
+  d <- lapply(d, na_str)
+  result <- if (isTRUE(x)) "PASSED" else "FAILED"
+  
+  if (type == "short") 
+    sprintf("%s: %s<%03d--%03d> %s", result, basename(d$file)
+     , as.integer(d$fst), as.integer(d$lst), oneline(call))
+  else sprintf("---- %s: %s<%03d--%03d>\n%s\n%s", result, d$file, as.integer(d$fst), as.integer(d$lst)
+		, indent(call, with="cl   ")
+		, indent(d$diff, with="df   "))
 }
 
 print.tinytest <- function(x,...){
@@ -34,60 +81,65 @@ print.tinytest <- function(x,...){
 #'     to \code{\link[base]{all.equal} (tolerance)}
 #' @param ... Passed to \code{all.equal}
 #'
-#' @return A single-record \code{data.frame} with columns \code{label} (\code{[character]}),
-#' \code{result} (\code{[logical]}) and \code{diff} (\code{[character]}). 
-#' \code{result} is \code{FALSE} when the test is failed.
+#' @return A \code{\link{tinytest}} object.
+#' 
+#' 
 #' 
 #' @examples 
-#' expect_equal(2, 1 + 1)
+#' expect_equal(1 + 1, 2)       # TRUE
+#' expect_equal(1 - 1, 2)       # FALSE
+#' expect_equivalent(2, c(x=2)) # TRUE
+#' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
 expect_equal <- function(current, target, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
   check <- all.equal(target,current,...)
   equal <- isTRUE(check)
   diff <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
-  tinytest(equal, label, diff)
+  tinytest(result = equal
+		, call = sys.call(sys.parent(1))
+		, diff)
 }
 
 #' 
 #' @details 
 #' \code{expect_equivalent} is calls \code{expect_equal} with the extra
-#' argument \code{check.attributes=FALSE}.
+#' arguments \code{check.attributes=FALSE} and \code{use.names=FALSE}
 #' 
 #' @examples 
 #' expect_equivalent(2, c(x=2))
 #' 
 #' @rdname expect_equal
-expect_equivalent <- function(current, target, label="", tol = sqrt(.Machine$double.eps), ...){
-  expect_equal(target, current, label, check.attributes=FALSE,...)
+expect_equivalent <- function(current, target, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
+  out <- expect_equal(target, current, label, check.attributes=FALSE,use.names=FALSE,...)
+  attr(out, 'call') <- sys.call(sys.parent(1))
+  out
 }
 
 #' @rdname expect_equal
 expect_true <- function(current, label=""){
   result <- isTRUE(current)
-  tinytest(result, label, diff=if (result) NA_character_ else "Not TRUE")
+  tinytest(result, sys.call(sys.parent(1)), label, diff=if (result) NA_character_ else "Not TRUE")
 }
 
 #' @rdname expect_equal
 expect_false <- function(current, label=""){
   result <- isFALSE(current)
-  tinytest(result, label, diff=if (result) NA_character_ else "Not FALSE")
+  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
 }
 
 #' @rdname expect_equal
 expect_error <- function(current, label=""){
-  out <- FALSE
-  tryCatch(current, error=function(e) out <<- TRUE)
-  data.frame(label=label, result=out, diff="No Error"
-             , stringsAsFactors = FALSE)
+  result <- FALSE
+  tryCatch(current, error=function(e) result <<- TRUE)
+  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
 }
 
 #' @rdname expect_equal
 expect_warning <- function(current, label=""){
-  out <- FALSE
+  result <- FALSE
   tryCatch(current, warning = function(w) out <<- TRUE)
-  data.frame(label=label, result=out, diff="No warning"
-             , stringsAsFactors = TRUE)
+  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
 }
 
 
@@ -105,34 +157,59 @@ expect_warning <- function(current, label=""){
 #' \code{run_test_file} runs the file while gathering results of the
 #' expectations in a data frame.
 #' 
-#' @result A data frame with the same columns as the 
-#' \code{\link[=expect_equal]{expectation functions}} and additionally
-#' \itemize{
-#' \item{check}{\code{[character]} The statement expressing an expectation.}
-#' \item{line_start}{\code{integer} The line in the file where the expectation starts.}
-#' \item{line_stop}{\code{integer} The line in the file where the expectation stops.}
-#' }
+#' @result  A \code{list} of class \code{tinytests}, which is a list 
+#'    of \code{\link{tidytest}} objects.
 #' 
 #' @family test-files
 #' @export
 run_test_file <- function(file){
   cat(sprintf("Running %s\n",file))
   parsed <- parse(file=file, keep.source=TRUE)
+  src <- attr(parsed, "srcref")
   is_check  <- sapply(parsed, function(e) grepl("^expect",e[[1]]))
-  test_output <- result()
+  test_output <- vector(mode="list", length=sum(is_check))
+  j <- 0
   e <- new.env()
   for ( i in seq_along(parsed) ){
     expr <- parsed[[i]]
     out  <- eval(expr, envir=e)
-    if ( is_check[i] ) test_output <- rbind(test_output, out)
+    if ( is_check[i] ){
+        j <- j+1
+        attr(out, "call") <- expr
+        attr(out,"file") <- file
+        attr(out, "fst") <- src[[i]][1]
+        attr(out, "lst") <- src[[i]][3]
+				test_output[[j]]   <- out
+		}
   }
-  # add extra metadata
-  test_output$check <- sapply(parsed[is_check],deparse)
-  src <- attr(parsed, "srcref")[is_check]
-  test_output$line_start <- sapply(src,`[`,1)
-  test_output$line_stop  <- sapply(src,`[`,3)
-  test_output
+  
+  structure(test_output, class="tinytests")
 }
+
+#' Subset a tinytests object
+#'
+#' @param i a valid index
+#' @param x a \code{\link[=run_test_file]{tinytests}} object 
+#'
+#' @export
+#' @keywords internal
+`[.tinytests` <- function(x,i){
+   structure(unclass(x)[i], class="tinytests")
+}
+
+#' Print a tinytests object
+#' 
+#' @param x a \code{\link{[=run_test_file]}{tinytests} object
+#' @param all \code{[logical]} Toggle: print only failures or print all results?
+#' @param ... passed to \code{\link{format.tinytest}}
+#'
+#' @export
+print.tinytests <- function(x, all=FALSE, ...){
+  if (!all) x <- x[sapply(x, isFALSE)]
+  out <- paste(sapply(x, format,...),collapse="\n")
+  cat(out,"\n")
+}
+
 
 
 #' Run all tests in a directory
@@ -145,46 +222,25 @@ run_test_file <- function(file){
 #' @family test-files
 run_test_dir <- function(dir, pattern="^test.*\\.[rR]"){
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
-  test_output <- result()
-  test_output <- NULL
+  test_output <- list()
   
   for ( file in testfiles ){
-    test_output <- rbind(test_output, cbind(run_test_file(file), file=basename(file)))
+    test_output <- c(test_output, run_test_file(file))
   }
-  test_output
+    structure(test_output,class="tinytests")
 }
 
 
-test_package <- function(pkg,...){
-  dir <- system.file("unittest",package = pkg)
-  out <- run_test_dir(dir,...)
-  print_cli(out)
-  if (any(!out$result)){
-    stop(sprintf("Encountered test failures in %s",pkg), call.=FALSE)
-  }
-}
+#test_package <- function(pkg,...){
+#  dir <- system.file("unittest",package = pkg)
+#  out <- run_test_dir(dir,...)
+#  print_cli(out)
+#  if (any(!out$result)){
+#    stop(sprintf("Encountered test failures in %s",pkg), call.=FALSE)
+#  }
+#}
 
 
-printf <- function(fmt,...){
-  cat(sprintf(fmt,...))
-}
-
-print_cli <- function(x){
-  fail <- !x$result
-  printf("Found %d failures for %d tests in %d files.\n"
-         , sum(fail), nrow(x), length(unique(x$file)))
-  if (!any(fail)){
-    return(invisible(NULL))
-  }
-  
-  d <- subset(d, fail)
-  printf("\n")
-  for ( i in seq_len(nrow(d))){
-    printf("------Test %s (%s lines %d--%d):\n%s\n%s"
-           ,d$label[i], d$file[i], d$line_start[i], d$line_stop[i], d$check,d$diff[i])
-  }
-  invisible(x)
-}
 
 
 
