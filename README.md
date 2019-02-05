@@ -60,6 +60,10 @@ the error interrupts the _deployment_ process instead of the _testing_ process.
 By default all tests are run and the results are summarized to one line of
 output per failed result.
 
+### Tests are installed with the package
+
+So a package author can request test results from users that installed the package on a local system.
+
 
 ### Show you what you need
 
