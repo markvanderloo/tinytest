@@ -10,7 +10,8 @@
 #' @param label  \code{[character]} a user-defined label.
 #' @param diff   \code{[character]} difference between current and target value
 #'     (if any).
-#' @param file   \code{[character]} file location of the test.
+#' @param short  \code{[character]} short description of the difference
+#' @param file   \code{[character]} File location of the test.
 #' @param fst    \code{[integer]} First line number in the test file.
 #' @param lst    \code{[integer]} Last line number in the test file (differs
 #'    from \code{fst} if the call spans multiple lines).
@@ -29,6 +30,7 @@
 #' @export
 tinytest <- function(result, call
     , diff = NA_character_
+    , short= NA_character_
     , file = NA_character_
     , fst  = NA_integer_
     , lst  = NA_integer_
@@ -38,6 +40,7 @@ tinytest <- function(result, call
     , class    = "tinytest"   
     , call     = call  # call creating the object
     , diff     = diff  # diff if isFALSE(result)
+    , short    = short # short diff (4 char)
     , file     = file  # test file location
     , fst      = fst   # first line of test call
     , lst      = lst   # last line of test call
@@ -50,25 +53,50 @@ na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 oneline <- function(x) sub("\\n.+","...",x)
 indent <- function(x, with="     ") gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
 
-format.tinytest <- function(x,type=c("short","full"),...){
+lineformat <- function(x,n=3){
+  if ( is.na(x) ) "" 
+  else sprintf("%3d",x)
+}
+
+
+format.tinytest <- function(x,type=c("short","long"), ...){
   type <- match.arg(type)
 
   d <- attributes(x)
   call  <- deparse(d$call)
-  d$call <- NULL
-  d <- lapply(d, na_str)
-  result <- if (isTRUE(x)) "PASSED" else "FAILED"
+  fst   <- lineformat(d$fst, ...)
+  lst   <- lineformat(d$lst, ...) 
+  file  <- na_str(d$file)
+  short <- na_str(d$short)
+  diff  <- d$diff
   
-  if (type == "short") 
-    sprintf("%s: %s<%03d--%03d> %s", result, basename(d$file)
-     , as.integer(d$fst), as.integer(d$lst), oneline(call))
-  else sprintf("---- %s: %s<%03d--%03d>\n%s\n%s", result, d$file, as.integer(d$fst), as.integer(d$lst)
-		, indent(call, with="cl   ")
-		, indent(d$diff, with="df   "))
+  result <- if (isTRUE(x)) "PASSED      " else sprintf("FAILED[%s]",short)
+  longfmt <- "---- %s: %s<%s--%s>\n%s"
+  if (isFALSE(x)) longfmt <- paste0(longfmt, "\n%s")
+  
+  if (type == "short"){ 
+    sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
+  }  else { 
+    sprintf(longfmt, result, file, fst, lst
+                , indent(call, with="call   ")
+                , indent(diff, with="diff   ")
+    )
+
+  }
+  
 }
 
+
+#' print a tinytest object
+#' @param x A \code{\link{tidytest}} object
+#' 
+#' @examples
+#' print(expect_equal(2, 1+1))
+#' print(expect_equal(3, 1+1), type="long")
+#' 
+#' @export
 print.tinytest <- function(x,...){
-  print(x[1])
+  cat(format.tinytest(x,...))
 }
 
 
@@ -92,14 +120,24 @@ print.tinytest <- function(x,...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(current, target, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
+expect_equal <- function(target, current, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
   check <- all.equal(target,current,...)
   equal <- isTRUE(check)
   diff <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
-  tinytest(result = equal
-		, call = sys.call(sys.parent(1))
-		, diff)
+  short <- shortdiff(target, current, tolerance=tol)
+  
+  tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
+
+# are there differences in data and/or attributes, or just in the attributes?
+shortdiff <- function(target, current, ...){
+  equivalent_data <- all.equal(target, current
+                       , check_attributes=FALSE
+                       , use.names=FALSE,...)
+  if (isTRUE(equivalent_data)) "attr"
+  else "data"
+}
+
 
 #' 
 #' @details 
@@ -110,36 +148,41 @@ expect_equal <- function(current, target, label=NA_character_, tol = sqrt(.Machi
 #' expect_equivalent(2, c(x=2))
 #' 
 #' @rdname expect_equal
-expect_equivalent <- function(current, target, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
-  out <- expect_equal(target, current, label, check.attributes=FALSE,use.names=FALSE,...)
+expect_equivalent <- function(target, current, tol = sqrt(.Machine$double.eps), ...){
+  out <- expect_equal(target, current, check.attributes=FALSE,use.names=FALSE,...)
   attr(out, 'call') <- sys.call(sys.parent(1))
   out
 }
 
 #' @rdname expect_equal
-expect_true <- function(current, label=""){
+expect_true <- function(current){
   result <- isTRUE(current)
-  tinytest(result, sys.call(sys.parent(1)), label, diff=if (result) NA_character_ else "Not TRUE")
+  tinytest(result, call = sys.call(sys.parent(1)))
 }
 
 #' @rdname expect_equal
-expect_false <- function(current, label=""){
+expect_false <- function(current){
   result <- isFALSE(current)
-  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
+  tinytest(result, call = sys.call(sys.parent(1)))
 }
 
+# ----todo: add regex for exception msg (and code probably doesn't do what
+# it must currently anyway)
+
 #' @rdname expect_equal
-expect_error <- function(current, label=""){
+expect_error <- function(current){
   result <- FALSE
   tryCatch(current, error=function(e) result <<- TRUE)
-  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
+  tinytest(result, call = sys.call(sys.parent(1))
+           , diff="No Error")
 }
 
 #' @rdname expect_equal
-expect_warning <- function(current, label=""){
+expect_warning <- function(current){
   result <- FALSE
   tryCatch(current, warning = function(w) out <<- TRUE)
-  tinytest(result, sys.call(sys.parent(1)), diff=if (result) NA_character_ else "Not FALSE")
+  tinytest(result, call=sys.call(sys.parent(1))
+           , diff=if (result) NA_character_ else "No Warning")
 }
 
 
