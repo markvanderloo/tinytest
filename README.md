@@ -75,7 +75,7 @@ test result, the file and location in the file, and the test call that failed.
 
 ### Light weight is the right weight
 
-Keep it simple, keep it clean. We want to be part of the [tinyverse](http://www.tinyverse.org)
+Keep it simple, keep it clean. See  [tinyverse.org](http://www.tinyverse.org).
 
 
 
