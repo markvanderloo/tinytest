@@ -265,7 +265,7 @@ run_test_file <- function(file){
 #' @export
 print.tinytests <- function(x, all=FALSE, ...){
   if (!all) x <- x[sapply(x, isFALSE)]
-  out <- paste(sapply(x, format,...),collapse="\n")
+  out <- paste(sapply(x, format.tinytest,...),collapse="\n")
   cat(out,"\n")
 }
 
@@ -279,6 +279,7 @@ print.tinytests <- function(x, all=FALSE, ...){
 #' starting with \code{test}).
 #'
 #' @family test-files
+#' @export
 run_test_dir <- function(dir, pattern="^test.*\\.[rR]"){
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   test_output <- list()
