@@ -157,13 +157,27 @@ expect_equivalent <- function(target, current, tol = sqrt(.Machine$double.eps), 
 #' @rdname expect_equal
 expect_true <- function(current){
   result <- isTRUE(current)
-  tinytest(result, call = sys.call(sys.parent(1)))
+  call <- sys.call(sys.parent(1))
+  if (!result){
+    diff  <- "Expected TRUE, got FALSE"
+    short <- shortdiff(TRUE, FALSE)
+    tinytest(result, call=call,diff=diff, short=short)
+  } else {
+    tinytest(result, call = sys.call(sys.parent(1)))
+  }
 }
 
 #' @rdname expect_equal
 expect_false <- function(current){
   result <- isFALSE(current)
-  tinytest(result, call = sys.call(sys.parent(1)))
+  call   <- sys.call(sys.parent(1))
+  if (!result){
+    diff  <- "Expected FALSE, got TRUE"
+    short <- shortdiff(TRUE, FALSE)
+    tinytest(result, call=call,diff=diff, short=short)
+  } else {
+    tinytest(result, call = sys.call(sys.parent(1)))
+  }
 }
 
 # ----todo: add regex for exception msg (and code probably doesn't do what
@@ -174,14 +188,16 @@ expect_error <- function(current){
   result <- FALSE
   tryCatch(current, error=function(e) result <<- TRUE)
   tinytest(result, call = sys.call(sys.parent(1))
+           , short="xptn"
            , diff="No Error")
 }
 
 #' @rdname expect_equal
 expect_warning <- function(current){
   result <- FALSE
-  tryCatch(current, warning = function(w) out <<- TRUE)
+  tryCatch(current, warning = function(w) result <<- TRUE)
   tinytest(result, call=sys.call(sys.parent(1))
+           , short="xptn"
            , diff=if (result) NA_character_ else "No Warning")
 }
 
