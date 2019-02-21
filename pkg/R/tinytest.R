@@ -58,9 +58,9 @@ na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 oneline <- function(x) sub("\\n.+","...",x)
 indent <- function(x, with="     ") gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
 
-lineformat <- function(x,n=3){
+lineformat <- function(x){
   if ( is.na(x) ) "" 
-  else sprintf("%3d",x)
+  else sprintf("%d",x)
 }
 
 #' format a tinytest object
@@ -90,8 +90,8 @@ format.tinytest <- function(x,type=c("short","long"), ...){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
   }  else { 
     sprintf(longfmt, result, file, fst, lst
-                , indent(call, with="call   ")
-                , indent(diff, with="diff   ")
+                , indent(call, with=" call ")
+                , indent(diff, with=" diff ")
     )
 
   }
@@ -335,7 +335,7 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
   out <- run_test_dir(testdir)
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
-    stop(format.tinytests(out[i_fail]), call.=FALSE)
+    stop(format.tinytests(out[i_fail],type="long"), call.=FALSE)
   } else {
     invisible(TRUE)
   }
