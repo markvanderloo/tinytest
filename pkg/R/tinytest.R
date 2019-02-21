@@ -91,9 +91,7 @@ format.tinytest <- function(x,type=c("short","long"), ...){
   }  else { 
     sprintf(longfmt, result, file, fst, lst
                 , indent(call, with=" call ")
-                , indent(diff, with=" diff ")
-    )
-
+                , indent(diff, with=" diff "))
   }
   
 }
@@ -293,7 +291,7 @@ run_test_file <- function(file, pattern ="^expect" ){
 #'
 #' @export
 print.tinytests <- function(x, all=FALSE, ...){
-  if (!all) x <- x[sapply(x, isFALSE)]
+  if (length(x) > 0 && !all) x <- x[sapply(x, isFALSE)]
   cat(format.tinytests(x,...),"\n")
 }
 
@@ -332,7 +330,11 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"){
 #' @family test-files
 #' @export
 test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
-  out <- run_test_dir(testdir)
+  oldwd <- getwd()
+  on.exit(setwd(oldwd))
+  setwd(testdir)
+  
+  out <- run_test_dir("./")
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
     stop(format.tinytests(out[i_fail],type="long"), call.=FALSE)

@@ -1,7 +1,7 @@
 Package: tinytest
 Maintainer: Mark van der Loo <mark.vanderloo@gmail.com>
 License: GPL-3
-Title: Simple and efficient unit testing package
+Title: Simple and Efficient Unit Testing Package
 LazyData: no
 Type: Package
 LazyLoad: yes
