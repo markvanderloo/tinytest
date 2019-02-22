@@ -18,6 +18,24 @@
 \maketitle{}
 
 \tableofcontents{}
+<<echo=FALSE>>=
+options(prompt="    ")
+@
+
+\section{Test files}
+In \pkg{tinytest}, tests are scripts, intersperced with statements that perform
+checks. The workflow we promote is to write test files, and keep it handy so
+you can rerun tests as you develop code (more on how to put them in a package
+below).
+
+An example test file in tinytest can look like this.
+
+
+<<>>=
+library(tinytest)
+m <- mean(women$height)
+expect_equal(sum(women$height)/nrow(women), m)
+@
 
 \section{Testing packages}
 The default testing structure is very simple. 
@@ -31,31 +49,33 @@ test_package("name of your package")
 @
 \end{enumerate}
 
-So schematically your package directory looks as follows (ignoring directories
+Schematically, the package directory looks as follows (ignoring directories
 like \code{man}).
+
 \begin{itemize}
 \hrule{}
-  \item[]\code{/R}
-  \item[]\code{/inst}
+  \item[]\code{R/}
+  \item[]\code{inst/}
   \begin{itemize}
-    \item[]{\textbf{\code{/utst}}}
+    \item[]{\textbf{\code{utst/}}}
     \begin{itemize}
-      \item[]\code{/}\emph{your test files here}
+      \item[]\code{test\_foo.R}
+      \item[]\code{test\_bar.R}
+      \item[]$\quad\vdots$
     \end{itemize}
   \end{itemize}
-   \item[]{\code{/tests}}
+   \item[]{\code{tests/}}
      \begin{itemize}
-       \item[]{\code{/tinytest.R}}
+       \item[]{\code{tinytest.R}}
      \end{itemize}
+  \item[]{\code{DESCRIPTION}}
+  \item[]{\code{NAMESPACE}}
 \hrule{}
 \end{itemize}
 
 
 
 
-<<echo=FALSE>>=
-options(prompt="    ")
-@
 
 \subsection{Comparing current results with target output stored in files}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
