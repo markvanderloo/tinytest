@@ -1,0 +1,85 @@
+%\VignetteIndexEntry{Using tinytest}
+\documentclass[11pt]{article}
+\usepackage{enumitem}
+\setlist{nosep}
+
+
+
+\title{Using tinytest}
+\author{Mark van der Loo}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+
+
+
+
+\begin{document}
+\maketitle{}
+
+\tableofcontents{}
+
+\section{Testing packages}
+The default testing structure is very simple. 
+
+\begin{enumerate}
+\item Testfiles are placed in \code{/inst/utst}. The testfiles all have
+names starting with \code{test} (for example \code{test\_fu.R}).
+\item In the file \code{/tests/tinytest.R} you place the code
+<<eval=FALSE>>=
+test_package("name of your package")
+@
+\end{enumerate}
+
+So schematically your package directory looks as follows (ignoring directories
+like \code{man}).
+\begin{itemize}
+\hrule{}
+  \item[]\code{/R}
+  \item[]\code{/inst}
+  \begin{itemize}
+    \item[]{\textbf{\code{/utst}}}
+    \begin{itemize}
+      \item[]\code{/}\emph{your test files here}
+    \end{itemize}
+  \end{itemize}
+   \item[]{\code{/tests}}
+     \begin{itemize}
+       \item[]{\code{/tinytest.R}}
+     \end{itemize}
+\hrule{}
+\end{itemize}
+
+
+
+
+<<echo=FALSE>>=
+options(prompt="    ")
+@
+
+\subsection{Comparing current results with target output stored in files}
+When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
+that your working directory is the testing directory (by default \code{utst}).
+This means you can files that are stored in your folder directly.
+
+Suppose that your package directory structure looks like this (default):
+\begin{itemize}
+\item[]\code{/inst}
+  \begin{itemize}
+    \item[]\code{/utst}
+    \begin{itemize}
+       \item[]\code{/test.R}
+       \item[]\code{/women.csv}
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+Then, to check wether the contents of \code{women.csv} is equal to the 
+built-in \code{women} dataset,  the content of \code{test.R} looks as follows.
+<<eval=FALSE>>=
+dat <- read.csv("women.csv")
+expect_equal(women, dat)
+@
+
+
+\end{document}
