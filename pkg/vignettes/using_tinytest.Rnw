@@ -3,6 +3,16 @@
 \usepackage{enumitem}
 \setlist{nosep}
 
+\usepackage{hyperref}
+
+\hypersetup{
+  pdfborder={0 0 0}
+ , colorlinks=true 
+ , urlcolor=red
+ , linkcolor=blue
+}
+
+\renewcommand{\familydefault}{\sfdefault}
 
 
 \title{Using tinytest}
@@ -12,15 +22,91 @@
 \newcommand{\pkg}[1]{\textbf{#1}}
 
 
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+
 
 
 \begin{document}
+\newlength{\fancyvrbtopsep}
+\newlength{\fancyvrbpartopsep}
+\makeatletter
+\FV@AddToHook{\FV@ListParameterHook}{\topsep=\fancyvrbtopsep\partopsep=\fancyvrbpartopsep}
+\makeatother
+
+
+\setlength{\fancyvrbtopsep}{0pt}
+\setlength{\fancyvrbpartopsep}{0pt}
 \maketitle{}
 
 \tableofcontents{}
 <<echo=FALSE>>=
-options(prompt="    ")
+options(prompt="    ", continue = "    ")
 @
+
+
+\section*{Before you read this}
+I expect that readers of this document know and understand how to write R
+functions.  If you want to use \pkg{tidytest} for your package, I expect that
+you have a basic understanding of the directory structure that consitutes the
+source of an R package.
+
+\newpage{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Purpose of this package: unit testing}
+The fundamental unit of code in R is a function. A function accepts one or more
+arguments, executes some R code depending on the arguments, and returns a
+result. 
+<<>>=
+inch2cm <- function(x){
+	x*2.54
+}
+@
+A function that is called by the user should not use data that is not passed as
+an argument, and it should also not alter anything outside of it's scope. A
+function that satisfies these requirements is called a \emph{pure function}.
+You can \emph{in principle} define them by tabulating inputs and outputs.
+<<>>=
+inch2cmImpractical <- function(x){
+  dat <- data.frame(inch=c(1,2,3),cm=c(2.54, 5.08, 7.62))
+  dat$cm[dat$inch == x]
+}
+@
+Pure functions are very suited to be subjected to unit testing.
+
+The purpose of \emph{unit testing} is to check whether a function gives the
+output you expect, when it is provided with certain input. So unit testing is
+all about comparing function outputs with expected outputs. The purpose of this
+package is to facilitate writing unit tests, and to support a workflow of
+writing tests while improving code.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Expressing tests}
+Suppose we define a function translating pounds (lbs) to kilograms.
+<<>>=
+lbs2kg <- function(x){
+  x/2.2046
+}
+@
+We like to check a few things before we trust it. For example, we expect
+that 
+
+
+
+
+
+\section{Workflow}
+
+
+When I work on a function, I usually first write a small script. When that
+basically works, I stick it in a function, and then I open a second file with
+some small tests calling the function to try and test it. I usually have a file
+open that calls the function and a file with the function itself, while I am
+editing and improving it. The idea of the \pkg{tinytest} package is that you
+can very easily integrate those little test scripts into a package (or just
+keep using them as part of a set of production scripts).
+
 
 \section{Test files}
 In \pkg{tinytest}, tests are scripts, intersperced with statements that perform
@@ -31,11 +117,14 @@ below).
 An example test file in tinytest can look like this.
 
 
-<<>>=
+<<eval=FALSE>>=
 library(tinytest)
 m <- mean(women$height)
 expect_equal(sum(women$height)/nrow(women), m)
 @
+
+
+
 
 \section{Testing packages}
 The default testing structure is very simple. 
@@ -77,7 +166,7 @@ like \code{man}).
 
 
 
-\subsection{Comparing current results with target output stored in files}
+\subsection{Using data stored in files}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
 that your working directory is the testing directory (by default \code{utst}).
 This means you can files that are stored in your folder directly.
@@ -100,6 +189,81 @@ built-in \code{women} dataset,  the content of \code{test.R} looks as follows.
 dat <- read.csv("women.csv")
 expect_equal(women, dat)
 @
+
+\section{A few tips on packages and unit testing}
+
+
+\subsection*{Make your package spherical}
+
+Larger packages typically consist of a functions that are visible to the
+users of that package (exported functions) as well as a bunch of functions
+that are used by the exported functions. For example:
+
+<<>>=
+# exported, user-visible function
+inch2cm <- function(x){
+	x*conversion_factor("inch")
+}
+# not exported function, package-internal
+conversion_factor <- function(unit){
+	confac <- c(inch=2.54, pound=1/2.2056)
+  confac[unit]
+}
+@
+
+We can think of the exported functions as the \emph{surface} of your package,
+and all the other functions as the \emph{volume}. The surface is what a user
+sees, the volume is what the developer sees. The surface is how a user
+interacts with a package. 
+
+
+If the surface is small (few functions exported), users are limited in the ways
+they can interact with your package, and that means there is less to test. So
+as a rule of thumb, it is a good idea to keep the surface small. Since a sphere
+has the smallest surface-to-volume ratio possible, I refer to this rule as
+\emph{keep your package spherical}.
+
+By the way, the technical term for the surface of a package is API (application
+program interface).
+
+
+
+
+\subsection*{Test the surface, not the volume}
+
+Unexpected behavior (a bug) is often discovered when someone who is not the
+developer starts using code. Bugfixing implies altering code and it may even
+require you to refactor large chunks of code that is internal to a package.  If
+you defined extensive tests on non-exported functions, this means you need to
+rewrite the tests as well. As a rule of thumb, it is a good idea to test only
+the behaviour at the surface, so as a developer you have more freedom to change
+the internals. This includes rewriting and renaming internal functions completely.
+
+
+By the way, it is bad practice to change the surface, since that means you are
+going to break other people's code. Nobody likes to program against an API that
+changes frequently, and everybody hates to program against an API that changes
+unexpectedly.
+
+
+\subsection*{A bug shall result in a test}
+If users of your code are friendly enough to submit a bug report when they find
+one, it is a good idea to start by writing a small test that reproduces the
+error and add that to your test suite. That way, whenever you work on your
+code, you can be sure to be alarmed when a bug reappears.
+
+Tests that represent earlier bugs are sometimes called \emph{regression tests}.
+If a bug reappears during development, software engineers sometimes refer
+to this as a \emph{regression} (not linear regression, haha).
+
+
+
+
+
+
+
+
+
 
 
 \end{document}
