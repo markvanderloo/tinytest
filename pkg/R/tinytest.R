@@ -71,7 +71,7 @@ lineformat <- function(x){
 #' @return A character string
 #' @export
 #' @keywords internal
-format.tinytest <- function(x,type=c("short","long"), ...){
+format.tinytest <- function(x,type=c("long","short"), ...){
   type <- match.arg(type)
 
   d <- attributes(x)
@@ -208,11 +208,13 @@ expect_false <- function(current){
 # it must currently anyway)
 
 #' @rdname expect_equal
+#' @export
 expect_error <- function(current){
+  expr <- substitute(current)
   result <- FALSE
-  tryCatch(current, error=function(e) result <<- TRUE)
+  tryCatch(eval(expr), error=function(e) result <<- TRUE)
   tinytest(result, call = sys.call(sys.parent(1))
-           , short="xptn"
+           , short="xcpt"
            , diff="No Error")
 }
 
@@ -221,7 +223,7 @@ expect_warning <- function(current){
   result <- FALSE
   tryCatch(current, warning = function(w) result <<- TRUE)
   tinytest(result, call=sys.call(sys.parent(1))
-           , short="xptn"
+           , short="xcpt"
            , diff=if (result) NA_character_ else "No Warning")
 }
 
@@ -316,7 +318,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"){
     structure(test_output,class="tinytests")
 }
 
-#' Test a package
+#' Test a package during R CMD check
 #'
 #' Run all tests in a package. Throw an error and print all failed test
 #' results when one or more tests fail. This function is intended to be
@@ -342,6 +344,31 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
     invisible(TRUE)
   }
 }
+
+
+#' Test a package during development
+#' 
+#' Sets working directory to the test directory, runs test files, 
+#' resets working directory and returns test results. 
+#' 
+#' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e. 
+#'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
+#' @param testdir \code{[character]} scalar. Subdirectory where test files are
+#'   stored.
+#' @param ... passed to \code{run_test_dir}.
+#' 
+#' @family test-files
+#' 
+#' @export
+test_all <- function(pkgdir="./", testdir="inst/utst", ...){
+  oldwd <- getwd()
+  on.exit(setwd(oldwd))
+  setwd(file.path(pkgdir, testdir))
+  run_test_dir("./",...)
+  
+}
+
+
 
 
 

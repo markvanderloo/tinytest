@@ -46,10 +46,10 @@ options(prompt="    ", continue = "    ")
 
 
 \section*{Before you read this}
-I expect that readers of this document know and understand how to write R
-functions.  If you want to use \pkg{tidytest} for your package, I expect that
-you have a basic understanding of the directory structure that consitutes the
-source of an R package.
+I expect that readers of this document know how to write R functions. If you
+want to use \pkg{tidytest} for your package, I expect that you have a basic
+understanding of the directory structure that consitutes the source of an R
+package.
 
 \newpage{}
 
@@ -63,17 +63,20 @@ inch2cm <- function(x){
 	x*2.54
 }
 @
-A function that is called by the user should not use data that is not passed as
-an argument, and it should also not alter anything outside of it's scope. A
+A function that is called by the user should only use data that is  passed as
+an argument, and it should also not alter anything outside of its scope. A
 function that satisfies these requirements is called a \emph{pure function}.
-You can \emph{in principle} define them by tabulating inputs and outputs.
+You can \emph{in principle} define pure functions by tabulating inputs and
+outputs.
 <<>>=
 inch2cmImpractical <- function(x){
   dat <- data.frame(inch=c(1,2,3),cm=c(2.54, 5.08, 7.62))
   dat$cm[dat$inch == x]
 }
 @
-Pure functions are very suited to be subjected to unit testing.
+Since this is impractical to define functions as such, we write algorithms and
+perform unit tests. Pure functions are ideally suited to be subjected to unit
+testing.
 
 The purpose of \emph{unit testing} is to check whether a function gives the
 output you expect, when it is provided with certain input. So unit testing is
@@ -86,29 +89,50 @@ writing tests while improving code.
 Suppose we define a function translating pounds (lbs) to kilograms.
 <<>>=
 lbs2kg <- function(x){
-  x/2.2046
+  if ( x < 0 ){
+    stop(sprintf("Expected nonnegative weight, got %g",x))
+  }
+  x/2.20
 }
 @
-We like to check a few things before we trust it. For example, we expect
-that 
+We like to check a few things before we trust it.
+<<>>=
+library(tinytest)
+expect_equal(1/2.2046, lbs2kg(1))
+expect_error(lbs2kg(-3))
+@
+The output of these functions is pretty self-explanatory, nevertheless we see that
+the output of these expect-functions consist of
+\begin{itemize}
+\item The result: \code{FAILED} or \code{PASSED}.
+  \item The type of failure (if any) between square brackets. Current options
+       are as follows.
+  \begin{itemize}
+    \item \code{[data]} there are differences between observed and expected values.
+    \item \code{[attr]} there are differences between observed and expected attributes, such as column names.
+    \item \code{[xcpt]} an exception (warning, error) was expected but not observed. 
+  \end{itemize}
+  \item When relevant (see \S\ref{sect:testfiles}), the location of the test file and the relevant line numbers.
+  \item When necessary, a summary of the differences between observed and expected
+    values or attributes.
+  \item The test call.
+\end{itemize}
 
 
 
 
 
 \section{Workflow}
-
-
-When I work on a function, I usually first write a small script. When that
-basically works, I stick it in a function, and then I open a second file with
-some small tests calling the function to try and test it. I usually have a file
-open that calls the function and a file with the function itself, while I am
-editing and improving it. The idea of the \pkg{tinytest} package is that you
-can very easily integrate those little test scripts into a package (or just
-keep using them as part of a set of production scripts).
+Writing a function usually means you are working with two scripts.  In one
+script, the function is developed, a second script prepares some data, calls
+the function and you check the output interactively.  The idea of the
+\pkg{tinytest} package is that you can very easily integrate those little test
+scripts into a package (or just keep using them as part of a set of production
+scripts).
 
 
 \section{Test files}
+\label{sect:testfiles}
 In \pkg{tinytest}, tests are scripts, intersperced with statements that perform
 checks. The workflow we promote is to write test files, and keep it handy so
 you can rerun tests as you develop code (more on how to put them in a package
