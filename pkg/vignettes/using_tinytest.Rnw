@@ -63,11 +63,11 @@ inch2cm <- function(x){
 	x*2.54
 }
 @
-A function that is called by the user should only use data that is  passed as
-an argument, and it should also not alter anything outside of its scope. A
-function that satisfies these requirements is called a \emph{pure function}.
-You can \emph{in principle} define pure functions by tabulating inputs and
-outputs.
+A function that is called by the user should usually only use data that is
+passed as an argument, and it should also not alter anything outside of the
+curly brackets (its scope). A function that satisfies these requirements is
+called a \emph{pure function}.  You can \emph{in principle} define pure
+functions by tabulating inputs and outputs.
 <<>>=
 inch2cmImpractical <- function(x){
   dat <- data.frame(inch=c(1,2,3),cm=c(2.54, 5.08, 7.62))
@@ -75,8 +75,7 @@ inch2cmImpractical <- function(x){
 }
 @
 Since this is impractical to define functions as such, we write algorithms and
-perform unit tests. Pure functions are ideally suited to be subjected to unit
-testing.
+perform unit tests.
 
 The purpose of \emph{unit testing} is to check whether a function gives the
 output you expect, when it is provided with certain input. So unit testing is
@@ -101,6 +100,37 @@ library(tinytest)
 expect_equal(1/2.2046, lbs2kg(1))
 expect_error(lbs2kg(-3))
 @
+
+The value of an \code{expect\_*} function is a \code{logical}, with some
+attributes that record differences, if there are any. These attributes are used
+to pretty-print the results.
+<<>>=
+isTRUE( expect_true(2 == 1 + 1) )
+@
+
+
+
+\subsection{Test functions}
+Currently, the following expectations are implemented.
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Function} & \textbf{what it does}\\
+\code{expect\_equal(target, current)}      & test for exact equality\\
+\code{expect\_equivalent(target, current)} & ignore attributes, e.g. names\\
+\code{expect\_true(current)}            & `current' should evaluate to \code{TRUE}\\
+\code{expect\_false(current)}           & `current' should evaluate to \code{FALSE}\\
+\code{expect\_error(current, pattern)}           & expect an error message matching \code{pattern}\\
+\code{expect\_warning(current, pattern)}         & expect a warning message matching \code{pattern}
+\end{tabular}
+\end{center}
+
+
+\subsection{Interpreting the output}
+Let's have a look at an example again.
+<<>>=
+expect_false( 1 + 1 == 2 )
+@
+
 The output of these functions is pretty self-explanatory, nevertheless we see that
 the output of these expect-functions consist of
 \begin{itemize}
@@ -117,9 +147,16 @@ the output of these expect-functions consist of
     values or attributes.
   \item The test call.
 \end{itemize}
-
-
-
+It is possible to print more prudent output, with a onliner for each test.
+<<>>=
+print(expect_equal(1+1, 3), type="short")
+@
+Tinytest will switch between long and short formats, depending on the workflow it
+is used in. But you can always set 
+<<eval=FALSE>>=
+options(tt.print="long")
+@
+to force long (or \code{"short"} output. The default value is \code{"auto"}.
 
 
 \section{Workflow}

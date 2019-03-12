@@ -120,7 +120,7 @@ format.tinytests <- function(x,...){
 #' 
 #' @export
 print.tinytest <- function(x,...){
-  cat(format.tinytest(x,...))
+  cat(format.tinytest(x,...),"\n")
 }
 
 
@@ -179,6 +179,7 @@ expect_equivalent <- function(target, current, tol = sqrt(.Machine$double.eps), 
 }
 
 #' @rdname expect_equal
+#' @export
 expect_true <- function(current){
   result <- isTRUE(current)
   call <- sys.call(sys.parent(1))
@@ -192,6 +193,7 @@ expect_true <- function(current){
 }
 
 #' @rdname expect_equal
+#' @export
 expect_false <- function(current){
   result <- isFALSE(current)
   call   <- sys.call(sys.parent(1))
@@ -208,23 +210,42 @@ expect_false <- function(current){
 # it must currently anyway)
 
 #' @rdname expect_equal
+#' @param pattern \code{[character]} A regular expression to match the message.
 #' @export
-expect_error <- function(current){
+expect_error <- function(current, pattern=".*"){
   expr <- substitute(current)
   result <- FALSE
-  tryCatch(eval(expr), error=function(e) result <<- TRUE)
+  diff <- "No Error"
+  tryCatch(eval(expr), error=function(e){
+            if (grepl(pattern, e$message)){
+                result <<- TRUE
+            } else {
+              diff <<- sprintf("Error message:\n %s\n does not match pattern '%s'"
+                             , e$message, pattern)
+            }
+  })
   tinytest(result, call = sys.call(sys.parent(1))
-           , short="xcpt"
-           , diff="No Error")
+           , short= if(result) NA_character_ else "xcpt"
+           , diff = if(result) NA_character_ else diff)
 }
 
 #' @rdname expect_equal
-expect_warning <- function(current){
+#' @export
+expect_warning <- function(current, pattern=".*"){
   result <- FALSE
-  tryCatch(current, warning = function(w) result <<- TRUE)
+  expr <- substitute(current)
+  diff <- "No Warning"
+  tryCatch(eval(expr), warning = function(w){
+            if (grepl(pattern, w$message)){
+              result <<- TRUE
+            } else {
+              diff <<- sprintf("Warning message\n %s\n does not match pattern '%s'"
+                              , w$message, pattern)
+            }
+  })
   tinytest(result, call=sys.call(sys.parent(1))
-           , short="xcpt"
-           , diff=if (result) NA_character_ else "No Warning")
+           , short = if (result) NA_character_ else "xcpt"
+           , diff  = if (result) NA_character_ else diff)
 }
 
 
