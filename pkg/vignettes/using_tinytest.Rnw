@@ -41,7 +41,7 @@
 
 \tableofcontents{}
 <<echo=FALSE>>=
-options(prompt="    ", continue = "    ")
+options(prompt="R>  ", continue = "    ")
 @
 
 
@@ -114,15 +114,21 @@ isTRUE( expect_true(2 == 1 + 1) )
 Currently, the following expectations are implemented.
 \begin{center}
 \begin{tabular}{ll}
-\textbf{Function} & \textbf{what it does}\\
-\code{expect\_equal(target, current)}      & test for exact equality\\
-\code{expect\_equivalent(target, current)} & ignore attributes, e.g. names\\
-\code{expect\_true(current)}            & `current' should evaluate to \code{TRUE}\\
-\code{expect\_false(current)}           & `current' should evaluate to \code{FALSE}\\
-\code{expect\_error(current, pattern)}           & expect an error message matching \code{pattern}\\
-\code{expect\_warning(current, pattern)}         & expect a warning message matching \code{pattern}
+\textbf{Function} & \textbf{what it looks for}\\
+\code{expect\_equal(target, current)}      & exact equality\\
+\code{expect\_equivalent(target, current)} & equality, ignoring attributes\\
+\code{expect\_true(current)}               & does `current' evaluate to \code{TRUE}\\
+\code{expect\_false(current)}              & does `current' evaluate to \code{FALSE}\\
+\code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
+\code{expect\_warning(current, pattern)}   & warning message matching \code{pattern}
 \end{tabular}
 \end{center}
+Here, \code{target} is the intended outcome and current is the resulting
+outcome.  Also, \code{pattern} is interpreted as a regular expression. 
+<<>>=
+expect_error(lbs2kg(-3), pattern="nonnegative")
+expect_error(lbs2kg(-3), pattern="foo")
+@
 
 
 \subsection{Interpreting the output}
@@ -159,70 +165,55 @@ options(tt.print="long")
 to force long (or \code{"short"} output. The default value is \code{"auto"}.
 
 
-\section{Workflow}
-Writing a function usually means you are working with two scripts.  In one
-script, the function is developed, a second script prepares some data, calls
-the function and you check the output interactively.  The idea of the
-\pkg{tinytest} package is that you can very easily integrate those little test
-scripts into a package (or just keep using them as part of a set of production
-scripts).
 
 
 \section{Test files}
 \label{sect:testfiles}
 In \pkg{tinytest}, tests are scripts, intersperced with statements that perform
-checks. The workflow we promote is to write test files, and keep it handy so
-you can rerun tests as you develop code (more on how to put them in a package
-below).
-
-An example test file in tinytest can look like this.
+checks. An example test file in tinytest can look like this.
 
 
-<<eval=FALSE>>=
-library(tinytest)
-m <- mean(women$height)
-expect_equal(sum(women$height)/nrow(women), m)
-@
+\begin{verbatim}
+    # contents of test_women.R
+    library(tinytest)
+    m <- mean(women$height)
+    expect_equal(sum(women$height)/nrow(women), m)
+    
+\end{verbatim}
 
+A particular file can be run using
+\code{run\_test\_file("path/to/test\_file.R")}. Only failing tests will be
+printed. If you want to run all tests files in a directory, do
+\code{run\_test\_dir("path/to/test/dir")}. By default, all \code{.R} or
+\code{.r} files starting with \code{test} will be run.
 
 
 
 \section{Testing packages}
-The default testing structure is very simple. 
 
+The default package structure is very simple. 
 \begin{enumerate}
 \item Testfiles are placed in \code{/inst/utst}. The testfiles all have
 names starting with \code{test} (for example \code{test\_fu.R}).
 \item In the file \code{/tests/tinytest.R} you place the code
-<<eval=FALSE>>=
-test_package("name of your package")
-@
+\begin{verbatim}
+    test_package("NAMEOFYOURPACKAGE")
+\end{verbatim}
 \end{enumerate}
 
-Schematically, the package directory looks as follows (ignoring directories
-like \code{man}).
+In a terminal, you can now do
+\begin{verbatim}
+    R CMD build YOURPACKAGEDIRECTORY
+    R CMD check PACKAGENAME_X.Y.Z.tar.gz
+\end{verbatim}
+and all tests will run.
 
-\begin{itemize}
-\hrule{}
-  \item[]\code{R/}
-  \item[]\code{inst/}
-  \begin{itemize}
-    \item[]{\textbf{\code{utst/}}}
-    \begin{itemize}
-      \item[]\code{test\_foo.R}
-      \item[]\code{test\_bar.R}
-      \item[]$\quad\vdots$
-    \end{itemize}
-  \end{itemize}
-   \item[]{\code{tests/}}
-     \begin{itemize}
-       \item[]{\code{tinytest.R}}
-     \end{itemize}
-  \item[]{\code{DESCRIPTION}}
-  \item[]{\code{NAMESPACE}}
-\hrule{}
-\end{itemize}
-
+To run all the tests interactively, make sure that all functions of your 
+new package are loaded. After that, run
+<<eval=FALSE>>=
+test_all("YOURPACKAGEDIRECTORY")
+@
+where the default package directory is the current working directory.
 
 
 
@@ -250,6 +241,11 @@ built-in \code{women} dataset,  the content of \code{test.R} looks as follows.
 dat <- read.csv("women.csv")
 expect_equal(women, dat)
 @
+
+\textbf{Note.} This will work with \code{test\_all()} and with \code{R CMD
+check} but not with \code{run\_test\_file()} because the latter does not
+temporarily change working directory.
+
 
 \section{A few tips on packages and unit testing}
 

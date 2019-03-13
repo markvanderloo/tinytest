@@ -220,7 +220,7 @@ expect_error <- function(current, pattern=".*"){
             if (grepl(pattern, e$message)){
                 result <<- TRUE
             } else {
-              diff <<- sprintf("Error message:\n %s\n does not match pattern '%s'"
+              diff <<- sprintf("The error message:\n '%s'\n does not match pattern '%s'"
                              , e$message, pattern)
             }
   })
@@ -239,7 +239,7 @@ expect_warning <- function(current, pattern=".*"){
             if (grepl(pattern, w$message)){
               result <<- TRUE
             } else {
-              diff <<- sprintf("Warning message\n %s\n does not match pattern '%s'"
+              diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
                               , w$message, pattern)
             }
   })
@@ -343,7 +343,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"){
 #'
 #' Run all tests in a package. Throw an error and print all failed test
 #' results when one or more tests fail. This function is intended to be
-#' used with \code{R CMD check} and not for interactive use (use \code{\link{run_test_dir}}
+#' used with \code{R CMD check} and not for interactive use (use \code{\link{test_all}}
 #' for that.)
 #' 
 #' @param pkgname \code{[character]} scalar. Name of the package
@@ -370,7 +370,8 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #' Test a package during development
 #' 
 #' Sets working directory to the test directory, runs test files, 
-#' resets working directory and returns test results. 
+#' resets working directory and returns test results. Currently, this
+#' function expects that all functions in the package are loaded.
 #' 
 #' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e. 
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
