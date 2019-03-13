@@ -10,6 +10,7 @@
  , colorlinks=true 
  , urlcolor=red
  , linkcolor=blue
+ , citecolor=blue
 }
 
 \renewcommand{\familydefault}{\sfdefault}
@@ -41,7 +42,7 @@
 
 \tableofcontents{}
 <<echo=FALSE>>=
-options(prompt="R>  ", continue = "    ")
+options(prompt="    ", continue = "    ")
 @
 
 
@@ -188,6 +189,15 @@ printed. If you want to run all tests files in a directory, do
 \code{.r} files starting with \code{test} will be run.
 
 
+\textbf{NOTE.} \code{run\_test\_dir("dir")} will temporarily set the working 
+directory to \code{"dir"}, which comes in handy when comparing output to data
+stored in files. (See \S\ref{sect:comparefiles}). \code{run\_test\_file} does
+not do that. If you want to test a single file say \code{dir/test\_foo.R},
+while making sure that the working directory is \code{dir} during execution,
+you can do
+<<eval=FALSE>>=
+run_test_dir("path/to/dir", pattern="test_foo")
+@
 
 \section{Testing packages}
 
@@ -219,6 +229,7 @@ where the default package directory is the current working directory.
 
 
 \subsection{Using data stored in files}
+\label{sect:comparefiles}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
 that your working directory is the testing directory (by default \code{utst}).
 This means you can files that are stored in your folder directly.
@@ -250,7 +261,7 @@ temporarily change working directory.
 \section{A few tips on packages and unit testing}
 
 
-\subsection*{Make your package spherical}
+\subsection{Make your package spherical}
 
 Larger packages typically consist of a functions that are visible to the
 users of that package (exported functions) as well as a bunch of functions
@@ -286,7 +297,7 @@ program interface).
 
 
 
-\subsection*{Test the surface, not the volume}
+\subsection{Test the surface, not the volume}
 
 Unexpected behavior (a bug) is often discovered when someone who is not the
 developer starts using code. Bugfixing implies altering code and it may even
@@ -302,8 +313,69 @@ going to break other people's code. Nobody likes to program against an API that
 changes frequently, and everybody hates to program against an API that changes
 unexpectedly.
 
+\subsection{How many tests do I need?}
+In Section 1 we talked about pure functions, and how they can in principle be
+replaced with a table connecting input to output. To test a function you do
+not need to compare each possible input to each possible output. 
 
-\subsection*{A bug shall result in a test}
+When you call a function, you can think of it's arguments flowing through a certain
+path from input to output. As an example, let's take a look again at a new, slightly
+safer unit conversion function.
+<<>>=
+pound2kg <- function(x){
+  stopifnot( is.numeric(x) )
+  if ( any(x < 0) ){
+    warning("Found negative input, converting to positive")
+    x <- abs(x)
+  }
+  x/2.2046
+}
+@
+If we call \code{lbs2kg} with argument \code{2}, we can write:
+\begin{verbatim}
+    2 -> /2.2046 -> output
+\end{verbatim}
+If we call \code{lbs2kg} with argument \code{-3} we can write
+\begin{verbatim}
+   -3 -> abs() -> /2.2046 -> output
+\end{verbatim}
+Finally, if we call \code{pound2kg} with \code{"foo"} we can write
+\begin{verbatim}
+   "foo" -> stop() -> Exception
+\end{verbatim}
+
+So we have three possible paths. In fact, we see that every nonnegative number
+will follow the first path, every negative number will follow the second path
+and anything nonnumeric follows the third path. So the following test suite
+fully tests the behaviour of our function.
+<<eval=FALSE>>=
+    expect_equal( 1/2.2046, pound2kg(1) )
+    # test for expected warning, store output
+    expect_warning( out <- pound2kg(-1) )
+    # test the output
+    expect_equal( 1/2.2046, out )
+    expect_error(pound2kg("foo"))
+@
+
+The number of paths of a function is called its \emph{cyclomatic complexity}.
+For larger functions, with multiple arguments, the number of paths typically
+grows extremely fast, and it quickly becomes impossible to define a test for
+each and every one of them. If you want to get an impression of how many tests
+one of your functions in needs in principle, you can have a look at the
+\pkg{cyclocomp} package of G\'abor Cs\'ardi\cite{csardi2016cyclocomp}.
+
+Since full path coverage is out of range in most cases, developers often strive
+for something simple, which is full code coverage, which simply means that each
+line of code is run in at least one test. Full code coverage is no guarantee
+for bugfree code. Besides code coverage it is therefore a good idea to think
+about the various ways a user might use your code and include tests for that.
+
+To measure code coverage, I recommend using the \pkg{covr} package by Jim
+Hester\cite{hester2018covr}. Since \pkg{covr} is independent of the tools or
+packages used for testing, it also works fine with \pkg{tinytest}.
+
+
+\subsection{It's not a bug, it's a test!}
 If users of your code are friendly enough to submit a bug report when they find
 one, it is a good idea to start by writing a small test that reproduces the
 error and add that to your test suite. That way, whenever you work on your
@@ -311,7 +383,7 @@ code, you can be sure to be alarmed when a bug reappears.
 
 Tests that represent earlier bugs are sometimes called \emph{regression tests}.
 If a bug reappears during development, software engineers sometimes refer
-to this as a \emph{regression} (not linear regression, haha).
+to this as a \emph{regression}.
 
 
 
@@ -319,8 +391,18 @@ to this as a \emph{regression} (not linear regression, haha).
 
 
 
+\begin{thebibliography}{5}
+  \bibitem{csardi2016cyclocomp}
+    \href{https://CRAN.R-project.org/package=cyclocomp}{cyclocomp: Cyclomatic Complexity of R Code}
+    G\'abor Cs\'ardi (2016)
+    R package version 1.1.0
+
+  \bibitem{hester2018covr}
+    \href{https://CRAN.R-project.org/package=covr}{covr: Test Coverage for Packages}
+    Jim Hester (2018)
+    R package version 3.2.1
 
 
-
+\end{thebibliography}
 
 \end{document}

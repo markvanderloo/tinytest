@@ -235,14 +235,19 @@ expect_warning <- function(current, pattern=".*"){
   result <- FALSE
   expr <- substitute(current)
   diff <- "No Warning"
-  tryCatch(eval(expr), warning = function(w){
-            if (grepl(pattern, w$message)){
-              result <<- TRUE
-            } else {
-              diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
-                              , w$message, pattern)
-            }
-  })
+
+  e <- sys.frame(-1)
+  withCallingHandlers(eval(expr, envir=e)
+    , warning = function(w){
+        if (grepl(pattern, w$message)){
+          result <<- TRUE
+        } else {
+          diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
+                          , w$message, pattern)
+        }
+        eval(invokeRestart("muffleWarning"), envir=e)
+    })
+  
   tinytest(result, call=sys.call(sys.parent(1))
            , short = if (result) NA_character_ else "xcpt"
            , diff  = if (result) NA_character_ else diff)
