@@ -48,7 +48,7 @@ options(prompt="    ", continue = "    ")
 
 \subsection*{Before you read this}
 I expect that readers of this document know how to write R functions. If you
-want to use \pkg{tidytest} for your package, I expect that you have a basic
+want to use \pkg{tinytest} for your package, I expect that you have a basic
 understanding of the directory structure that constitutes the source of an R
 package.
 
@@ -59,9 +59,9 @@ package.
 
 The purpose of \emph{unit testing} is to check whether a function gives the
 output you expect, when it is provided with certain input. So unit testing is
-all about comparing realized outputs with desired outputs. The purpose of this
-package is to facilitate writing unit tests, and to support a workflow of
-writing tests while improving code.
+all about comparing \emph{realized} outputs with \emph{desired} outputs. The
+purpose of this package is to facilitate writing unit tests, and to support a
+workflow of writing tests while improving code.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -236,6 +236,9 @@ expect_equal(women, dat)
 \textbf{Note.} This will work with \code{test\_all()} and with \code{R CMD
 check} but not with \code{run\_test\_file()} because the latter does not
 temporarily change working directory.
+
+\subsection{Skipping tests on \code{CRAN}}
+
 
 
 \section{A few tips on packages and unit testing}
