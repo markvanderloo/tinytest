@@ -39,50 +39,30 @@
 \setlength{\fancyvrbtopsep}{0pt}
 \setlength{\fancyvrbpartopsep}{0pt}
 \maketitle{}
-
+\hfill\emph{The purpose of testing is to gain confidence in your code.}
 \tableofcontents{}
 <<echo=FALSE>>=
 options(prompt="    ", continue = "    ")
 @
 
 
-\section*{Before you read this}
+\subsection*{Before you read this}
 I expect that readers of this document know how to write R functions. If you
 want to use \pkg{tidytest} for your package, I expect that you have a basic
-understanding of the directory structure that consitutes the source of an R
+understanding of the directory structure that constitutes the source of an R
 package.
 
 \newpage{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Purpose of this package: unit testing}
-The fundamental unit of code in R is a function. A function accepts one or more
-arguments, executes some R code depending on the arguments, and returns a
-result. 
-<<>>=
-inch2cm <- function(x){
-	x*2.54
-}
-@
-A function that is called by the user should usually only use data that is
-passed as an argument, and it should also not alter anything outside of the
-curly brackets (its scope). A function that satisfies these requirements is
-called a \emph{pure function}.  You can \emph{in principle} define pure
-functions by tabulating inputs and outputs.
-<<>>=
-inch2cmImpractical <- function(x){
-  dat <- data.frame(inch=c(1,2,3),cm=c(2.54, 5.08, 7.62))
-  dat$cm[dat$inch == x]
-}
-@
-Since this is impractical to define functions as such, we write algorithms and
-perform unit tests.
 
 The purpose of \emph{unit testing} is to check whether a function gives the
 output you expect, when it is provided with certain input. So unit testing is
-all about comparing function outputs with expected outputs. The purpose of this
+all about comparing realized outputs with desired outputs. The purpose of this
 package is to facilitate writing unit tests, and to support a workflow of
 writing tests while improving code.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Expressing tests}
@@ -154,7 +134,7 @@ the output of these expect-functions consist of
     values or attributes.
   \item The test call.
 \end{itemize}
-It is possible to print more prudent output, with a onliner for each test.
+It is possible to print more prudent output, with a oneliner for each test.
 <<>>=
 print(expect_equal(1+1, 3), type="short")
 @
@@ -170,7 +150,7 @@ to force long (or \code{"short"} output. The default value is \code{"auto"}.
 
 \section{Test files}
 \label{sect:testfiles}
-In \pkg{tinytest}, tests are scripts, intersperced with statements that perform
+In \pkg{tinytest}, tests are scripts, interspersed with statements that perform
 checks. An example test file in tinytest can look like this.
 
 
@@ -246,7 +226,7 @@ Suppose that your package directory structure looks like this (default):
   \end{itemize}
 \end{itemize}
 
-Then, to check wether the contents of \code{women.csv} is equal to the 
+Then, to check whether the contents of \code{women.csv} is equal to the 
 built-in \code{women} dataset,  the content of \code{test.R} looks as follows.
 <<eval=FALSE>>=
 dat <- read.csv("women.csv")
@@ -384,9 +364,6 @@ code, you can be sure to be alarmed when a bug reappears.
 Tests that represent earlier bugs are sometimes called \emph{regression tests}.
 If a bug reappears during development, software engineers sometimes refer
 to this as a \emph{regression}.
-
-
-
 
 
 
