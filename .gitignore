@@ -5,5 +5,13 @@
 *.Rproj
 *.tar.gz
 *.pdf
+*.aux
+*.log
+*.bbl
+*.out
+*.tex
+*.swp
+*.toc
 testpkgs/
 pkg/man/
+output/
