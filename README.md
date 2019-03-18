@@ -1,4 +1,4 @@
-[![status](https://tinyverse.netlify.com/badge/tinytest)](https://CRAN.R-project.org/package=<package>)
+[![status](https://tinyverse.netlify.com/badge/tinytest)](https://CRAN.R-project.org/package=tinytest)
 
 
 # tinytest
