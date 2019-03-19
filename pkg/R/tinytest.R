@@ -56,7 +56,8 @@ tinytest <- function(result, call
 na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 
 oneline <- function(x) sub("\\n.+","...",x)
-indent <- function(x, with="     ") gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
+indent <- function(x, with="     ") 
+  gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
 
 lineformat <- function(x){
   if ( is.na(x) ) "" 
@@ -83,7 +84,7 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   diff  <- d$diff
   
   result <- if (isTRUE(x)) "PASSED      " else sprintf("FAILED[%s]",short)
-  longfmt <- "---- %s: %s<%s--%s>\n%s"
+  longfmt <- "----- %s: %s<%s--%s>\n%s"
   if (isFALSE(x)) longfmt <- paste0(longfmt, "\n%s")
   
   if (type == "short"){ 
@@ -255,11 +256,81 @@ expect_warning <- function(current, pattern=".*"){
 
 
 
+#run_test_file <- function(file, pattern ="^expect" ){
+#  cat(sprintf("Running %s\n", basename(file)) )
+#  parsed <- parse(file=file, keep.source=TRUE)
+#  src <- attr(parsed, "srcref")
+#  is_check  <- sapply(parsed, function(e) grepl(pattern, e[[1]]))
+#  test_output <- vector(mode="list", length=sum(is_check))
+#  j <- 0
+#  e <- new.env()
+#  for ( i in seq_along(parsed) ){
+#    expr <- parsed[[i]]
+#    out  <- eval(expr, envir=e)
+#    if ( is_check[i] ){
+#        j <- j+1
+#        attr(out, "call") <- expr
+#        attr(out,"file") <- file
+#        attr(out, "fst") <- src[[i]][1]
+#        attr(out, "lst") <- src[[i]][3]
+#				test_output[[j]]   <- out
+#		}
+#  }
+#  
+#  structure(test_output, class="tinytests")
+#}
+
+
+# reference object to store or ignore output
+# of 'expect' functions
+output <- function(){
+  e <- new.env()
+  n <- 0
+  e$add <- function(x){
+    n <<- n+1
+    e[[sprintf("T%04d",n)]] <- x
+  }
+  e$gimme <- function(x){
+    vr <- ls(e,pattern="^T[0-9]+")
+    lapply(vr, function(i) e[[i]])
+  }
+  e$rm_last <- function(){
+    x <- ls(e,pattern="^T[0-9]+")
+    i <- x[length(x)]
+    rm(list=i, envir=e)
+    n <<- n-1
+  }
+  e
+}
+
+
+capture <- function(fun, env){
+  function(...){
+    out <- fun(...)
+    attr(out,"call") <- env$call
+    attr(out,"file") <- env$file
+    attr(out,"fst")  <- env$fst
+    attr(out,"lst")  <- env$lst
+    env$add(out)
+    attr(out,"env") <- env
+    out
+  }
+}
+
+
+ignore <- function(fun){
+  function(...){
+    out <- fun(...)
+    attr(out,"env")$rm_last()
+    attr(out,"env") <- NULL
+    out
+  }
+}
+
+
 #' Run an R file containing tests; gather results
 #'
 #' @param file \code{[character]} File location of a .R file.
-#' @param pattern \code{[character]} Regular expression to locate the test 
-#'   files.
 #'
 #' 
 #' @details 
@@ -274,29 +345,39 @@ expect_warning <- function(current, pattern=".*"){
 #' 
 #' @family test-files
 #' @export
-run_test_file <- function(file, pattern ="^expect" ){
+run_test_file <- function( file ){
+  
+  o <- output()
+  # we sleeve the expectation functions so their
+  # output  will be captured in 'o'
+  e <- new.env()
+  e$expect_equal      <- capture(expect_equal, o)
+  e$expect_equivalent <- capture(expect_equivalent, o)
+  e$expect_true       <- capture(expect_true, o)
+  e$expect_false      <- capture(expect_false, o)
+  e$expect_warning    <- capture(expect_warning, o)
+  e$expect_error      <- capture(expect_error, o)
+
+
+  # parse file, store source references.
   cat(sprintf("Running %s\n", basename(file)) )
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
-  is_check  <- sapply(parsed, function(e) grepl(pattern, e[[1]]))
-  test_output <- vector(mode="list", length=sum(is_check))
-  j <- 0
-  e <- new.env()
-  for ( i in seq_along(parsed) ){
-    expr <- parsed[[i]]
-    out  <- eval(expr, envir=e)
-    if ( is_check[i] ){
-        j <- j+1
-        attr(out, "call") <- expr
-        attr(out,"file") <- file
-        attr(out, "fst") <- src[[i]][1]
-        attr(out, "lst") <- src[[i]][3]
-				test_output[[j]]   <- out
-		}
-  }
   
+  o$file <- file
+  for ( i in seq_along(parsed) ){
+    expr   <- parsed[[i]]
+    o$fst  <- src[[i]][1]
+    o$lst  <- src[[i]][3]
+    o$call <- expr
+    out  <- eval(expr, envir=e)
+  }
+  test_output <- o$gimme()
   structure(test_output, class="tinytests")
 }
+
+
+
 
 #' Subset a tinytests object
 #'
