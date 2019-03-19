@@ -1,3 +1,6 @@
+[![status](https://tinyverse.netlify.com/badge/tinytest)](https://CRAN.R-project.org/package=tinytest)
+
+
 # tinytest
 A minimal, no-dependency package for unit testing
 
