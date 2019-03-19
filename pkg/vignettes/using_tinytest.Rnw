@@ -184,7 +184,7 @@ run_test_dir("path/to/dir", pattern="test_foo")
 The default package structure is very simple. 
 \begin{enumerate}
 \item Testfiles are placed in \code{/inst/utst}. The testfiles all have
-names starting with \code{test} (for example \code{test\_fu.R}).
+names starting with \code{test} (for example \code{test\_haha.R}).
 \item In the file \code{/tests/tinytest.R} you place the code
 \begin{verbatim}
     test_package("NAMEOFYOURPACKAGE")
@@ -238,6 +238,12 @@ check} but not with \code{run\_test\_file()} because the latter does not
 temporarily change working directory.
 
 \subsection{Skipping tests on \code{CRAN}}
+You can not really skip tests at CRAN, because there is no certain way to
+detect whether a package is tested at one of the CRAN's machines. However, you
+can \emph{force} a test at your own environment, which will then be skipped
+everywhere else. Since skipping tests should be an exception rather than a
+rule, forcing tests locally also makes more sense.
+
 
 
 
@@ -382,6 +388,17 @@ to this as a \emph{regression}.
     Jim Hester (2018)
     R package version 3.2.1
 
+  \bibitem{eddelbuettel2016SO}
+   \href{https://stackoverflow.com/questions/36166288/skip-tests-on-cran-but-run-locally}{Skip tests on CRAN, but run locally}
+   Answered by Dirk Eddelbuettel (2016)
+  
+  \bibitem{wickham2011testthat}
+   \href{https://journal.r-project.org/archive/2011-1/RJournal_2011-1_Wickham.pdf}{testthat: Get Started with Testing}
+   H. Wickham (2011). R Journal \textbf{3} 5--10.
+
+  \bibitem{wickham2018devtools}
+   \href{https://CRAN.R-project.org/package=devtools}{devtools: Tools to Make Developing R Packages Easier}
+   H. Wickham, J. Hester, W Chang (2018) R package version 2.0.1
 
 \end{thebibliography}
 

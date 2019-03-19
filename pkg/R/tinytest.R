@@ -256,30 +256,6 @@ expect_warning <- function(current, pattern=".*"){
 
 
 
-#run_test_file <- function(file, pattern ="^expect" ){
-#  cat(sprintf("Running %s\n", basename(file)) )
-#  parsed <- parse(file=file, keep.source=TRUE)
-#  src <- attr(parsed, "srcref")
-#  is_check  <- sapply(parsed, function(e) grepl(pattern, e[[1]]))
-#  test_output <- vector(mode="list", length=sum(is_check))
-#  j <- 0
-#  e <- new.env()
-#  for ( i in seq_along(parsed) ){
-#    expr <- parsed[[i]]
-#    out  <- eval(expr, envir=e)
-#    if ( is_check[i] ){
-#        j <- j+1
-#        attr(out, "call") <- expr
-#        attr(out,"file") <- file
-#        attr(out, "fst") <- src[[i]][1]
-#        attr(out, "lst") <- src[[i]][3]
-#				test_output[[j]]   <- out
-#		}
-#  }
-#  
-#  structure(test_output, class="tinytests")
-#}
-
 
 # reference object to store or ignore output
 # of 'expect' functions
@@ -328,25 +304,27 @@ ignore <- function(fun){
 }
 
 
-#' Run an R file containing tests; gather results
-#'
-#' @param file \code{[character]} File location of a .R file.
-#'
-#' 
-#' @details 
-#' 
-#' In \pkg{tinytest}, a test file is just an R script where some or all
-#' of the statements express an \code{\link[=expect_equal]{expectation}}. 
-#' \code{run_test_file} runs the file while gathering results of the
-#' expectations in a data frame.
-#' 
-#' @return   A \code{list} of class \code{tinytests}, which is a list 
-#'    of \code{\link{tinytest}} objects.
-#' 
-#' @family test-files
-#' @export
-run_test_file <- function( file ){
-  
+# Run an R file containing tests; gather results
+#
+# @param file \code{[character]} File location of a .R file.
+# @param force_local \code{[logical]} toggle force local tests.
+# 
+# @details 
+# 
+# In \pkg{tinytest}, a test file is just an R script where some or all
+# of the statements express an \code{\link[=expect_equal]{expectation}}. 
+# \code{run_test_file} runs the file while gathering results of the
+# expectations in a data frame.
+# 
+# @return   A \code{list} of class \code{tinytests}, which is a list 
+#    of \code{\link{tinytest}} objects.
+# 
+# @family test-files
+# 
+run_test_file <- function( file, force_local=TRUE ){
+  on.exit(Sys.unsetenv("FORCE_LOCAL"))  
+  if (force_local) Sys.setenv(FORCE_LOCAL=TRUE)  
+
   o <- output()
   # we sleeve the expectation functions so their
   # output  will be captured in 'o'
@@ -382,7 +360,7 @@ run_test_file <- function( file ){
 #' Subset a tinytests object
 #'
 #' @param i a valid index
-#' @param x a \code{\link[=run_test_file]{tinytests}} object 
+#' @param x a \code{tinytests} object 
 #'
 #' @export
 #' @keywords internal
@@ -412,15 +390,16 @@ print.tinytests <- function(x, all=FALSE, ...){
 #' @param pattern \code{[character]} A regular expression that is used to find
 #'   scripts in \code{dir} containing tests (by default \code{.R} or \code{.r}
 #'   files starting with \code{test}).
+#' @param force_local \code{[logical]} force to run tests that will not run on CRAN.
 #'
 #' @family test-files
 #' @export
-run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"){
+run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", force_local=TRUE){
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   test_output <- list()
   
   for ( file in testfiles ){
-    test_output <- c(test_output, run_test_file(file))
+    test_output <- c(test_output, run_test_file(file,force_local=force_local))
   }
     structure(test_output,class="tinytests")
 }
@@ -463,20 +442,34 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
+#' @param force_local \code{[logical]} tests to run that will not run on CRAN.
 #' @param ... passed to \code{run_test_dir}.
 #' 
 #' @family test-files
 #' 
 #' @export
-test_all <- function(pkgdir="./", testdir="inst/utst", ...){
+test_all <- function(pkgdir="./", testdir="inst/utst", force_local=TRUE, ...){
   oldwd <- getwd()
-  on.exit(setwd(oldwd))
-  setwd(file.path(pkgdir, testdir))
-  run_test_dir("./",...)
-  
+  on.exit( setwd(oldwd) )
+  setwd( file.path(pkgdir, testdir) )
+  run_test_dir( file.path(pkgdir,testdir), ...)
 }
 
-
-
+#' Detect not on CRANity 
+#'
+#' Use this function to force tests locally that should 
+#' be skipped on CRAN.
+#'
+#'
+#' @examples
+#' # test will run locally, but not on CRAN
+#' if ( force_local() ){
+#'   expect_equal(2, 1+1)
+#' }
+#' @export
+#' @family test-files
+force_local <- function(){
+  identical(Sys.getenv("FORCE_LOCAL"),"TRUE")
+}
 
 
