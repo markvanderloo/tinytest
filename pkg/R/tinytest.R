@@ -307,7 +307,7 @@ ignore <- function(fun){
 # Run an R file containing tests; gather results
 #
 # @param file \code{[character]} File location of a .R file.
-# @param force_local \code{[logical]} toggle force local tests.
+# @param at_home \code{[logical]} toggle local tests.
 # 
 # @details 
 # 
@@ -321,9 +321,9 @@ ignore <- function(fun){
 # 
 # @family test-files
 # 
-run_test_file <- function( file, force_local=TRUE ){
-  on.exit(Sys.unsetenv("FORCE_LOCAL"))  
-  if (force_local) Sys.setenv(FORCE_LOCAL=TRUE)  
+run_test_file <- function( file, at_home=TRUE ){
+  on.exit(Sys.unsetenv("TT_AT_HOME"))  
+  if (at_home) Sys.setenv(TT_AT_HOME=TRUE)  
 
   o <- output()
   # we sleeve the expectation functions so their
@@ -390,16 +390,16 @@ print.tinytests <- function(x, all=FALSE, ...){
 #' @param pattern \code{[character]} A regular expression that is used to find
 #'   scripts in \code{dir} containing tests (by default \code{.R} or \code{.r}
 #'   files starting with \code{test}).
-#' @param force_local \code{[logical]} force to run tests that will not run on CRAN.
+#' @param at_home \code{[logical]} also run tests that will not run on CRAN.
 #'
 #' @family test-files
 #' @export
-run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", force_local=TRUE){
+run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE){
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   test_output <- list()
   
   for ( file in testfiles ){
-    test_output <- c(test_output, run_test_file(file,force_local=force_local))
+    test_output <- c(test_output, run_test_file(file,at_home=at_home))
   }
     structure(test_output,class="tinytests")
 }
@@ -442,13 +442,13 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
-#' @param force_local \code{[logical]} tests to run that will not run on CRAN.
+#' @param at_homw \code{[logical]} Assume we are not running on CRAN (or elsewhere)
 #' @param ... passed to \code{run_test_dir}.
 #' 
 #' @family test-files
 #' 
 #' @export
-test_all <- function(pkgdir="./", testdir="inst/utst", force_local=TRUE, ...){
+test_all <- function(pkgdir="./", testdir="inst/utst", at_home=TRUE, ...){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd( file.path(pkgdir, testdir) )
@@ -457,19 +457,23 @@ test_all <- function(pkgdir="./", testdir="inst/utst", force_local=TRUE, ...){
 
 #' Detect not on CRANity 
 #'
-#' Use this function to force tests locally that should 
-#' be skipped on CRAN.
-#'
+#' Detect wheter we are running at home (i.e. not on CRAN, BioConductor, ...)
+#' 
 #'
 #' @examples
 #' # test will run locally, but not on CRAN
-#' if ( force_local() ){
+#' if ( at_home() ){
 #'   expect_equal(2, 1+1)
 #' }
 #' @export
 #' @family test-files
-force_local <- function(){
-  identical(Sys.getenv("FORCE_LOCAL"),"TRUE")
+at_home <- function(){
+  identical(Sys.getenv("TT_AT_HOME"),"TRUE")
 }
+
+
+
+
+
 
 
