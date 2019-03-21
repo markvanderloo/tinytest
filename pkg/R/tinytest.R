@@ -112,7 +112,7 @@ format.tinytests <- function(x,...){
 
 #' Print a tinytest object
 #' 
-#' @param x A \code{\link{tinytest}} object
+#' @param x A \code{tinytest} object
 #' @param ... passed to \code{\link{format.tinytest}}
 #' 
 #' @examples
@@ -134,9 +134,11 @@ print.tinytest <- function(x,...){
 #'     to \code{\link[base]{all.equal} (tolerance)}
 #' @param ... Passed to \code{all.equal}
 #'
-#' @return A \code{\link{tinytest}} object.
+#' @return A \code{\link{tinytest}} object. A tinytest object is a
+#' \code{logical} with attributes holding information about the 
+#' test that was run
 #' 
-#' 
+#' @family test-functions
 #' 
 #' @examples 
 #' expect_equal(1 + 1, 2)       # TRUE
@@ -168,8 +170,6 @@ shortdiff <- function(target, current, ...){
 #' \code{expect_equivalent} is calls \code{expect_equal} with the extra
 #' arguments \code{check.attributes=FALSE} and \code{use.names=FALSE}
 #' 
-#' @examples 
-#' expect_equivalent(2, c(x=2))
 #' 
 #' @rdname expect_equal
 #' @export
@@ -294,6 +294,26 @@ capture <- function(fun, env){
 }
 
 
+#' Ignore the output of an expectation
+#'
+#' Ignored expectations are not reported in the test results.
+#' Ignoring is only useful for test files, and not for use directly
+#' at the commandline. See also the \href{../docs/using_tinytest.pdf}{vignette}.
+#'
+#' @param fun An \code{expect_} function
+#' 
+#' @return an ignored function
+#' @family test-functions
+#'
+#' @examples
+#' \dontrun{
+#'  ## Note the placemet of brackets: the result of 'expect_warning' is
+#'  ## not stored in the test result when this is run in a file.
+#'  expect_true( ignore(expect_warning)(warning("foo!")) )
+#' }
+#'
+#'
+#' @export
 ignore <- function(fun){
   function(...){
     out <- fun(...)
@@ -466,7 +486,7 @@ test_all <- function(pkgdir="./", testdir="inst/utst", at_home=TRUE, ...){
 #'   expect_equal(2, 1+1)
 #' }
 #' @export
-#' @family test-files
+#' @family test-functions test-file
 at_home <- function(){
   identical(Sys.getenv("TT_AT_HOME"),"TRUE")
 }
