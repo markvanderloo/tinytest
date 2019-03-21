@@ -462,7 +462,7 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
-#' @param at_homw \code{[logical]} Assume we are not running on CRAN (or elsewhere)
+#' @param at_home \code{[logical]} Assume we are not running on CRAN (or elsewhere)
 #' @param ... passed to \code{run_test_dir}.
 #' 
 #' @family test-files
