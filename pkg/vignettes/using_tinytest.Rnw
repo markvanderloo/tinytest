@@ -52,6 +52,26 @@ want to use \pkg{tinytest} for your package, I expect that you have a basic
 understanding of the directory structure that constitutes the source of an R
 package.
 
+\subsection*{Philosophy}
+It is important that package developers form their own opinion about workflow
+and development cycle. Not only because experience levels and taste may vary,
+but because diversity is important for driving innovation.
+
+
+
+Therefore, this package tries to be modest in its opinions. The most important
+opinion is the following.
+\begin{itemize}
+\item It is a good idea to install tests with a package. 
+\end{itemize}
+This way, users who installed the package can run tests and return their
+results to the package author.
+
+
+Other than that, the package tries to be a set of tools that can be used
+flexibly.
+
+
 \newpage{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,7 +201,7 @@ run_test_dir("path/to/dir", pattern="test_foo")
 
 \section{Testing packages}
 
-Using \pkg{tinitest} for your package is pretty easy.
+Using \pkg{tinytest} for your package is pretty easy.
 \begin{enumerate}
 \item Testfiles are placed in \code{/inst/utst}. The testfiles all have
 names starting with \code{test} (for example \code{test\_haha.R}).
@@ -209,8 +229,20 @@ test_all("/path/to/your/package")
 where the default package directory is the current working directory.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Build--install--test interactively}
+The most realistic way to unit-test your package is to build it, install it
+and then run all the test. The function
+<<eval=FALSE>>=
+  build_install_test()
+@
+does exactly that. It builds and installs the package in a temporary directory,
+starts a fresh R session, loads the newly installed package and runs all tests.
+The return value is a \code{tinytests} object.
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Using data stored in files}
 \label{sect:comparefiles}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
@@ -263,12 +295,26 @@ It is possible to switch the tests off by \code{test\_all(..., at\_home=FALSE)}
 and similar for \code{test\_dir}.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Testing your package after installation}
+Supposing your package is called \pkg{hehe} and the \pkg{tinytest}
+infrastructure is used, the following commands run all of \pkg{hehe}'s
+tests.
+<<eval=FALSE>>=
+library(hehe)
+library(tinytest)
+run_test_dir( system.file("utst",package="hehe") )
+@
+This can come in handy when a user of \pkg{hehe} reports a bug and you want to
+make sure all tested functionality works on the user's system.
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{A few tips on packages and unit testing}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Make your package spherical}
 
 Larger packages typically consist of a functions that are visible to the
@@ -305,6 +351,7 @@ program interface).
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Test the surface, not the volume}
 
 Unexpected behavior (a bug) is often discovered when someone who is not the
@@ -321,6 +368,7 @@ going to break other people's code. Nobody likes to program against an API that
 changes frequently, and everybody hates to program against an API that changes
 unexpectedly.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{How many tests do I need?}
 In Section 1 we talked about pure functions, and how they can in principle be
 replaced with a table connecting input to output. To test a function you do
@@ -383,6 +431,7 @@ Hester\cite{hester2018covr}. Since \pkg{covr} is independent of the tools or
 packages used for testing, it also works fine with \pkg{tinytest}.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{It's not a bug, it's a test!}
 If users of your code are friendly enough to submit a bug report when they find
 one, it is a good idea to start by writing a small test that reproduces the

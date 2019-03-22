@@ -1,3 +1,5 @@
+#' @importFrom utils install.packages
+{}
 
 #' Tinytest constructor
 #'
@@ -415,6 +417,10 @@ print.tinytests <- function(x, all=FALSE, ...){
 #' @family test-files
 #' @export
 run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE){
+  oldwd <- getwd()
+  on.exit( setwd(oldwd) )
+  setwd(dir)
+
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   test_output <- list()
   
@@ -422,6 +428,45 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE
     test_output <- c(test_output, run_test_file(file,at_home=at_home))
   }
     structure(test_output,class="tinytests")
+}
+
+
+
+#' Test a package during development
+#' 
+#' Convenience function that wraps \code{\link{run_test_dir}}. By
+#' default, it runs all files starting with \code{test}in \code{./inst/utst/}. 
+#' It is assumed that all functions to be tested are loaded.
+#' 
+#' 
+#' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e. 
+#'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
+#' @param testdir \code{[character]} scalar. Subdirectory where test files are
+#'   stored.
+#' @param at_home \code{[logical]} Assume we are not running on CRAN (or elsewhere)
+#' @param ... passed to \code{run_test_dir}.
+#' 
+#' @family test-files
+#' 
+#' @export
+test_all <- function(pkgdir="./", testdir="inst/utst", at_home=TRUE, ...){
+  run_test_dir( file.path(pkgdir,testdir), at_home=at_home, ...)
+}
+
+#' Detect not on CRANity 
+#'
+#' Detect wheter we are running at home (i.e. not on CRAN, BioConductor, ...)
+#' 
+#'
+#' @examples
+#' # test will run locally, but not on CRAN
+#' if ( at_home() ){
+#'   expect_equal(2, 1+1)
+#' }
+#' @export
+#' @family test-functions test-file
+at_home <- function(){
+  identical(Sys.getenv("TT_AT_HOME"),"TRUE")
 }
 
 #' Test a package during R CMD check
@@ -452,48 +497,67 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 }
 
 
-#' Test a package during development
-#' 
-#' Sets working directory to the test directory, runs test files, 
-#' resets working directory and returns test results. Currently, this
-#' function expects that all functions in the package are loaded.
-#' 
-#' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e. 
-#'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
-#' @param testdir \code{[character]} scalar. Subdirectory where test files are
-#'   stored.
-#' @param at_home \code{[logical]} Assume we are not running on CRAN (or elsewhere)
-#' @param ... passed to \code{run_test_dir}.
-#' 
-#' @family test-files
-#' 
-#' @export
-test_all <- function(pkgdir="./", testdir="inst/utst", at_home=TRUE, ...){
-  oldwd <- getwd()
-  on.exit( setwd(oldwd) )
-  setwd( file.path(pkgdir, testdir) )
-  run_test_dir( file.path(pkgdir,testdir), ...)
-}
-
-#' Detect not on CRANity 
+#' build, install and test
 #'
-#' Detect wheter we are running at home (i.e. not on CRAN, BioConductor, ...)
-#' 
-#'
-#' @examples
-#' # test will run locally, but not on CRAN
-#' if ( at_home() ){
-#'   expect_equal(2, 1+1)
+#' Builds and installs the package in \code{pkgdir} under a temporary directory.
+#' Next, loads the package in a fresh R session and runs all the tests. For this
+#' function to work the following system requirements are necessary.
+#' \itemize{
+#'   \item{\code{R CMD build} is available and works on your system}
+#'   \item{\code{Rscript} is available on your system}
 #' }
+#'
+#' @param pkgdir \code{[character]} Package directory
+#' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst} 
+#'    containing test files.
+#' @param at_home \code{[character]} toggle: are we on our own machine?
+#'
+#' @return A \code{tinytests} object.
+#'
+#' @family test-files
 #' @export
-#' @family test-functions test-file
-at_home <- function(){
-  identical(Sys.getenv("TT_AT_HOME"),"TRUE")
+build_install_test <- function(pkgdir="./", testdir="utst", at_home=TRUE){
+oldwd <- getwd()
+tdir  <- tempfile()
+on.exit({setwd(oldwd); cat(sprintf("dir: %s\n",tdir))})
+
+pkg <- normalizePath(pkgdir)
+
+pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
+
+dir.create(tdir)
+setwd(tdir)
+
+## build package
+build_command <- paste0("R CMD build --no-build-vignettes --no-manual ",pkg)
+system(build_command)
+
+
+
+## find tar.gz and install in temporary folder.
+pkgfile <- dir("./", pattern=paste0(pkgname, ".*\\.tar\\.gz"), full.names = TRUE)
+
+install.packages(pkgfile,lib=tdir, repos=NULL, type="source")
+
+## In a fresh R session, load package and run tests
+script <- "
+suppressPackageStartupMessages({
+  #       pkgname     tdir
+  library('%s', lib.loc='%s',character.only=TRUE)
+  library('tinytest')
+})
+#                                testdir       pkgname     tdir
+out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s'))
+saveRDS(out, file='output.RDS')
+"
+scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir)
+
+write(scr, file="test.R")
+system("Rscript test.R")
+
+
+readRDS(file.path(tdir, "output.RDS"))
+
 }
-
-
-
-
-
 
 
