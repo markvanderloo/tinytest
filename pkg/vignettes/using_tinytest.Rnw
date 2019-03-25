@@ -461,18 +461,6 @@ to this as a \emph{regression}.
     Jim Hester (2018)
     R package version 3.2.1
 
-  \bibitem{eddelbuettel2016SO}
-   \href{https://stackoverflow.com/questions/36166288/skip-tests-on-cran-but-run-locally}{Skip tests on CRAN, but run locally}
-   Answered by Dirk Eddelbuettel (2016)
-  
-  \bibitem{wickham2011testthat}
-   \href{https://journal.r-project.org/archive/2011-1/RJournal_2011-1_Wickham.pdf}{testthat: Get Started with Testing}
-   H. Wickham (2011). R Journal \textbf{3} 5--10.
-
-  \bibitem{wickham2018devtools}
-   \href{https://CRAN.R-project.org/package=devtools}{devtools: Tools to Make Developing R Packages Easier}
-   H. Wickham, J. Hester, W Chang (2018) R package version 2.0.1
-
 \end{thebibliography}
 
 \end{document}
