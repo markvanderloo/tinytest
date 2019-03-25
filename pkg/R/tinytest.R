@@ -510,7 +510,7 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #' @param pkgdir \code{[character]} Package directory
 #' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst} 
 #'    containing test files.
-#' @param at_home \code{[character]} toggle: are we on our own machine?
+#' @param at_home \code{[logical]} toggle: are we on our own machine?
 #'
 #' @return A \code{tinytests} object.
 #'

@@ -228,6 +228,14 @@ test_all("/path/to/your/package")
 @
 where the default package directory is the current working directory.
 
+Alternatively, you can use
+<<eval=FALSE>>=
+build_install_test("/path/to/your/package")
+@
+This will build the package, install it in a temporary directory and run all te
+tests. 
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Build--install--test interactively}
@@ -370,13 +378,9 @@ unexpectedly.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{How many tests do I need?}
-In Section 1 we talked about pure functions, and how they can in principle be
-replaced with a table connecting input to output. To test a function you do
-not need to compare each possible input to each possible output. 
-
-When you call a function, you can think of it's arguments flowing through a certain
-path from input to output. As an example, let's take a look again at a new, slightly
-safer unit conversion function.
+When you call a function, you can think of it's arguments flowing through a
+certain path from input to output. As an example, let's take a look again at a
+new, slightly safer unit conversion function.
 <<>>=
 pound2kg <- function(x){
   stopifnot( is.numeric(x) )
@@ -421,10 +425,11 @@ one of your functions in needs in principle, you can have a look at the
 \pkg{cyclocomp} package of G\'abor Cs\'ardi\cite{csardi2016cyclocomp}.
 
 Since full path coverage is out of range in most cases, developers often strive
-for something simple, which is full code coverage, which simply means that each
-line of code is run in at least one test. Full code coverage is no guarantee
-for bugfree code. Besides code coverage it is therefore a good idea to think
-about the various ways a user might use your code and include tests for that.
+for something simpler, namely \emph{full code coverage}. This simply means that
+each line of code is run in at least one test. Full code coverage is no
+guarantee for bugfree code. Besides code coverage it is therefore a good idea
+to think about the various ways a user might use your code and include tests
+for that.
 
 To measure code coverage, I recommend using the \pkg{covr} package by Jim
 Hester\cite{hester2018covr}. Since \pkg{covr} is independent of the tools or
