@@ -2,7 +2,6 @@
 
 S3method("[",tinytests)
 S3method(format,tinytest)
-S3method(format,tinytests)
 S3method(print,tinytest)
 S3method(print,tinytests)
 export(at_home)

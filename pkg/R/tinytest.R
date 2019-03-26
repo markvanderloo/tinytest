@@ -59,7 +59,7 @@ na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 
 oneline <- function(x) sub("\\n.+","...",x)
 indent <- function(x, with="     ") 
-  gsub("\\n +",paste0("\n",with),paste0(with,sub("^ +","",x)))
+  gsub("\\n *",paste0("\n",with),paste0(with,sub("^ +","",x)))
 
 lineformat <- function(x){
   if ( is.na(x) ) "" 
@@ -78,7 +78,7 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   type <- match.arg(type)
 
   d <- attributes(x)
-  call  <- deparse(d$call)
+  call  <- paste0(deparse(d$call), collapse="\n")
   fst   <- lineformat(d$fst, ...)
   lst   <- lineformat(d$lst, ...) 
   file  <- na_str(d$file)
@@ -100,16 +100,6 @@ format.tinytest <- function(x,type=c("long","short"), ...){
 }
 
 
-#' Format a tinytests object
-#'
-#' @param x An object of class \code{tinytests}
-#' @param ... passed to \code{format.tinytest} for each individual testresult.
-#'
-#' @export
-#' @keywords internal
-format.tinytests <- function(x,...){
-  paste(sapply(x, format.tinytest,...),collapse="\n")
-}
 
 
 #' Print a tinytest object
@@ -395,13 +385,54 @@ run_test_file <- function( file, at_home=TRUE ){
 #' Print a tinytests object
 #' 
 #' @param x a \code{tinytests} object
-#' @param all \code{[logical]} Toggle: print only failures or print all results?
+#' @param passes \code{[logical]} Toggle: print passing tests?
+#' @param limit \code{[numeric]} Max number of results to print
+#' @param nlong \code{[numeric]} First \code{nlong} results are printed in long format.
 #' @param ... passed to \code{\link{format.tinytest}}
 #'
+#' @section Details:
+#'
+#' By default, the first 3 failing test results are printed in long form,
+#' the next 7 failing test results are printed in short form and all other 
+#' failing tests are not printed. These defaults can be changed by passing options
+#' to  \code{print.tinytest}, or by setting one or more of the following general
+#' options:
+#' \itemize{
+#' \item{\code{tt.pr.passes} Set to \code{TRUE} to print output of non-failing tests.}
+#' \item{\code{tt.pr.limit} Max number of results to print (e.g. \code{Inf})}
+#' \item{\code{tt.pr.nlong} The number of results to print in long format (e.g. \code{Inf}).}
+#' }
+#'
+#' For example, set \code{options(tt.pr.limit=Inf)} to print all test results.
+#'
 #' @export
-print.tinytests <- function(x, all=FALSE, ...){
-  if (length(x) > 0 && !all) x <- x[sapply(x, isFALSE)]
-  cat(format.tinytests(x,...),"\n")
+print.tinytests <- function(x
+  , passes=getOption("tt.pr.passes", FALSE)
+  , limit =getOption("tt.pr.limit",  7)
+  , nlong =getOption("tt.pr.nlong",  3),...){
+
+  ntst  <- length(x)
+  ifail <- sapply(x, isFALSE)
+  if (!passes){
+    x <- x[ifail]
+    if ( length(x) == 0 ){
+      cat(sprintf("All ok (%d results)\n", ntst))
+      return(invisible(NULL))
+    }
+  }
+  limit <- min(ntst, limit)
+  nlong <- min(nlong, limit)
+  nshort <- max(limit - nlong,0)
+  x <- x[seq_len(limit)]
+  type <- c( rep("long",nlong)
+           , rep("short",nshort) )
+
+  str <- sapply(seq_along(x), function(i) format.tinytest(x[[i]], type=type[i]))  
+  cat(paste0(str,"\n"), "\n")
+  if (ntst > length(str)){
+    cat(sprintf("Showing %d out of %d test results; %d tests failed\n"
+        , length(x), ntst, sum(ifail)))
+  } 
 }
 
 
