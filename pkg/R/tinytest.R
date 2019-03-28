@@ -316,25 +316,36 @@ ignore <- function(fun){
 }
 
 
-# Run an R file containing tests; gather results
-#
-# @param file \code{[character]} File location of a .R file.
-# @param at_home \code{[logical]} toggle local tests.
-# 
-# @details 
-# 
-# In \pkg{tinytest}, a test file is just an R script where some or all
-# of the statements express an \code{\link[=expect_equal]{expectation}}. 
-# \code{run_test_file} runs the file while gathering results of the
-# expectations in a data frame.
-# 
-# @return   A \code{list} of class \code{tinytests}, which is a list 
-#    of \code{\link{tinytest}} objects.
-# 
-# @family test-files
-# 
+#' Run an R file containing tests; gather results
+#'
+#' @param file \code{[character]} File location of a .R file.
+#' @param at_home \code{[logical]} toggle local tests.
+#' 
+#' @details 
+#' 
+#' In \pkg{tinytest}, a test file is just an R script where some or all
+#' of the statements express an \code{\link[=expect_equal]{expectation}}. 
+#' \code{run_test_file} runs the file while gathering results of the
+#' expectations in a data frame.
+#' 
+#' @return   A \code{list} of class \code{tinytests}, which is a list 
+#'    of \code{\link{tinytest}} objects.
+#' 
+#' @family test-files
+#' @export 
 run_test_file <- function( file, at_home=TRUE ){
-  on.exit(Sys.unsetenv("TT_AT_HOME"))  
+  oldwd <- getwd()
+  wd_set <- length(dirname(file)) > 0
+  on.exit({ 
+      Sys.unsetenv("TT_AT_HOME")
+      setwd(oldwd)
+  })
+  if (wd_set){ 
+      setwd(dirname(file))
+      file <- basename(file)
+   }
+print(getwd()) 
+ 
   if (at_home) Sys.setenv(TT_AT_HOME=TRUE)  
 
   o <- output()
