@@ -344,7 +344,6 @@ run_test_file <- function( file, at_home=TRUE ){
       setwd(dirname(file))
       file <- basename(file)
    }
-print(getwd()) 
  
   if (at_home) Sys.setenv(TT_AT_HOME=TRUE)  
 
@@ -463,7 +462,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE
   on.exit( setwd(oldwd) )
   setwd(dir)
 
-  testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
+  testfiles <- dir("./", pattern=pattern, full.names=TRUE)
   test_output <- list()
   
   for ( file in testfiles ){
