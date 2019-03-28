@@ -1,4 +1,4 @@
-#' @importFrom utils install.packages
+#' @importFrom utils install.packages file_test
 {}
 
 #' Tinytest constructor
@@ -334,6 +334,10 @@ ignore <- function(fun){
 #' @family test-files
 #' @export 
 run_test_file <- function( file, at_home=TRUE ){
+  if (!file_test("-f", file)){
+    stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
+  }
+
   oldwd <- getwd()
   wd_set <- length(dirname(file)) > 0
   on.exit({ 
@@ -360,7 +364,7 @@ run_test_file <- function( file, at_home=TRUE ){
 
 
   # parse file, store source references.
-  cat(sprintf("Running %s\n", basename(file)) )
+  cat(sprintf("Running %s ", basename(file)) )
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
   
@@ -373,6 +377,12 @@ run_test_file <- function( file, at_home=TRUE ){
     out  <- eval(expr, envir=e)
   }
   test_output <- o$gimme()
+
+  # print short summary after 'Running file.R'
+  ntst  <- length(test_output)
+  nfail <- sum(vapply(test_output, isFALSE, FALSE))
+  cat(sprintf("(%02d|%02d|%02d)\n", ntst, ntst-nfail, nfail ))
+
   structure(test_output, class="tinytests")
 }
 
