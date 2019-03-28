@@ -521,7 +521,9 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
   out <- run_test_dir("./")
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
-    stop(format.tinytests(out[i_fail],type="long"), call.=FALSE)
+    msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
+    msg <- paste(msg, "\n")
+    stop(msg, call.=FALSE)
   } else {
     invisible(TRUE)
   }

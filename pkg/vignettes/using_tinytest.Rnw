@@ -155,19 +155,19 @@ the output of these expect-functions consist of
   \item The test call.
 \end{itemize}
 
-The result of an \code{expect\_} function is a \code{tinytest} object. You can print them
-in long format (default) or in short, one-line format like so.
+The result of an \code{expect\_} function is a \code{tinytest} object. You can
+print them in long format (default) or in short, one-line format like so.
 <<>>=
 print(expect_equal(3, 1+1), type="short")
 @
 Functions that run multiple tests return an object of class \code{tinytests}
 (notice the plural). Since there may be a lot of test results, \pkg{tinytest}
-tries to be smart about printing them, but the user has ultimate control over
-this behaviour. 
-
-\begin{itemize}
-\item\code{options(tt.format="auto")} 
-\end{itemize}
+tries to be smart about printing them. The user has ultimate control over
+this behaviour. See
+<<eval=FALSE>>=
+?print.tinytests
+@
+for a full specification of the options.
 
 
 
