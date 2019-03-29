@@ -452,7 +452,7 @@ print.tinytests <- function(x
       return(invisible(NULL))
     }
   }
-  limit <- min(ntst, limit)
+  limit <- min(length(x), limit)
   nlong <- min(nlong, limit)
   nshort <- max(limit - nlong,0)
   x <- x[seq_len(limit)]
@@ -646,11 +646,12 @@ saveRDS(out, file='output.RDS')
 #' Turn test results into a data frame
 #'
 #' @param x An object of class \code{tinytests}
-#' 
+#' @param ... Currently not used 
+#'
 #' @return A data frame
 #' @family test-files
 #' @export
-as.data.frame.tinytests <- function(x){
+as.data.frame.tinytests <- function(x, ...){
   L <- lapply(x, attributes)
   data.frame(
       result = sapply(x, isTRUE)
