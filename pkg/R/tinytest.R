@@ -591,36 +591,36 @@ build_install_test <- function(pkgdir="./", testdir="utst"
                              , at_home=TRUE
                              , verbose=getOption("tt.verbose",TRUE)
                              , keep_tempdir=FALSE){
-oldwd <- getwd()
-tdir  <- tempfile()
-on.exit({setwd(oldwd)
-         if (keep_tempdir){ 
-           cat(sprintf("tempdir: %s\n",tdir))
-         } else {
-           unlink(tdir, recursive=TRUE)
-         }
-        })
+  oldwd <- getwd()
+  tdir  <- tempfile()
+  on.exit({setwd(oldwd)
+           if (keep_tempdir){ 
+             cat(sprintf("tempdir: %s\n",tdir))
+           } else {
+             unlink(tdir, recursive=TRUE)
+           }
+          })
 
-pkg <- normalizePath(pkgdir)
+  pkg <- normalizePath(pkgdir)
 
-pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
+  pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
 
-dir.create(tdir)
-setwd(tdir)
+  dir.create(tdir)
+  setwd(tdir)
 
-## build package
-build_command <- paste0("R CMD build --no-build-vignettes --no-manual ",pkg)
-system(build_command)
+  ## build package
+  build_command <- paste0("R CMD build --no-build-vignettes --no-manual ",pkg)
+  system(build_command)
 
 
 
-## find tar.gz and install in temporary folder.
-pkgfile <- dir("./", pattern=paste0(pkgname, ".*\\.tar\\.gz"), full.names = TRUE)
+  ## find tar.gz and install in temporary folder.
+  pkgfile <- dir("./", pattern=paste0(pkgname, ".*\\.tar\\.gz"), full.names = TRUE)
 
-install.packages(pkgfile,lib=tdir, repos=NULL, type="source")
+  install.packages(pkgfile,lib=tdir, repos=NULL, type="source")
 
-## In a fresh R session, load package and run tests
-script <- "
+  ## In a fresh R session, load package and run tests
+  script <- "
 suppressPackageStartupMessages({
   #       pkgname     tdir
   library('%s', lib.loc='%s',character.only=TRUE)
@@ -630,14 +630,49 @@ suppressPackageStartupMessages({
 out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s'), at_home=%s, verbose=%s)
 saveRDS(out, file='output.RDS')
 "
-scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose)
+  scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose)
 
-write(scr, file="test.R")
-system("Rscript test.R")
+  write(scr, file="test.R")
+  system("Rscript test.R")
 
-
-readRDS(file.path(tdir, "output.RDS"))
+  readRDS(file.path(tdir, "output.RDS"))
 
 }
+
+
+
+#' Turn test results into a data frame
+#'
+#' @param x An object of class \code{tinytests}
+#' 
+#' @return A data frame
+#' @family test-files
+#' @export
+as.data.frame.tinytests <- function(x){
+  L <- lapply(x, attributes)
+  data.frame(
+      result = sapply(x, isTRUE)
+    , call   = sapply(L, function(y) capture.output(print(y$call)))
+    , diff   = sapply(L, `[[`, "diff")
+    , short  = sapply(L, `[[`, "short")
+    , file   = sapply(L, `[[`, "file")
+    , first  = sapply(L, `[[`, "fst")
+    , last   = sapply(L, `[[`, "lst")
+    , stringsAsFactors=FALSE
+  )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
