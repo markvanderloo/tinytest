@@ -1,4 +1,4 @@
-#' @importFrom utils install.packages file_test
+#' @importFrom utils install.packages file_test capture.output
 {}
 
 #' Tinytest constructor
@@ -139,11 +139,13 @@ print.tinytest <- function(x,...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(target, current, label=NA_character_, tol = sqrt(.Machine$double.eps), ...){
+expect_equal <- function(target, current, label=NA_character_
+                       , tol = sqrt(.Machine$double.eps), ...){
+
   check <- all.equal(target,current,...)
   equal <- isTRUE(check)
-  diff <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
-  short <- shortdiff(target, current, tolerance=tol)
+  diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
+  short <- if(equal) NA_character_ else shortdiff(target, current, tolerance=tol)
   
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
