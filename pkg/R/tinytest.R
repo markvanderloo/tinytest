@@ -199,8 +199,6 @@ expect_false <- function(current){
   }
 }
 
-# ----todo: add regex for exception msg (and code probably doesn't do what
-# it must currently anyway)
 
 #' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
@@ -253,21 +251,29 @@ expect_warning <- function(current, pattern=".*"){
 # of 'expect' functions
 output <- function(){
   e <- new.env()
-  n <- 0
+  n <- 0 # number of tests
+  m <- 0 # number of passes
+  re <- "^T[0-9]+"
   e$add <- function(x){
-    n <<- n+1
+    n <<- n + 1
     e[[sprintf("T%04d",n)]] <- x
+    m <<- m + as.integer(x)
   }
-  e$gimme <- function(x){
-    vr <- ls(e,pattern="^T[0-9]+")
+  e$gimme <- function(){
+    vr <- ls(e,pattern = re)
     lapply(vr, function(i) e[[i]])
   }
   e$rm_last <- function(){
-    x <- ls(e,pattern="^T[0-9]+")
+    x <- ls(e,pattern = re)
     i <- x[length(x)]
+    if ( isTRUE(e[[i]]) ) m <<- m - 1
     rm(list=i, envir=e)
     n <<- n-1
   }
+  e$ntest <- function() n
+  e$npass <- function() m
+  e$nfail <- function() n - m
+
   e
 }
 
@@ -320,7 +326,7 @@ ignore <- function(fun){
 #'
 #' @param file \code{[character]} File location of a .R file.
 #' @param at_home \code{[logical]} toggle local tests.
-#' 
+#' @param verbose \code{[logical]} toggle verbosity during execution
 #' @details 
 #' 
 #' In \pkg{tinytest}, a test file is just an R script where some or all
@@ -333,7 +339,8 @@ ignore <- function(fun){
 #' 
 #' @family test-files
 #' @export 
-run_test_file <- function( file, at_home=TRUE ){
+run_test_file <- function( file, at_home=TRUE
+                         , verbose=getOption("tt.verbose",TRUE) ){
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
@@ -347,7 +354,7 @@ run_test_file <- function( file, at_home=TRUE ){
   if (wd_set){ 
       setwd(dirname(file))
       file <- basename(file)
-   }
+  }
  
   if (at_home) Sys.setenv(TT_AT_HOME=TRUE)  
 
@@ -362,12 +369,16 @@ run_test_file <- function( file, at_home=TRUE ){
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
 
+  catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
+
 
   # parse file, store source references.
-  cat(sprintf("Running %s ", basename(file)) )
+  #cat(sprintf("Running %s ", basename(file)) )
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
   
+  ns <- c(nres=0,npass=0)
+
   o$file <- file
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
@@ -375,13 +386,12 @@ run_test_file <- function( file, at_home=TRUE ){
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
+    
+    catf("\rRunning %s (%02d|\033[0;32m%02d\033[0m|\033[0;31m%02d\033[0m)"
+      , basename(file), o$ntest(), o$npass(), o$nfail() )
   }
+  catf("\n")
   test_output <- o$gimme()
-
-  # print short summary after 'Running file.R'
-  ntst  <- length(test_output)
-  nfail <- sum(vapply(test_output, isFALSE, FALSE))
-  cat(sprintf("(%02d|%02d|%02d)\n", ntst, ntst-nfail, nfail ))
 
   structure(test_output, class="tinytests")
 }
@@ -463,11 +473,14 @@ print.tinytests <- function(x
 #' @param pattern \code{[character]} A regular expression that is used to find
 #'   scripts in \code{dir} containing tests (by default \code{.R} or \code{.r}
 #'   files starting with \code{test}).
-#' @param at_home \code{[logical]} also run tests that will not run on CRAN.
+#' @param at_home \code{[logical]} toggle local tests.
+#' @param verbose \code{[logical]} toggle verbosity during execution
+#' 
 #'
 #' @family test-files
 #' @export
-run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE){
+run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"
+                       , at_home=TRUE, verbose=getOption("tt.verbose",TRUE)){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
@@ -476,7 +489,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]", at_home=TRUE
   test_output <- list()
   
   for ( file in testfiles ){
-    test_output <- c(test_output, run_test_file(file,at_home=at_home))
+    test_output <- c(test_output, run_test_file(file,at_home=at_home, verbose=verbose))
   }
     structure(test_output,class="tinytests")
 }
@@ -556,23 +569,37 @@ test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
 #' Next, loads the package in a fresh R session and runs all the tests. For this
 #' function to work the following system requirements are necessary.
 #' \itemize{
-#'   \item{\code{R CMD build} is available and works on your system}
+#'   \item{\code{R CMD build} is available on your system}
 #'   \item{\code{Rscript} is available on your system}
 #' }
 #'
 #' @param pkgdir \code{[character]} Package directory
 #' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst} 
 #'    containing test files.
-#' @param at_home \code{[logical]} toggle: are we on our own machine?
+#' @param at_home \code{[logical]} toggle local tests.
+#' @param verbose \code{[logical]} toggle verbosity during execution
+#' @param keep_tempdir \code{[logical]} keep directory where the pkg is 
+#'   installed and where tests are run? If \code{TRUE}, the directory is not deleted 
+#'   and it's location is printed.
+#' 
 #'
 #' @return A \code{tinytests} object.
 #'
 #' @family test-files
 #' @export
-build_install_test <- function(pkgdir="./", testdir="utst", at_home=TRUE){
+build_install_test <- function(pkgdir="./", testdir="utst"
+                             , at_home=TRUE
+                             , verbose=getOption("tt.verbose",TRUE)
+                             , keep_tempdir=FALSE){
 oldwd <- getwd()
 tdir  <- tempfile()
-on.exit({setwd(oldwd); cat(sprintf("dir: %s\n",tdir))})
+on.exit({setwd(oldwd)
+         if (keep_tempdir){ 
+           cat(sprintf("tempdir: %s\n",tdir))
+         } else {
+           unlink(tdir, recursive=TRUE)
+         }
+        })
 
 pkg <- normalizePath(pkgdir)
 
@@ -599,11 +626,11 @@ suppressPackageStartupMessages({
   library('%s', lib.loc='%s',character.only=TRUE)
   library('tinytest')
 })
-#                                testdir       pkgname     tdir
-out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s'))
+#                                testdir       pkgname       tdir          at_home     verbose
+out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s'), at_home=%s, verbose=%s)
 saveRDS(out, file='output.RDS')
 "
-scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir)
+scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose)
 
 write(scr, file="test.R")
 system("Rscript test.R")
