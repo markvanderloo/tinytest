@@ -317,8 +317,10 @@ capture <- function(fun, env){
 ignore <- function(fun){
   function(...){
     out <- fun(...)
-    attr(out,"env")$rm_last()
-    attr(out,"env") <- NULL
+    if ( !is.null(attr(out, "env")) ){
+      attr(out,"env")$rm_last()
+      attr(out,"env") <- NULL
+    }
     out
   }
 }
