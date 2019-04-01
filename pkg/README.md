@@ -112,5 +112,16 @@ if ( at_home() ){
 }
 ```
 
+#### Comparing with data stored on file
+
+Data can be loaded from `pkg/inst/utst` (or subdirectories). A simple
+test file might look like this.
+
+```
+desired <- read.csv("mycsvoutput.csv", stringsAsFactors=FALSE)
+obtained <- compute_my_result()
+expect_equal(desired, obtained)
+```
+
 
 
