@@ -412,7 +412,7 @@ unexpectedly.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{How many tests do I need?}
-When you call a function, you can think of it's arguments flowing through a
+When you call a function, you can think of its arguments flowing through a
 certain path from input to output. As an example, let's take a look again at a
 new, slightly safer unit conversion function.
 <<>>=
