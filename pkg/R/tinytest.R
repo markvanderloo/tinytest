@@ -550,10 +550,31 @@ at_home <- function(){
 #'
 #' @family test-files
 #' @export
-test_package <- function(pkgname, testdir = file.path("..",pkgname,"utst")){
+test_package <- function(pkgname, testdir = "utst"){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
-  setwd(testdir)
+
+
+  # Option 1: The R CMD check case
+  testdir1 <- file.path("..", pkgname, testdir)
+  # Option2: the tools::testInstalledPackage case. 
+  # Keep path up until /pkgname. The current working directory
+  # may be a subdirectory of the package installation directory.
+  # This happens e.g. when tools::testInstalledPackage is called,
+  # which is e.g. what the 'covr' package uses.
+  re <- paste0("(.*?", pkgname, ").*")
+  testdir2 <- file.path(sub(re, "\\1", oldwd), testdir)
+
+  if ( dir.exists(testdir1) ){
+    setwd(testdir1)
+  } else if ( dir.exists(testdir2) ){
+    setwd(testdir2)
+  }  else {
+    msg <- sprintf( "Cannot find test directory '%s'. Current working directory is '%s'"
+                  , testdir, oldwd)
+    stop(msg, call.=FALSE)
+  }
+
   
   out <- run_test_dir("./")
   i_fail <- sapply(out, isFALSE)
