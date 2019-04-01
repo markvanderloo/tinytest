@@ -39,7 +39,7 @@
 \setlength{\fancyvrbtopsep}{0pt}
 \setlength{\fancyvrbpartopsep}{0pt}
 \maketitle{}
-\hfill\emph{The purpose of testing is to gain confidence in your code.}
+
 \tableofcontents{}
 <<echo=FALSE>>=
 options(prompt="    ", continue = "    ")
@@ -52,25 +52,6 @@ want to use \pkg{tinytest} for your package, I expect that you have a basic
 understanding of the directory structure that constitutes the source of an R
 package.
 
-\subsection*{Philosophy}
-It is important that package developers form their own opinion about workflow
-and development cycle. Not only because experience levels and taste may vary,
-but because diversity is important for driving innovation.
-
-
-
-Therefore, this package tries to be modest in its opinions. The most important
-opinion is the following.
-\begin{itemize}
-\item It is a good idea to install tests with a package. 
-\end{itemize}
-This way, users who installed the package can run tests and return their
-results to the package author.
-
-
-Other than that, the package tries to be a set of tools that can be used
-flexibly.
-
 
 \newpage{}
 
@@ -79,9 +60,9 @@ flexibly.
 
 The purpose of \emph{unit testing} is to check whether a function gives the
 output you expect, when it is provided with certain input. So unit testing is
-all about comparing \emph{realized} outputs with \emph{desired} outputs. The
-purpose of this package is to facilitate writing unit tests, and to support a
-workflow of writing tests while improving code.
+all about comparing \emph{desired} outputs with \emph{realized} outputs. The
+purpose of this package is to facilitate writing, executing and analyzing unit
+tests.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -184,29 +165,73 @@ checks. An example test file in tinytest can look like this.
 
 
 \begin{verbatim}
-    # contents of test_women.R
-    library(tinytest)
-    m <- mean(women$height)
-    expect_equal(sum(women$height)/nrow(women), m)
-    
+    # contents of test_addOne.R
+
+    addOne <- function(x) x + 2
+
+    expect_true(addOne(0) > 0)
+
+    hihi <- 1
+    expect_equal(2, addOne(hihi))
 \end{verbatim}
 
-A particular file can be run using
-\code{run\_test\_file("path/to/test\_file.R")}. Only failing tests will be
-printed. If you want to run all tests files in a directory, do
-\code{run\_test\_dir("path/to/test/dir")}. By default, all \code{.R} or
-\code{.r} files starting with \code{test} will be run.
-
-
-\textbf{NOTE.} \code{run\_test\_dir("dir")} will temporarily set the working 
-directory to \code{"dir"}, which comes in handy when comparing output to data
-stored in files. (See \S\ref{sect:comparefiles}). \code{run\_test\_file} does
-not do that. If you want to test a single file say \code{dir/test\_foo.R},
-while making sure that the working directory is \code{dir} during execution,
-you can do
-<<eval=FALSE>>=
-run_test_dir("path/to/dir", pattern="test_foo")
+A particular file can be run using\marginpar{\code{run\_test\_file}}
+<<eval>>=
+run_test_file("test_addOne.R", verbose=FALSE)
 @
+(We use \code{verbose=FALSE} to avoid cluttering the output in this vignette.)
+The numbers between \code{<-->} indicate at what lines in the file the failing
+test can be found.
+
+
+By default only failing tests are  printed. You can store the output and print 
+all of them.
+<<>>=
+test_results <- run_test_file("test_addOne.R", verbose=FALSE)
+print(test_results, passes=TRUE)
+@
+Or you can set
+<<eval=FALSE>>=
+options(tt.pr.passes=TRUE)
+@
+to print all results during the active R session.
+
+To run all test files in a certain directory, we can use\marginpar{\code{run\_test\_dir}}
+<<eval=FALSE>>=
+run_test_dir("/path/to/your/test/directory")
+@
+By default, this will run all files of which the name starts with
+\code{test\_}, but this is customizable.
+
+
+
+\subsection{Programming over tests, ignoring test results}
+Test scripts are just R scripts intersperced with tests. The test runners make
+sure that all test results are caught, unless you tell them not to. For
+example, since the result of a test is a \code{logical} you can use them as a
+condition.
+<<eval=FALSE>>=
+if ( expect_equal(2, 1 + 1) ){
+    expect_true( 2 > 0)
+}
+@
+Here, the second test (\code{expect\_true(2 > 0)}) is only executed if the
+first test results in \code{TRUE}. In any case the result of the first test
+will be caught in the test output, when this is run with \code{run\_test\_file}
+\code{run\_test\_dir}, \code{test\_all}, \code{build\_install\_test} or through
+\code{R CMD check} using \code{test\_package}.
+
+If you want to perform the test, but not record the test result you can do the
+following \marginpar{\code{ignore}} (note the placement of the brackets).
+<<eval=TRUE>>=
+if ( ignore(expect_equal)(2, 1+1) ){
+  expect_true(2>0)
+}
+@
+Other cases where this may be useful is to perform tests in a loop, e.g. when
+there is a systematic set of cases to test.
+
+
 
 \section{Testing packages}
 
@@ -231,13 +256,13 @@ In a terminal, you can now do
 and all tests will run.
 
 To run all the tests interactively, make sure that all functions of your 
-new package are loaded. After that, run
+new package are loaded. After that, run\marginpar{\code{test\_all}}
 <<eval=FALSE>>=
 test_all("/path/to/your/package")
 @
 where the default package directory is the current working directory.
 
-Alternatively, you can use
+Alternatively, you can use\marginpar{\code{build\_install\_test}}
 <<eval=FALSE>>=
 build_install_test("/path/to/your/package")
 @
@@ -460,6 +485,7 @@ to this as a \emph{regression}.
 
 
 \begin{thebibliography}{5}
+  
   \bibitem{csardi2016cyclocomp}
     \href{https://CRAN.R-project.org/package=cyclocomp}{cyclocomp: Cyclomatic Complexity of R Code}
     G\'abor Cs\'ardi (2016)
