@@ -389,7 +389,7 @@ run_test_file <- function( file, at_home=TRUE
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
-    out  <- eval(expr, envir=e)
+    out  <- eval(expr, envir=o)
     
     catf("\rRunning %s (%02d|\033[0;32m%02d\033[0m|\033[0;31m%02d\033[0m)"
       , basename(file), o$ntest(), o$npass(), o$nfail() )
