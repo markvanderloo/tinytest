@@ -36,7 +36,7 @@ R CMD check packagename_x.y.z.tar.gz
 
 
 All functions return an object of class `tinytests`. Results can be printed to
-screen or converted to data frame for analyses with `as.data.frame`. The option
+screen or converted to data frame  with `as.data.frame` for analyses. The option
 `verbose` (default: `TRUE`) toggles between showing test progress in the
 terminal.
 
@@ -64,8 +64,7 @@ format and a short, one-line format. Information that is always shown includes:
 - The test call that resulted in test failure.
 - The type of failure. This can be 'data' (for differences in variable
   content), 'attr' (for differences in attributes like column names), or 'xcpt'
-  for exceptions
-  (warnings, errors).
+  for exceptions (warnings, errors).
 
 In long format, the test call and difference between desired and realized input
 are shown in full. Global printing options can be set with `options(option=value)`.
@@ -82,7 +81,7 @@ It is also possible to influence these options using `print.tinytest`.
 #### Run tests for an installed package
 
 For a package called `haha` that is tested using `tinytest`, any user that has
-`haha` installed can run tests as follows.
+`haha` and `tinytest` installed can run tests as follows.
 
 ```
 library(haha)
@@ -122,6 +121,9 @@ desired <- read.csv("mycsvoutput.csv", stringsAsFactors=FALSE)
 obtained <- compute_my_result()
 expect_equal(desired, obtained)
 ```
-
+If you wish to publish the package on CRAN, make sure that the files are small
+enough for the package to be acceptable. See the [cran repository
+policy](https://cran.r-project.org/web/packages/policies.html) for explicit
+bounds on package size.
 
 
