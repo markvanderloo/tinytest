@@ -67,7 +67,7 @@ tests.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Expressing tests}
-Suppose we define a function translating pounds (lbs) to kilograms.
+Suppose we define a function translating pounds (lbs) to kilograms inaccurately.
 <<>>=
 lbs2kg <- function(x){
   if ( x < 0 ){

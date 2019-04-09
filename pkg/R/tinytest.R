@@ -389,7 +389,7 @@ run_test_file <- function( file, at_home=TRUE
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
-    out  <- eval(expr, envir=o)
+    out  <- eval(expr, envir=e)
     
     catf("\rRunning %s (%02d|\033[0;32m%02d\033[0m|\033[0;31m%02d\033[0m)"
       , basename(file), o$ntest(), o$npass(), o$nfail() )
@@ -446,7 +446,8 @@ print.tinytests <- function(x
   , nlong =getOption("tt.pr.nlong",  3),...){
 
   ntst  <- length(x)
-  ifail <- sapply(x, isFALSE)
+  ifail <- if (ntst > 0) sapply(x, isFALSE) else logical(0)
+  
   if (!passes){
     x <- x[ifail]
     if ( length(x) == 0 ){
