@@ -103,7 +103,7 @@ Note the placement of brackets.
 
 
 Use `at_home()` to detect whether a test is running interactively, or via 
-\code{test_package()} (i.e. the way `R CMD check` will run it).
+`test_package()` (i.e. the way `R CMD check` will run it).
 
 ```
 if ( at_home() ){
