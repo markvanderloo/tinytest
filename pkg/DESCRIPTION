@@ -1,7 +1,7 @@
 Package: tinytest
 Maintainer: Mark van der Loo <mark.vanderloo@gmail.com>
 License: GPL-3
-Title: Lightweight But Feature Complete Unit Testing Framework for R
+Title: Lightweight but Feature Complete Unit Testing Framework for R
 LazyData: no
 Type: Package
 LazyLoad: yes
