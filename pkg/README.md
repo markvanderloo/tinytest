@@ -124,6 +124,7 @@ expect_equal(desired, obtained)
 If you wish to publish the package on CRAN, make sure that the files are small
 enough for the package to be acceptable. See the [cran repository
 policy](https://cran.r-project.org/web/packages/policies.html) for explicit
-bounds on package size.
+bounds on package size. Alternatively you can avoid installing
+the data and associated test files by adding them to [.Rbuildignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Building-package-tarballs).
 
 
