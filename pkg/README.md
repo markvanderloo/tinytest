@@ -23,6 +23,7 @@ R CMD build path/to/your/package
 R CMD check packagename_x.y.z.tar.gz
 ```
 
+3. Add `tinytest` to `Suggests:` in the `DESCRIPTION` file.
 
 #### Interactive package testing
 
