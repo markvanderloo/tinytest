@@ -2,8 +2,9 @@
 
 
 # tinytest
-A minimal, no-dependency package for unit testing
+A minimal, no-dependency, but fully featured package for unit testing
 
+[Overview of functionality](pkg/README.md)
 
 ## tinytest philosophy.
 
@@ -13,7 +14,6 @@ Testing infrastructure must not get in the way of the developer. Setting up
 tests should be done with ease. In `tinytest` tests are simple R-scripts
 where test statements can be intersperced with other code (e.g. to prepare
 some results for testing).
-
 
 
 ### Test results are data
@@ -27,15 +27,15 @@ result is compared with the result of a program or function. For example:
 addOne <- function(x) x + 1
 subOne <- function(x) x - 2
 
-# this test should be passed
+# this test should pass
 tinytest::expect_equal(2, addOne(1) )
 
 # this test will fail
 tinytest::expect_equal(1, subOne(2) ) 
 ```
 
-Commonly used unit testing frameworks for R throw a formal exception (error)
-whenever a test fails.  There are several reasons why this is not a good idea.
+Some unit testing frameworks for R throw a formal exception (error) whenever a
+test fails. There are several reasons why this is not a good idea.
 
 1. You do not need to throw an error to discover that a test has failed. A boolean
 result is in principle enough.
@@ -74,7 +74,7 @@ Developing and debugging takes focus and often deep concentration. `tinytest`
 supports your workflow by directing you as quickly as possible
 to the source of the test failure. In a single line of output you get the
 test result, the file and location in the file, and the test call that failed.
-
+Of course, printing is configurable through options.
 
 ### Light weight is the right weight
 
