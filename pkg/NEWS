@@ -1,2 +1,4 @@
+version 0.9.1
+- Fixed a few CRAN warnings.
 version 0.9.0
 - Initial release
