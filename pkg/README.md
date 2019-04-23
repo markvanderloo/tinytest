@@ -75,6 +75,7 @@ are shown in full. Global printing options can be set with `options(option=value
 | `tt.pr.passes`| FALSE    | print passing tests?          |
 | `tt.pr.limit` | 10       | how many results to print?    |
 | `tt.pr.nlong` | 3        | how many tests in long format?|
+| `tt.pr.color` | TRUE     | print colored output?|
 
 It is also possible to influence these options using `print.tinytest`.
 
