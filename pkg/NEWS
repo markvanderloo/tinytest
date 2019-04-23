@@ -1,8 +1,13 @@
+version 0.9.3
+- Fix: as.data.frame crashed on tinytests object with all tests passing.
+
 version 0.9.2
 - Processed review by CRAN team member.
-- Output coloring is now optional
-- Fixed issue so package works correctly with r-oldrel
+- Output coloring is now optional.
+- Fixed issue so package works correctly with r-oldrel.
+
 version 0.9.1
 - Fixed a few CRAN warnings.
+
 version 0.9.0
-- Initial release
+- Initial release.

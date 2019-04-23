@@ -768,7 +768,7 @@ as.data.frame.tinytests <- function(x, ...){
   L <- lapply(x, attributes)
   data.frame(
       result = sapply(x, isTRUE)
-    , call   = sapply(L, function(y) capture.output(print(y$call)))
+    , call   = sapply(L, function(y) gsub(" +"," ",paste0(capture.output(print(y$call)),collapse=" ")) )
     , diff   = sapply(L, `[[`, "diff")
     , short  = sapply(L, `[[`, "short")
     , file   = sapply(L, `[[`, "file")
