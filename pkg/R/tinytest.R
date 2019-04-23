@@ -1,6 +1,16 @@
 #' @importFrom utils install.packages file_test capture.output
 {}
 
+# define this internally, since the desired behavior was introduced at R 3.5.0
+isTRUE <- function(x){
+  is.logical(x) && length(x) == 1L && !is.na(x) && x
+}
+
+# define this internally, since it was introduced at R 3.5.0
+isFALSE <- function(x){
+  is.logical(x) && length(x) == 1L && !is.na(x) && !x
+}
+
 #' Tinytest constructor
 #'
 #'
