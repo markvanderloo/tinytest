@@ -3,7 +3,7 @@
 
 
 # tinytest
-A minimal, no-dependency, but fully featured package for unit testing
+A lightweight, no-dependency, but full-featured package for unit testing
 
 [Overview of functionality](pkg/README.md)
 
