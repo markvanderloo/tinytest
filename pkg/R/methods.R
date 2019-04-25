@@ -19,7 +19,7 @@ summary.tinytests <- function(object, ...){
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
     , length(object), sum(result=="passing"), sum(result=="failing"))
   cat(hdr,"\n\n")
-  ftable(addmargins(tab, 2:3))
+  stats::ftable(stats::addmargins(tab, 2:3))
 }   
 
 #' Tinytests object
