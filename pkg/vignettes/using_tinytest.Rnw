@@ -175,15 +175,20 @@ checks. An example test file in tinytest can look like this.
     expect_equal(2, addOne(hihi))
 \end{verbatim}
 
-A particular file can be run using\marginpar{\code{run\_test\_file}}
+A particular file can be run using\marginpar{\scriptsize\code{run\_test\_file}}
 <<eval>>=
 run_test_file("test_addOne.R", verbose=FALSE)
 @
-(We use \code{verbose=FALSE} to avoid cluttering the output in this vignette.)
+We use \code{verbose=FALSE} to avoid cluttering the output in this vignette.
+By default, verbosity is turned on, and a colorized counter is shown while
+tests are run. It shows number of tests uncolored, number of failures in red
+and number of passes in green. If you work with a terminal that does not
+support ANSI color codes, or if you are uncomfortable reading these colors, use
+\code{color=FALSE} or set \code{options(tt.pr.color=FALSE)}.
+
+
 The numbers between \code{<-->} indicate at what lines in the file the failing
 test can be found.
-
-
 By default only failing tests are  printed. You can store the output and print 
 all of them.
 <<>>=
