@@ -43,8 +43,9 @@ terminal.
 
 #### Test functions
 
-The syntax of test functions closely resembles that of [testthat](https://CRAN.R-project.org/package=testthat). The main difference is that the first argument is the _desired_, and the
-second argument is the _current_ value.
+The syntax of test functions resembles that of [testthat](https://CRAN.R-project.org/package=testthat). 
+For expectations comparing two results, the first argument represents the _observed_ value while
+the second argument represents the _desired_ value.
 
 |Function                     | description                                   |
 |-----------------------------|-----------------------------------------------|

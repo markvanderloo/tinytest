@@ -34,7 +34,7 @@ isFALSE <- function(x){
 #'
 #'
 #' @examples
-#' tt <- expect_equal(2, 1+1)
+#' tt <- expect_equal(1+1, 2)
 #' if (isTRUE(tt)){ 
 #'   print("w00p w00p!") 
 #' } else { 
@@ -85,7 +85,7 @@ lineformat <- function(x){
 #' @export
 #' 
 #' @examples
-#' tt <- expect_equal(3, 1+1)
+#' tt <- expect_equal(1+1, 3)
 #' format(tt,"long")
 #' format(tt,"short")
 format.tinytest <- function(x,type=c("long","short"), ...){
@@ -122,8 +122,8 @@ format.tinytest <- function(x,type=c("long","short"), ...){
 #' @param ... passed to \code{\link{format.tinytest}}
 #' 
 #' @examples
-#' print(expect_equal(2, 1+1))
-#' print(expect_equal(3, 1+1), type="long")
+#' print(expect_equal(1+1, 2))
+#' print(expect_equal(1+1, 3), type="long")
 #' 
 #' @export
 print.tinytest <- function(x,...){
@@ -153,20 +153,20 @@ print.tinytest <- function(x,...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(target, current, label=NA_character_
+expect_equal <- function(current, target, label=NA_character_
                        , tol = sqrt(.Machine$double.eps), ...){
 
-  check <- all.equal(target,current,...)
+  check <- all.equal(current, target,...)
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
-  short <- if(equal) NA_character_ else shortdiff(target, current, tolerance=tol)
+  short <- if(equal) NA_character_ else shortdiff(current, target, tolerance=tol)
   
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
 
 # are there differences in data and/or attributes, or just in the attributes?
-shortdiff <- function(target, current, ...){
-  equivalent_data <- all.equal(target, current
+shortdiff <- function(current, target, ...){
+  equivalent_data <- all.equal(current, target
                        , check_attributes=FALSE
                        , use.names=FALSE,...)
   if (isTRUE(equivalent_data)) "attr"
@@ -181,8 +181,8 @@ shortdiff <- function(target, current, ...){
 #' 
 #' @rdname expect_equal
 #' @export
-expect_equivalent <- function(target, current, tol = sqrt(.Machine$double.eps), ...){
-  out <- expect_equal(target, current, check.attributes=FALSE,use.names=FALSE,...)
+expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
+  out <- expect_equal(current, target, check.attributes=FALSE,use.names=FALSE,...)
   attr(out, 'call') <- sys.call(sys.parent(1))
   out
 }

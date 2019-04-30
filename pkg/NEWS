@@ -1,4 +1,6 @@
 version 0.9.3
+- Expect_* functions now have first argument 'current' and second argument 'target'
+- Added summary method for objects of class 'tinytests'
 - Default test directory is now inst/tinytest
 - Fix: as.data.frame crashed on tinytests object with all tests passing.
 

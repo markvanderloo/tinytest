@@ -21,6 +21,13 @@ done
 echo "######## Removing building information..."
 rm -rf output
 
+echo "######## Cleaning up vignette directory"
+rm pkg/vignettes/*.out
+rm pkg/vignettes/*.log
+rm pkg/vignettes/*.out
+rm pkg/vignettes/*.pdf
+rm pkg/vignettes/*.toc
+
 
 echo "######## Generate documentation..."
 

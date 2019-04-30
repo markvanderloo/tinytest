@@ -79,7 +79,7 @@ lbs2kg <- function(x){
 We like to check a few things before we trust it.
 <<>>=
 library(tinytest)
-expect_equal(1/2.2046, lbs2kg(1))
+expect_equal(lbs2kg(1), 1/2.2046)
 expect_error(lbs2kg(-3))
 @
 
@@ -97,16 +97,16 @@ Currently, the following expectations are implemented.
 \begin{center}
 \begin{tabular}{ll}
 \textbf{Function} & \textbf{what it looks for}\\
-\code{expect\_equal(target, current)}      & exact equality\\
-\code{expect\_equivalent(target, current)} & equality, ignoring attributes\\
+\code{expect\_equal(current, target)}      & exact equality\\
+\code{expect\_equivalent(current, target)} & equality, ignoring attributes\\
 \code{expect\_true(current)}               & does `current' evaluate to \code{TRUE}\\
 \code{expect\_false(current)}              & does `current' evaluate to \code{FALSE}\\
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
 \code{expect\_warning(current, pattern)}   & warning message matching \code{pattern}
 \end{tabular}
 \end{center}
-Here, \code{target} is the intended outcome and current is the resulting
-outcome.  Also, \code{pattern} is interpreted as a regular expression. 
+Here, \code{target} is the intended outcome and \code{current} is the observed
+outcome. Also, \code{pattern} is interpreted as a regular expression. 
 <<>>=
 expect_error(lbs2kg(-3), pattern="nonnegative")
 expect_error(lbs2kg(-3), pattern="foo")
@@ -139,7 +139,7 @@ the output of these expect-functions consist of
 The result of an \code{expect\_} function is a \code{tinytest} object. You can
 print them in long format (default) or in short, one-line format like so.
 <<>>=
-print(expect_equal(3, 1+1), type="short")
+print(expect_equal(1+1, 3), type="short")
 @
 Functions that run multiple tests return an object of class \code{tinytests}
 (notice the plural). Since there may be a lot of test results, \pkg{tinytest}
@@ -172,7 +172,7 @@ checks. An example test file in tinytest can look like this.
     expect_true(addOne(0) > 0)
 
     hihi <- 1
-    expect_equal(2, addOne(hihi))
+    expect_equal(addOne(hihi), 2)
 \end{verbatim}
 
 A particular file can be run using\marginpar{\scriptsize\code{run\_test\_file}}
@@ -216,7 +216,7 @@ sure that all test results are caught, unless you tell them not to. For
 example, since the result of a test is a \code{logical} you can use them as a
 condition.
 <<eval=FALSE>>=
-if ( expect_equal(2, 1 + 1) ){
+if ( expect_equal(1 + 1, 2) ){
     expect_true( 2 > 0)
 }
 @
@@ -229,7 +229,7 @@ will be caught in the test output, when this is run with \code{run\_test\_file}
 If you want to perform the test, but not record the test result you can do the
 following \marginpar{\code{ignore}} (note the placement of the brackets).
 <<eval=TRUE>>=
-if ( ignore(expect_equal)(2, 1+1) ){
+if ( ignore(expect_equal)(1+1, 2) ){
   expect_true(2>0)
 }
 @
@@ -312,7 +312,7 @@ Then, to check whether the contents of \code{women.csv} is equal to the
 built-in \code{women} dataset,  the content of \code{test.R} looks as follows.
 <<eval=FALSE>>=
 dat <- read.csv("women.csv")
-expect_equal(women, dat)
+expect_equal(dat, women)
 @
 
 \textbf{Note.} This will work with \code{test\_all()} and with \code{R CMD
@@ -448,11 +448,11 @@ will follow the first path, every negative number will follow the second path
 and anything nonnumeric follows the third path. So the following test suite
 fully tests the behaviour of our function.
 <<eval=FALSE>>=
-    expect_equal( 1/2.2046, pound2kg(1) )
+    expect_equal(pound2kg(1), 1/2.2046  )
     # test for expected warning, store output
     expect_warning( out <- pound2kg(-1) )
     # test the output
-    expect_equal( 1/2.2046, out )
+    expect_equal( out, 1/2.2046)
     expect_error(pound2kg("foo"))
 @
 
