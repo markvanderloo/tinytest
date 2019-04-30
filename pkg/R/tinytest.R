@@ -491,7 +491,7 @@ run_test_file <- function( file, at_home=TRUE
 #' @family test-files
 #'
 #' @export
-run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"
+run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , at_home = TRUE
                        , verbose = getOption("tt.verbose",TRUE)
                        , color   = getOption("tt.pr.color",TRUE) ){
@@ -514,7 +514,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"
 #' 
 #' \code{test_all} is a convenience function for package development, that wraps
 #' \code{run_test_dir}. By default, it runs all files starting with
-#' \code{test} in \code{./inst/utst/}.  It is assumed that all functions to be
+#' \code{test} in \code{./inst/tinytest/}.  It is assumed that all functions to be
 #' tested are loaded.
 #' 
 #' 
@@ -526,7 +526,7 @@ run_test_dir <- function(dir="inst/utst", pattern="^test.*\\.[rR]"
 #' 
 #' @rdname run_test_dir
 #' @export
-test_all <- function(pkgdir="./", testdir="inst/utst", ...){
+test_all <- function(pkgdir="./", testdir="inst/tinytest", ...){
   run_test_dir( file.path(pkgdir,testdir), ...)
 }
 
@@ -566,7 +566,7 @@ at_home <- function(){
 #'   if (require(tinytest)) test_package("your package name")
 #' }
 #' @export
-test_package <- function(pkgname, testdir = "utst"){
+test_package <- function(pkgname, testdir = "tinytest"){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
 
@@ -614,7 +614,7 @@ test_package <- function(pkgname, testdir = "utst"){
 #' }
 #' @family test-files
 #' @export
-build_install_test <- function(pkgdir="./", testdir="utst"
+build_install_test <- function(pkgdir="./", testdir="tinytest"
                              , at_home=TRUE
                              , verbose=getOption("tt.verbose",TRUE)
                              , keep_tempdir=FALSE){

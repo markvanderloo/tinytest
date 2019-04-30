@@ -5,7 +5,7 @@
 
 I assume that `pkg` is your package directory.
 
-1. Put files with names starting with `test` in `pkg/inst/utst`, e.g. `test_haha.R`. Test files are normal
+1. Put files with names starting with `test` in `pkg/inst/tinytest`, e.g. `test_haha.R`. Test files are normal
    R scripts, interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
 2. Put a file named `tinytest.R` in `pkg/tests` and give it the following contents.
 ```
@@ -88,7 +88,7 @@ For a package called `haha` that is tested using `tinytest`, any user that has
 ```
 library(haha)
 library(tinytest)
-run_test_dir( system.file("utst",package="haha") )
+run_test_dir( system.file("tinytest",package="haha") )
 ```
 
 #### Skipping or ignoring tests 
@@ -115,7 +115,7 @@ if ( at_home() ){
 
 #### Comparing with data stored on file
 
-Data can be loaded from `pkg/inst/utst` (or subdirectories). A simple
+Data can be loaded from `pkg/inst/tinytest` (or subdirectories). A simple
 test file might look like this.
 
 ```
