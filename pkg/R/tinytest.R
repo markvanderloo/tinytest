@@ -144,6 +144,12 @@ print.tinytest <- function(x,...){
 #' \code{logical} with attributes holding information about the 
 #' test that was run
 #' 
+#' @note
+#' Each \code{expect_haha} function can also be called as \code{checktHaha}.
+#' Although the interface is not entirely the same, it is expected that
+#' this makes migration from the \code{RUnit} framework a little easier, for those
+#' who wish to do so.
+#' 
 #' @family test-functions
 #' 
 #' @examples 
@@ -308,6 +314,17 @@ capture <- function(fun, env){
 }
 
 
+# RUnit style checking functions expect_xfoo -> checkXfoo 
+add_RUnit_style <- function(e){
+  fns <- ls(e, pattern="^expect_")
+  # snake to camelCase
+  fns_RUnit <- sub("_(.)", "\\U\\1", fns, perl=TRUE)
+  fns_RUnit <- sub("expect","check",fns_RUnit)
+  # add checkHaha for each expect_hihi (lol no for each expect_haha)
+  for (i in seq_along(fns)) assign(fns_RUnit[i], e[[fns[i]]], envir=e)
+}
+
+
 #' Ignore the output of an expectation
 #'
 #' Ignored expectations are not reported in the test results.
@@ -413,6 +430,9 @@ run_test_file <- function( file, at_home=TRUE
   e$expect_false      <- capture(expect_false, o)
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
+
+  if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
+  
 
   catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
 
