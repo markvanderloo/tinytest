@@ -242,7 +242,7 @@ there is a systematic set of cases to test.
 
 Using \pkg{tinytest} for your package is pretty easy.
 \begin{enumerate}
-\item Testfiles are placed in \code{/inst/utst}. The testfiles all have
+\item Testfiles are placed in \code{/inst/tinytest}. The testfiles all have
 names starting with \code{test} (for example \code{test\_haha.R}).
 \item In the file \code{/tests/tinytest.R} you place the code
 \begin{verbatim}
@@ -293,14 +293,14 @@ The return value is a \code{tinytests} object.
 \subsection{Using data stored in files}
 \label{sect:comparefiles}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
-that your working directory is the testing directory (by default \code{utst}).
+that your working directory is the testing directory (by default \code{tinytest}).
 This means you can files that are stored in your folder directly.
 
 Suppose that your package directory structure looks like this (default):
 \begin{itemize}
 \item[]\code{/inst}
   \begin{itemize}
-    \item[]\code{/utst}
+    \item[]\code{/tinytest}
     \begin{itemize}
        \item[]\code{/test.R}
        \item[]\code{/women.csv}
@@ -350,7 +350,7 @@ tests.
 <<eval=FALSE>>=
 library(hehe)
 library(tinytest)
-run_test_dir( system.file("utst",package="hehe") )
+run_test_dir( system.file("tinytest",package="hehe") )
 @
 This can come in handy when a user of \pkg{hehe} reports a bug and you want to
 make sure all tested functionality works on the user's system.
