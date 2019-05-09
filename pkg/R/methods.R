@@ -17,7 +17,7 @@ summary.tinytests <- function(object, ...){
   tab <- table(file=file,expect=expect, result=result)
 
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
-    , length(object), sum(result=="passing"), sum(result=="failing"))
+    , length(object), sum(result=="passes"), sum(result=="failing"))
   cat(hdr,"\n\n")
   stats::ftable(stats::addmargins(tab, 2:3))
 }   
