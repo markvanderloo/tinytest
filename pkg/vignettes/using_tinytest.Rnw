@@ -42,7 +42,7 @@
 
 \tableofcontents{}
 <<echo=FALSE>>=
-options(prompt="    ", continue = "    ")
+options(prompt="R>  ", continue = "    ")
 @
 
 
@@ -97,8 +97,9 @@ Currently, the following expectations are implemented.
 \begin{center}
 \begin{tabular}{ll}
 \textbf{Function} & \textbf{what it looks for}\\
-\code{expect\_equal(current, target)}      & exact equality\\
+\code{expect\_equal(current, target)}      & equality (using \code{all.equal})\\
 \code{expect\_equivalent(current, target)} & equality, ignoring attributes\\
+\code{expect\_identical(current, target)}  & equality, (using, \code{identical})\\
 \code{expect\_true(current)}               & does `current' evaluate to \code{TRUE}\\
 \code{expect\_false(current)}              & does `current' evaluate to \code{FALSE}\\
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
@@ -141,6 +142,7 @@ print them in long format (default) or in short, one-line format like so.
 <<>>=
 print(expect_equal(1+1, 3), type="short")
 @
+\marginpar{\scriptsize{\code{print} method}}
 Functions that run multiple tests return an object of class \code{tinytests}
 (notice the plural). Since there may be a lot of test results, \pkg{tinytest}
 tries to be smart about printing them. The user has ultimate control over
@@ -149,10 +151,6 @@ this behaviour. See
 ?print.tinytests
 @
 for a full specification of the options.
-
-
-
-
 
 
 
@@ -207,6 +205,25 @@ run_test_dir("/path/to/your/test/directory")
 @
 By default, this will run all files of which the name starts with
 \code{test\_}, but this is customizable.
+
+\subsection{Summarizing test results, getting the data}
+To create some results, run the tests in this package.
+<<>>=
+out <- run_test_dir(system.file("tinytest", package="tinytest")
+       , verbose=FALSE)
+
+@
+The results can be turned into data using \code{as.data.frame}.
+\marginpar{\scriptsize{\code{as.data.frame}}}.
+<<>>=
+head(as.data.frame(out), 3)
+@
+The last two columns indicate the line numbers where the test was defined.
+
+A `summary` of the output gives a table with passes and fails per file.
+<<>>=
+summary(out)
+@
 
 
 

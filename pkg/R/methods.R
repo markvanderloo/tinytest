@@ -1,5 +1,3 @@
-#' @importFrom stats ftable addmargins
-{}
 
 
 #' @rdname tinytests
@@ -8,18 +6,19 @@
 #' @export
 summary.tinytests <- function(object, ...){
   
-  expect <- sapply(object, function(x) as.character(attr(x,"call")[[1]]) )
-  expect <- sub("expect_", "", expect)
   result <- factor(ifelse(sapply(object, isTRUE), "passes","fails")
             , levels=c("passes","fails"))
   file   <- sapply(object, function(x) attr(x,"file"))
   file   <- basename(file)
-  tab <- table(file=file,expect=expect, result=result)
+  tab <- addmargins(table(File=file, Results=result), quiet=TRUE)
+  colnames(tab)[3] <- "tests"
+  tab <- tab[,c(3,1,2),drop=FALSE]
+  rownames(tab)[nrow(tab)] <- "Total"
 
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
     , length(object), sum(result=="passes"), sum(result=="failing"))
   cat(hdr,"\n\n")
-  stats::ftable(stats::addmargins(tab, 2:3))
+  tab
 }   
 
 #' Tinytests object

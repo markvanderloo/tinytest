@@ -16,6 +16,6 @@ Description: Provides a lightweight (zero-dependency) and easy to use
 Version: 0.9.3
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
-Imports: utils, stats
+Imports: utils
 RoxygenNote: 6.1.1
 Encoding: UTF-8
