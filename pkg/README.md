@@ -128,7 +128,7 @@ test file might look like this.
 ```
 desired <- read.csv("mycsvoutput.csv", stringsAsFactors=FALSE)
 obtained <- compute_my_result()
-expect_equal(desired, obtained)
+expect_equal(obtained, desired)
 ```
 If you wish to publish the package on CRAN, make sure that the files are small
 enough for the package to be acceptable. See the [cran repository
