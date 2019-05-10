@@ -8,8 +8,10 @@ summary.tinytests <- function(object, ...){
   
   result <- factor(ifelse(sapply(object, isTRUE), "passes","fails")
             , levels=c("passes","fails"))
+
   file   <- sapply(object, function(x) attr(x,"file"))
-  file   <- basename(file)
+  if (length(object) > 0) file   <- basename(file)
+
   tab    <- table(file, Results=result)
   tab    <- cbind(tab, Tests = rowSums(tab))
   tab    <- rbind(tab, Total = rowSums(tab))
@@ -21,6 +23,7 @@ summary.tinytests <- function(object, ...){
 
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
     , length(object), sum(result=="passes"), sum(result=="failing"))
+  
   cat(hdr,"\n\n")
   tab
 }   
