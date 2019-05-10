@@ -1,4 +1,4 @@
-version 0.9.3
+version 0.9.3 
 - New function 'expect_identical'
 - All functions of the form 'expect_lol' can now also be called as 'checkLol' 
   (similar to, but not the same as 'RUnit' syntax)
