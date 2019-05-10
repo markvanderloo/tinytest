@@ -114,6 +114,14 @@ expect_error(lbs2kg(-3), pattern="foo")
 @
 
 
+\subsection{Alternative syntax}
+The syntax of the test functions should be familiar to users of the
+\code{testthat} package\cite{wickham2016testthat}. In test files only, you can
+use equivalent functions in the style of \code{RUnit}\cite{burger2016RUnit}. To
+be precise, for each function of the form \code{expect\_lol} there is a
+function of the form \code{expectLol}.
+
+
 \subsection{Interpreting the output and print options}
 Let's have a look at an example again.
 <<>>=
@@ -151,7 +159,6 @@ this behaviour. See
 ?print.tinytests
 @
 for a full specification of the options.
-
 
 
 
@@ -507,9 +514,20 @@ to this as a \emph{regression}.
 
 
 \begin{thebibliography}{5}
-  
+  \bibitem{wickham2016testthat}
+    \href{https://cran.r-project.org/package=testthat}{Unit Testing for R}
+    Hadley Wickham (2016). testthat: Get Started with Testing. The R Journal,
+    vol. 3, no. 1, pp. 5--10, 2011
+
+  \bibitem{burger2016RUnit}
+  Matthias Burger, Klaus Juenemann and Thomas Koenig (2018). 
+  \href{https://CRAN.R-project.org/package=RUnit}{RUnit: R Unit Test Framework}
+  R package version 0.4.32.
+
+
+
   \bibitem{csardi2016cyclocomp}
-    \href{https://CRAN.R-project.org/package=cyclocomp}{cyclocomp: Cyclomatic Complexity of R Code}
+    \href{https://cran.r-project.org/package=cyclocomp}{cyclocomp: cyclomatic complexity of r code}
     G\'abor Cs\'ardi (2016)
     R package version 1.1.0
 
