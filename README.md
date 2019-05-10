@@ -29,10 +29,10 @@ addOne <- function(x) x + 1
 subOne <- function(x) x - 2
 
 # this test should pass
-tinytest::expect_equal(2, addOne(1) )
+tinytest::expect_equal(addOne(1), 2 )
 
 # this test will fail
-tinytest::expect_equal(1, subOne(2) ) 
+tinytest::expect_equal(subOne(2), 1 ) 
 ```
 
 Some unit testing frameworks for R throw a formal exception (error) whenever a
