@@ -143,7 +143,7 @@ print.tinytest <- function(x,...){
 #' test that was run
 #' 
 #' @note
-#' Each \code{expect_haha} function can also be called as \code{checktHaha}.
+#' Each \code{expect_haha} function can also be called as \code{checkHaha}.
 #' Although the interface is not entirely the same, it is expected that
 #' this makes migration from the \code{RUnit} framework a little easier, for those
 #' who wish to do so.

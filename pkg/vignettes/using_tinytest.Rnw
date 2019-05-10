@@ -119,7 +119,7 @@ The syntax of the test functions should be familiar to users of the
 \code{testthat} package\cite{wickham2016testthat}. In test files only, you can
 use equivalent functions in the style of \code{RUnit}\cite{burger2016RUnit}. To
 be precise, for each function of the form \code{expect\_lol} there is a
-function of the form \code{expectLol}.
+function of the form \code{checkLol}.
 
 
 \subsection{Interpreting the output and print options}

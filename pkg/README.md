@@ -60,7 +60,7 @@ the second argument represents the _desired_ value.
 
 For tests in a script there is an alternative syntax in the style of 
 [RUnit](https://CRAN.R-project.org/package=RUnit). For each function of the
-form `expect_lol` there is a function of the form `expectLol`.
+form `expect_lol` there is a function of the form `checkLol`.
 
 
 #### Print options
