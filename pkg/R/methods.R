@@ -2,7 +2,7 @@
 
 #' @rdname tinytests
 #' @param object a tinytests object
-#' @return For \code{summary} an \code{\link{ftable}} object
+#' @return For \code{summary} a \code{\link{table}} object
 #' @export
 summary.tinytests <- function(object, ...){
   
@@ -10,10 +10,14 @@ summary.tinytests <- function(object, ...){
             , levels=c("passes","fails"))
   file   <- sapply(object, function(x) attr(x,"file"))
   file   <- basename(file)
-  tab <- addmargins(table(File=file, Results=result), quiet=TRUE)
-  colnames(tab)[3] <- "tests"
-  tab <- tab[,c(3,1,2),drop=FALSE]
-  rownames(tab)[nrow(tab)] <- "Total"
+  tab    <- table(file, Results=result)
+  tab    <- cbind(tab, Tests = rowSums(tab))
+  tab    <- rbind(tab, Total = rowSums(tab))
+  tab    <- as.table(tab[,c(3,1,2),drop=FALSE])
+  n <- dimnames(tab)
+  names(n) <- c("File", "Results")
+  tab <- as.table(tab)
+  dimnames(tab) <- n
 
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
     , length(object), sum(result=="passes"), sum(result=="failing"))
