@@ -42,7 +42,7 @@
 
 \tableofcontents{}
 <<echo=FALSE>>=
-options(prompt="    ", continue = "    ")
+options(prompt="R>  ", continue = "    ")
 @
 
 
@@ -97,8 +97,9 @@ Currently, the following expectations are implemented.
 \begin{center}
 \begin{tabular}{ll}
 \textbf{Function} & \textbf{what it looks for}\\
-\code{expect\_equal(current, target)}      & exact equality\\
+\code{expect\_equal(current, target)}      & equality (using \code{all.equal})\\
 \code{expect\_equivalent(current, target)} & equality, ignoring attributes\\
+\code{expect\_identical(current, target)}  & equality, (using, \code{identical})\\
 \code{expect\_true(current)}               & does `current' evaluate to \code{TRUE}\\
 \code{expect\_false(current)}              & does `current' evaluate to \code{FALSE}\\
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
@@ -111,6 +112,14 @@ outcome. Also, \code{pattern} is interpreted as a regular expression.
 expect_error(lbs2kg(-3), pattern="nonnegative")
 expect_error(lbs2kg(-3), pattern="foo")
 @
+
+
+\subsection{Alternative syntax}
+The syntax of the test functions should be familiar to users of the
+\code{testthat} package\cite{wickham2016testthat}. In test files only, you can
+use equivalent functions in the style of \code{RUnit}\cite{burger2016RUnit}. To
+be precise, for each function of the form \code{expect\_lol} there is a
+function of the form \code{expectLol}.
 
 
 \subsection{Interpreting the output and print options}
@@ -141,6 +150,7 @@ print them in long format (default) or in short, one-line format like so.
 <<>>=
 print(expect_equal(1+1, 3), type="short")
 @
+\marginpar{\scriptsize{\code{print} method}}
 Functions that run multiple tests return an object of class \code{tinytests}
 (notice the plural). Since there may be a lot of test results, \pkg{tinytest}
 tries to be smart about printing them. The user has ultimate control over
@@ -149,11 +159,6 @@ this behaviour. See
 ?print.tinytests
 @
 for a full specification of the options.
-
-
-
-
-
 
 
 
@@ -208,6 +213,25 @@ run_test_dir("/path/to/your/test/directory")
 By default, this will run all files of which the name starts with
 \code{test\_}, but this is customizable.
 
+\subsection{Summarizing test results, getting the data}
+To create some results, run the tests in this package.
+<<>>=
+out <- run_test_dir(system.file("tinytest", package="tinytest")
+       , verbose=FALSE)
+
+@
+The results can be turned into data using \code{as.data.frame}.
+\marginpar{\scriptsize{\code{as.data.frame}}}.
+<<>>=
+head(as.data.frame(out), 3)
+@
+The last two columns indicate the line numbers where the test was defined.
+
+A `summary` of the output gives a table with passes and fails per file.
+<<>>=
+summary(out)
+@
+
 
 
 \subsection{Programming over tests, ignoring test results}
@@ -242,7 +266,7 @@ there is a systematic set of cases to test.
 
 Using \pkg{tinytest} for your package is pretty easy.
 \begin{enumerate}
-\item Testfiles are placed in \code{/inst/utst}. The testfiles all have
+\item Testfiles are placed in \code{/inst/tinytest}. The testfiles all have
 names starting with \code{test} (for example \code{test\_haha.R}).
 \item In the file \code{/tests/tinytest.R} you place the code
 \begin{verbatim}
@@ -293,14 +317,14 @@ The return value is a \code{tinytests} object.
 \subsection{Using data stored in files}
 \label{sect:comparefiles}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
-that your working directory is the testing directory (by default \code{utst}).
+that your working directory is the testing directory (by default \code{tinytest}).
 This means you can files that are stored in your folder directly.
 
 Suppose that your package directory structure looks like this (default):
 \begin{itemize}
 \item[]\code{/inst}
   \begin{itemize}
-    \item[]\code{/utst}
+    \item[]\code{/tinytest}
     \begin{itemize}
        \item[]\code{/test.R}
        \item[]\code{/women.csv}
@@ -350,7 +374,7 @@ tests.
 <<eval=FALSE>>=
 library(hehe)
 library(tinytest)
-run_test_dir( system.file("utst",package="hehe") )
+run_test_dir( system.file("tinytest",package="hehe") )
 @
 This can come in handy when a user of \pkg{hehe} reports a bug and you want to
 make sure all tested functionality works on the user's system.
@@ -490,9 +514,20 @@ to this as a \emph{regression}.
 
 
 \begin{thebibliography}{5}
-  
+  \bibitem{wickham2016testthat}
+    \href{https://cran.r-project.org/package=testthat}{Unit Testing for R}
+    Hadley Wickham (2016). testthat: Get Started with Testing. The R Journal,
+    vol. 3, no. 1, pp. 5--10, 2011
+
+  \bibitem{burger2016RUnit}
+  Matthias Burger, Klaus Juenemann and Thomas Koenig (2018). 
+  \href{https://CRAN.R-project.org/package=RUnit}{RUnit: R Unit Test Framework}
+  R package version 0.4.32.
+
+
+
   \bibitem{csardi2016cyclocomp}
-    \href{https://CRAN.R-project.org/package=cyclocomp}{cyclocomp: Cyclomatic Complexity of R Code}
+    \href{https://cran.r-project.org/package=cyclocomp}{cyclocomp: cyclomatic complexity of r code}
     G\'abor Cs\'ardi (2016)
     R package version 1.1.0
 

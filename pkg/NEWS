@@ -1,8 +1,11 @@
-version 0.9.3
+version 0.9.3 
+- New function 'expect_identical'
+- All functions of the form 'expect_lol' can now also be called as 'checkLol' 
+  (similar to, but not the same as 'RUnit' syntax)
 - Expect_* functions now have first argument 'current' and second argument 'target'
-- Added summary method for objects of class 'tinytests'
-- Default test directory is now inst/tinytest
-- Fix: as.data.frame crashed on tinytests object with all tests passing.
+- Added 'summary' method for objects of class 'tinytests'
+- Default test directory is now 'inst/tinytest'
+- Fix: 'as.data.frame' crashed on tinytests object with all tests passing.
 
 version 0.9.2
 - Processed review by CRAN team member.

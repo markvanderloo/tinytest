@@ -21,7 +21,6 @@ isFALSE <- function(x){
 #'
 #' @param result \code{[logical]} scalar.
 #' @param call   \code{[call]} The call that created \code{result}.
-#' @param label  \code{[character]} a user-defined label.
 #' @param diff   \code{[character]} difference between current and target value
 #'     (if any).
 #' @param short  \code{[character]} short description of the difference
@@ -135,7 +134,6 @@ print.tinytest <- function(x,...){
 #'  
 #' @param current \code{[R object or expression]} Outcome or expression under scrutiny.
 #' @param target \code{[R object or expression]} Expected outcome
-#' @param label \code{[character]} A label or description.
 #' @param tol \code{[numeric]} Test equality to machine rounding. Passed 
 #'     to \code{\link[base]{all.equal} (tolerance)}
 #' @param ... Passed to \code{all.equal}
@@ -143,6 +141,12 @@ print.tinytest <- function(x,...){
 #' @return A \code{\link{tinytest}} object. A tinytest object is a
 #' \code{logical} with attributes holding information about the 
 #' test that was run
+#' 
+#' @note
+#' Each \code{expect_haha} function can also be called as \code{checktHaha}.
+#' Although the interface is not entirely the same, it is expected that
+#' this makes migration from the \code{RUnit} framework a little easier, for those
+#' who wish to do so.
 #' 
 #' @family test-functions
 #' 
@@ -153,8 +157,7 @@ print.tinytest <- function(x,...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(current, target, label=NA_character_
-                       , tol = sqrt(.Machine$double.eps), ...){
+expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 
   check <- all.equal(current, target,...)
   equal <- isTRUE(check)
@@ -163,6 +166,19 @@ expect_equal <- function(current, target, label=NA_character_
   
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
+
+
+#' @rdname expect_equal
+#' @export 
+expect_identical <- function(current, target){
+  result <- identical(current, target)
+  diff <-  if (result) NA_character_ 
+           else paste(" ", all.equal(current, target), collapse="\n")
+  short <- if (result) NA_character_ 
+           else shortdiff(current, target, tolerance=0)
+  tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff, short=short)
+}
+
 
 # are there differences in data and/or attributes, or just in the attributes?
 shortdiff <- function(current, target, ...){
@@ -175,7 +191,7 @@ shortdiff <- function(current, target, ...){
 
 
 #' @details 
-#' \code{expect_equivalent} is calls \code{expect_equal} with the extra
+#' \code{expect_equivalent} calls \code{expect_equal} with the extra
 #' arguments \code{check.attributes=FALSE} and \code{use.names=FALSE}
 #' 
 #' 
@@ -308,6 +324,17 @@ capture <- function(fun, env){
 }
 
 
+# RUnit style checking functions expect_xfoo -> checkXfoo 
+add_RUnit_style <- function(e){
+  fns <- ls(e, pattern="^expect_")
+  # snake to camelCase
+  fns_RUnit <- sub("_(.)", "\\U\\1", fns, perl=TRUE)
+  fns_RUnit <- sub("expect","check",fns_RUnit)
+  # add checkHaha for each expect_hihi (lol no for each expect_haha)
+  for (i in seq_along(fns)) assign(fns_RUnit[i], e[[fns[i]]], envir=e)
+}
+
+
 #' Ignore the output of an expectation
 #'
 #' Ignored expectations are not reported in the test results.
@@ -413,6 +440,10 @@ run_test_file <- function( file, at_home=TRUE
   e$expect_false      <- capture(expect_false, o)
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
+  e$expect_identical  <- capture(expect_identical, o)
+
+  if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
+  
 
   catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
 

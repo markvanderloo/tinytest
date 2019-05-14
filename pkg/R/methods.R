@@ -1,25 +1,31 @@
-#' @importFrom stats ftable addmargins
-{}
 
 
 #' @rdname tinytests
 #' @param object a tinytests object
-#' @return For \code{summary} an \code{\link{ftable}} object
+#' @return For \code{summary} a \code{\link{table}} object
 #' @export
 summary.tinytests <- function(object, ...){
   
-  expect <- sapply(object, function(x) as.character(attr(x,"call")[[1]]) )
-  expect <- sub("expect_", "", expect)
   result <- factor(ifelse(sapply(object, isTRUE), "passes","fails")
             , levels=c("passes","fails"))
+
   file   <- sapply(object, function(x) attr(x,"file"))
-  file   <- basename(file)
-  tab <- table(file=file,expect=expect, result=result)
+  if (length(object) > 0) file   <- basename(file)
+
+  tab    <- table(file, Results=result)
+  tab    <- cbind(tab, Tests = rowSums(tab))
+  tab    <- rbind(tab, Total = rowSums(tab))
+  tab    <- as.table(tab[,c(3,1,2),drop=FALSE])
+  n <- dimnames(tab)
+  names(n) <- c("File", "Results")
+  tab <- as.table(tab)
+  dimnames(tab) <- n
 
   hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
-    , length(object), sum(result=="passing"), sum(result=="failing"))
+    , length(object), sum(result=="passes"), sum(result=="failing"))
+  
   cat(hdr,"\n\n")
-  stats::ftable(stats::addmargins(tab, 2:3))
+  tab
 }   
 
 #' Tinytests object

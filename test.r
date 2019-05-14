@@ -13,7 +13,7 @@ install.packages(pkgfile,lib=dr, repos=NULL)
 
 library(pkg, lib.loc=dr, character.only=TRUE)
 
-run_test_dir(system.file("utst", package=pkg))
+run_test_dir(system.file("tinytest", package=pkg))
 
 
 

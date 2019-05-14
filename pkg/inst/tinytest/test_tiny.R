@@ -3,12 +3,17 @@
 # check behavior
 expect_true(TRUE)
 expect_false(FALSE)
+expect_equal(1,1)
+expect_identical(1L,1L)
+
 
 # check output value (wow, this is pretty meta---man)
-expect_true(ignore(expect_true)(TRUE))
+expect_true( ignore(expect_true)(TRUE))
 expect_false(ignore(expect_true)(FALSE))
-expect_true(ignore(expect_false)(FALSE))
+expect_true( ignore(expect_false)(FALSE))
 expect_false(ignore(expect_false)(TRUE))
+expect_false( ignore(expect_identical)(1L,2L) )
+
 
 # check behavior
 expect_equal(1+1,2)
