@@ -9,7 +9,7 @@ I assume that `pkg` is your package directory.
    R scripts, interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
 2. Put a file named `tinytest.R` in `pkg/tests` and give it the following contents.
 ```
-if ( require(tinytest) ){
+if ( requireNamespace("tinytest", quietly = TRUE ) ){
   test_package("packagename")
 }
 ```
