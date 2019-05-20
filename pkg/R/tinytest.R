@@ -239,7 +239,8 @@ expect_error <- function(current, pattern=".*"){
   expr <- substitute(current)
   result <- FALSE
   diff <- "No Error"
-  tryCatch(eval(expr), error=function(e){
+  e <- sys.frame(-2) 
+  tryCatch(eval(expr, envir=e), error=function(e){
             if (grepl(pattern, e$message)){
                 result <<- TRUE
             } else {
