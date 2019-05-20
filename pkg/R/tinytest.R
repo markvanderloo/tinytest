@@ -34,13 +34,13 @@ isFALSE <- function(x){
 #'
 #' @examples
 #' tt <- expect_equal(1+1, 2)
-#' if (isTRUE(tt)){ 
-#'   print("w00p w00p!") 
-#' } else { 
-#'   print("Oh no!") 
+#' if (isTRUE(tt)){
+#'   print("w00p w00p!")
+#' } else {
+#'   print("Oh no!")
 #' }
 #'
-#' 
+#'
 #'
 #' @keywords internal
 #' @export
@@ -53,7 +53,7 @@ tinytest <- function(result, call
     ,...){
 
   structure(result         # logical TRUE/FALSE
-    , class    = "tinytest"   
+    , class    = "tinytest"
     , call     = call  # call creating the object
     , diff     = diff  # diff if isFALSE(result)
     , short    = short # short diff (4 char)
@@ -67,11 +67,11 @@ tinytest <- function(result, call
 na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 
 oneline <- function(x) sub("\\n.+","...",x)
-indent <- function(x, with="     ") 
+indent <- function(x, with="     ")
   gsub("\\n *",paste0("\n",with),paste0(with,sub("^ +","",x)))
 
 lineformat <- function(x){
-  if ( is.na(x) ) "" 
+  if ( is.na(x) ) ""
   else sprintf("%d",x)
 }
 
@@ -79,10 +79,10 @@ lineformat <- function(x){
 #'
 #' @return A character string
 #'
-#' 
+#'
 #' @rdname print.tinytest
 #' @export
-#' 
+#'
 #' @examples
 #' tt <- expect_equal(1+1, 3)
 #' format(tt,"long")
@@ -93,37 +93,37 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   d <- attributes(x)
   call  <- paste0(deparse(d$call), collapse="\n")
   fst   <- lineformat(d$fst, ...)
-  lst   <- lineformat(d$lst, ...) 
+  lst   <- lineformat(d$lst, ...)
   file  <- na_str(d$file)
   short <- na_str(d$short)
   diff  <- d$diff
-  
+
   result <- if (isTRUE(x)) "PASSED      " else sprintf("FAILED[%s]",short)
   longfmt <- "----- %s: %s<%s--%s>\n%s"
   if (isFALSE(x)) longfmt <- paste0(longfmt, "\n%s")
-  
-  if (type == "short"){ 
+
+  if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
-  }  else { 
+  }  else {
     sprintf(longfmt, result, file, fst, lst
                 , indent(call, with=" call ")
                 , indent(diff, with=" diff "))
   }
-  
+
 }
 
 
 
 
 #' Print a tinytest object
-#' 
+#'
 #' @param x A \code{tinytest} object
 #' @param ... passed to \code{\link{format.tinytest}}
-#' 
+#'
 #' @examples
 #' print(expect_equal(1+1, 2))
 #' print(expect_equal(1+1, 3), type="long")
-#' 
+#'
 #' @export
 print.tinytest <- function(x,...){
   cat(format.tinytest(x,...),"\n")
@@ -131,26 +131,26 @@ print.tinytest <- function(x,...){
 
 
 #' Express expectations
-#'  
+#'
 #' @param current \code{[R object or expression]} Outcome or expression under scrutiny.
 #' @param target \code{[R object or expression]} Expected outcome
-#' @param tol \code{[numeric]} Test equality to machine rounding. Passed 
+#' @param tol \code{[numeric]} Test equality to machine rounding. Passed
 #'     to \code{\link[base]{all.equal} (tolerance)}
 #' @param ... Passed to \code{all.equal}
 #'
 #' @return A \code{\link{tinytest}} object. A tinytest object is a
-#' \code{logical} with attributes holding information about the 
+#' \code{logical} with attributes holding information about the
 #' test that was run
-#' 
+#'
 #' @note
 #' Each \code{expect_haha} function can also be called as \code{checkHaha}.
 #' Although the interface is not entirely the same, it is expected that
 #' this makes migration from the \code{RUnit} framework a little easier, for those
 #' who wish to do so.
-#' 
+#'
 #' @family test-functions
-#' 
-#' @examples 
+#'
+#' @examples
 #' expect_equal(1 + 1, 2)       # TRUE
 #' expect_equal(1 - 1, 2)       # FALSE
 #' expect_equivalent(2, c(x=2)) # TRUE
@@ -163,18 +163,18 @@ expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
   short <- if(equal) NA_character_ else shortdiff(current, target, tolerance=tol)
-  
+
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
 
 
 #' @rdname expect_equal
-#' @export 
+#' @export
 expect_identical <- function(current, target){
   result <- identical(current, target)
-  diff <-  if (result) NA_character_ 
+  diff <-  if (result) NA_character_
            else paste(" ", all.equal(current, target), collapse="\n")
-  short <- if (result) NA_character_ 
+  short <- if (result) NA_character_
            else shortdiff(current, target, tolerance=0)
   tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff, short=short)
 }
@@ -190,11 +190,11 @@ shortdiff <- function(current, target, ...){
 }
 
 
-#' @details 
+#' @details
 #' \code{expect_equivalent} calls \code{expect_equal} with the extra
 #' arguments \code{check.attributes=FALSE} and \code{use.names=FALSE}
-#' 
-#' 
+#'
+#'
 #' @rdname expect_equal
 #' @export
 expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
@@ -272,7 +272,7 @@ expect_warning <- function(current, pattern=".*"){
         }
         eval(invokeRestart("muffleWarning"), envir=e)
     })
-  
+
   tinytest(result, call=sys.call(sys.parent(1))
            , short = if (result) NA_character_ else "xcpt"
            , diff  = if (result) NA_character_ else diff)
@@ -326,7 +326,7 @@ capture <- function(fun, env){
 }
 
 
-# RUnit style checking functions expect_xfoo -> checkXfoo 
+# RUnit style checking functions expect_xfoo -> checkXfoo
 add_RUnit_style <- function(e){
   fns <- ls(e, pattern="^expect_")
   # snake to camelCase
@@ -344,13 +344,13 @@ add_RUnit_style <- function(e){
 #' at the commandline. See also the \href{../docs/using_tinytest.pdf}{vignette}.
 #'
 #' @param fun An \code{expect_} function
-#' 
+#'
 #' @return an ignored function
 #' @family test-functions
 #'
 #' @examples
 #' \donttest{
-#'    ## The result of 'expect_warning' is not stored in the test result when 
+#'    ## The result of 'expect_warning' is not stored in the test result when
 #'    ## this is run from a file.
 #'    expect_true( ignore(expect_warning)(warning("foo!")) )
 #'    ## Note the placement of the brackets in ignore(expect_warning)(...).
@@ -376,34 +376,34 @@ ignore <- function(fun){
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
-#' @details 
-#' 
+#' @details
+#'
 #' In \pkg{tinytest}, a test file is just an R script where some or all
-#' of the statements express an \code{\link[=expect_equal]{expectation}}. 
+#' of the statements express an \code{\link[=expect_equal]{expectation}}.
 #' \code{run_test_file} runs the file while gathering results of the
 #' expectations in a data frame.
-#' 
+#'
 #' @note
 #' Not all terminals support ansi escape characters, so colorized output can be
 #' switched off. This can also be done globally by setting \code{options(tt.pr.color=FALSE)}.
 #' Some terminals that do support ansi escape characters may contain
-#' bugs. An example is the RStudio terminal (RStudio 1.1) running on Ubuntu 16.04 
+#' bugs. An example is the RStudio terminal (RStudio 1.1) running on Ubuntu 16.04
 #' (and possibly other OSs).
-#' 
-#' @return   A \code{list} of class \code{tinytests}, which is a list 
+#'
+#' @return   A \code{list} of class \code{tinytests}, which is a list
 #'    of \code{\link{tinytest}} objects.
-#' 
+#'
 #' @examples
 #' # create a test file, in temp directory
 #' tests <- "
 #' addOne <- function(x) x + 2
-#' 
+#'
 #' expect_true(addOne(0) > 0)
 #' expect_equal(2, addOne(1))
 #' "
 #' testfile <- tempfile(pattern="test_", fileext=".R")
 #' write(tests, testfile)
-#' 
+#'
 #' # run test file
 #' out <- run_test_file(testfile,color=FALSE)
 #' out
@@ -411,7 +411,7 @@ ignore <- function(fun){
 #' print(out, nlong=0, passes=TRUE)
 #'
 #' @family test-files
-#' @export 
+#' @export
 run_test_file <- function( file, at_home=TRUE
                          , verbose = getOption("tt.verbose", TRUE)
                          , color   = getOption("tt.pr.color", TRUE) ){
@@ -421,16 +421,16 @@ run_test_file <- function( file, at_home=TRUE
 
   oldwd <- getwd()
   wd_set <- length(dirname(file)) > 0
-  on.exit({ 
+  on.exit({
       Sys.unsetenv("TT_AT_HOME")
       setwd(oldwd)
   })
-  if (wd_set){ 
+  if (wd_set){
       setwd(dirname(file))
       file <- basename(file)
   }
- 
-  if (at_home) Sys.setenv(TT_AT_HOME=TRUE)  
+
+  if (at_home) Sys.setenv(TT_AT_HOME=TRUE)
 
   o <- output()
   # we sleeve the expectation functions so their
@@ -445,7 +445,7 @@ run_test_file <- function( file, at_home=TRUE
   e$expect_identical  <- capture(expect_identical, o)
 
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
-  
+
 
   catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
 
@@ -454,7 +454,7 @@ run_test_file <- function( file, at_home=TRUE
   #cat(sprintf("Running %s ", basename(file)) )
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
-  
+
   ns <- c(nres=0,npass=0)
 
   o$file <- file
@@ -464,14 +464,14 @@ run_test_file <- function( file, at_home=TRUE
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
-    
+
     fmtstr <- if ( color ){
       "\rRunning %s (%02d|\033[0;32m%02d\033[0m|\033[0;31m%02d\033[0m)"
     } else {
       "\rRunning %s (T%02d|P%02d|F%02d)"
     }
     catf(fmtstr, basename(file), o$ntest(), o$npass(), o$nfail() )
-    
+
   }
   catf("\n")
   test_output <- o$gimme()
@@ -501,7 +501,7 @@ run_test_file <- function( file, at_home=TRUE
 #' @param color   \code{[logical]} toggle colorize output
 #'
 #' @return A \code{tinytests} object
-#' 
+#'
 #'
 #' @examples
 #' # create a test file in tempdir
@@ -513,7 +513,7 @@ run_test_file <- function( file, at_home=TRUE
 #' "
 #' testfile <- tempfile(pattern="test_", fileext=".R")
 #' write(tests, testfile)
-#' 
+#'
 #' # extract testdir
 #' testdir <- dirname(testfile)
 #' # run all files starting with 'test' in testdir
@@ -534,7 +534,7 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
 
   testfiles <- dir("./", pattern=pattern, full.names=TRUE)
   test_output <- list()
-  
+
   for ( file in testfiles ){
     test_output <- c(test_output, run_test_file(file,at_home=at_home, verbose=verbose, color=color))
   }
@@ -544,29 +544,29 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
 
 
 #' Test a package during development
-#' 
+#'
 #' \code{test_all} is a convenience function for package development, that wraps
 #' \code{run_test_dir}. By default, it runs all files starting with
 #' \code{test} in \code{./inst/tinytest/}.  It is assumed that all functions to be
 #' tested are loaded.
-#' 
-#' 
-#' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e. 
+#'
+#'
+#' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e.
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
 #' @param ... passed to \code{run_test_dir}.
-#' 
+#'
 #' @rdname run_test_dir
 #' @export
 test_all <- function(pkgdir="./", testdir="inst/tinytest", ...){
   run_test_dir( file.path(pkgdir,testdir), ...)
 }
 
-#' Detect not on CRANity 
+#' Detect not on CRANity
 #'
 #' Detect whether we are running at home (i.e. not on CRAN, BioConductor, ...)
-#' 
+#'
 #'
 #' @examples
 #' # test will run locally, but not on CRAN
@@ -585,7 +585,7 @@ at_home <- function(){
 #' results when one or more tests fail. This function is intended to be
 #' used with \code{R CMD check} and not for interactive use (use \code{\link{test_all}}
 #' for that.)
-#' 
+#'
 #' @param pkgname \code{[character]} scalar. Name of the package
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
@@ -596,7 +596,8 @@ at_home <- function(){
 #' \dontrun{
 #' # Create a file with the following content, to use
 #' # tinytest as your unit testing framework:
-#'   if (require(tinytest)) test_package("your package name")
+#'   if (requireNamespace("tinytest:, quietly=TRUE))
+#'     test_package("your package name")
 #' }
 #' @export
 test_package <- function(pkgname, testdir = "tinytest"){
@@ -605,7 +606,7 @@ test_package <- function(pkgname, testdir = "tinytest"){
 
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
-  
+
   out <- run_test_dir("./")
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
@@ -629,17 +630,17 @@ test_package <- function(pkgname, testdir = "tinytest"){
 #' }
 #'
 #' @param pkgdir \code{[character]} Package directory
-#' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst} 
+#' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst}
 #'    containing test files.
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
-#' @param keep_tempdir \code{[logical]} keep directory where the pkg is 
-#'   installed and where tests are run? If \code{TRUE}, the directory is not deleted 
+#' @param keep_tempdir \code{[logical]} keep directory where the pkg is
+#'   installed and where tests are run? If \code{TRUE}, the directory is not deleted
 #'   and it's location is printed.
-#' 
+#'
 #'
 #' @return A \code{tinytests} object.
-#' 
+#'
 #' @examples
 #' \dontrun{
 #'   ## If your package source directory is "./pkg" you can run
@@ -654,7 +655,7 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
   oldwd <- getwd()
   tdir  <- tempfile()
   on.exit({setwd(oldwd)
-           if (keep_tempdir){ 
+           if (keep_tempdir){
              cat(sprintf("tempdir: %s\n",tdir))
            } else {
              unlink(tdir, recursive=TRUE)
@@ -698,18 +699,3 @@ saveRDS(out, file='output.RDS')
   readRDS(file.path(tdir, "output.RDS"))
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
