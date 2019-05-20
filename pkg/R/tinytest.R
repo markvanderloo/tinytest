@@ -255,11 +255,12 @@ expect_error <- function(current, pattern=".*"){
 #' @rdname expect_equal
 #' @export
 expect_warning <- function(current, pattern=".*"){
+  
   result <- FALSE
   expr <- substitute(current)
   diff <- "No Warning"
 
-  e <- sys.frame(-1)
+  e <- sys.frame(-2) 
   withCallingHandlers(eval(expr, envir=e)
     , warning = function(w){
         if (grepl(pattern, w$message)){
