@@ -603,7 +603,7 @@ at_home <- function(){
 test_package <- function(pkgname, testdir = "tinytest"){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
-
+  require(pkgname, character.only=TRUE) 
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
 
