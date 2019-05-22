@@ -106,8 +106,8 @@ format.tinytest <- function(x,type=c("long","short"), ...){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
   }  else {
     sprintf(longfmt, result, file, fst, lst
-                , indent(call, with=" call ")
-                , indent(diff, with=" diff "))
+                , indent(call, with=" call| ")
+                , indent(diff, with=" diff| "))
   }
 
 }
