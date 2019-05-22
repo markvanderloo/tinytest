@@ -1,7 +1,8 @@
 version 0.9.4
-- Fix in 'expect_warning'. In some circumstances, evaluation of 'current' was done
-  in the wrong scope, resulting in unfound variables.
+- Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
+  argument 'current' evaluated in the wrong scope, resulting in unfound variables.
 - Resolved some inaccuracies in the documentation
+- Small improvements in long output format.
 
 version 0.9.3 
 - New function 'expect_identical'
