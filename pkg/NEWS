@@ -2,7 +2,10 @@ version 0.9.4
 - Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
   argument 'current' evaluated in the wrong scope, resulting in unfound variables.
 - Resolved some inaccuracies in the documentation
-- Small improvements in long output format.
+- When running tests from a file, the reported call is equal to the
+  source expression when it is short. For longer, multiline expressions
+  the result of 'match.call' is now used. This improves output printing when expect_* functions are
+  programmed over, e.g. within 'if' or 'for' statements.
 
 version 0.9.3 
 - New function 'expect_identical'
