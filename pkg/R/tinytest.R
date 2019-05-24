@@ -315,7 +315,7 @@ output <- function(){
 capture <- function(fun, env){
   function(...){
     out <- fun(...)
-    attr(out,"call") <- env$call
+    attr(out,"call") <- if (env$lst - env$fst >=3) match.call(fun) else env$call
     attr(out,"file") <- env$file
     attr(out,"fst")  <- env$fst
     attr(out,"lst")  <- env$lst
