@@ -584,14 +584,15 @@ at_home <- function(){
 #' Run all tests in a package. Throw an error and print all failed test
 #' results when one or more tests fail. This function is intended to be
 #' used with \code{R CMD check} and not for interactive use (use \code{\link{test_all}}
-#' for that.)
+#' or \code{\link{build_install_test}} instead). Tests that are only run 
+#' \code{\link{at_home}} are skipped.
 #'
 #' @param pkgname \code{[character]} scalar. Name of the package
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
 #'
 #' @family test-files
-#' @seealso \code{\link{tinytest}}
+#' @seealso \code{\link{setup_tinytest}}
 #' @examples
 #' \dontrun{
 #' # Create a file with the following content, to use
@@ -607,7 +608,7 @@ test_package <- function(pkgname, testdir = "tinytest"){
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
 
-  out <- run_test_dir("./")
+  out <- run_test_dir("./", at_home=FALSE) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
     msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")

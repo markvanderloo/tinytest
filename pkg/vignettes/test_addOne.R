@@ -5,6 +5,6 @@ addOne <- function(x) x + 2
 expect_true(addOne(0) > 0)
 
 hihi <- 1
-expect_equal(2, addOne(hihi))
+expect_equal(addOne(hihi), 2)
 
 

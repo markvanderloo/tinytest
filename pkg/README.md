@@ -29,7 +29,7 @@ R CMD check packagename_x.y.z.tar.gz
 A very quick way to set things up is as follows.
 
 ```
-tinytest::tinytest("/path/to/your/package")
+tinytest::setup_tinytest("/path/to/your/package")
 ```
 
 #### Interactive package testing

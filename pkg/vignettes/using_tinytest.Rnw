@@ -218,10 +218,9 @@ To create some results, run the tests in this package.
 <<>>=
 out <- run_test_dir(system.file("tinytest", package="tinytest")
        , verbose=FALSE)
-
 @
 The results can be turned into data using \code{as.data.frame}.
-\marginpar{\scriptsize{\code{as.data.frame}}}.
+\marginpar{\scriptsize{\code{as.data.frame}}}
 <<>>=
 head(as.data.frame(out), 3)
 @
@@ -271,15 +270,15 @@ names starting with \code{test} (for example \code{test\_haha.R}).
 \item In the file \code{/tests/tinytest.R} you place the code
 \begin{verbatim}
     if ( requireNamespace("tinytest", quietly=TRUE) ){
-      test_package("PACKAGENAME")
+      tinytest::test_package("PACKAGENAME")
     }
 \end{verbatim}
 \item In your \code{DESCRIPTION} file, add \pkg{tinytest} to \code{Suggests:}.
 \end{enumerate}
 You can automatically create a minimal running test infrastructure
-with the \code{tinytest} function. \marginpar{\code{setup}}
+with the \code{setup\_tinytest} function. \marginpar{\code{setup\_tinytest}}
 <<eval=FALSE>>=
-tinytest("/path/to/your/package")
+setup_tinytest("/path/to/your/package")
 @
 
 In a terminal, you can now do
@@ -297,34 +296,31 @@ test_all("/path/to/your/package")
 @
 where the default package directory is the current working directory.
 
-Alternatively, you can use\marginpar{\code{build\_install\_test}}
-<<eval=FALSE>>=
-build_install_test("/path/to/your/package")
-@
-This will build the package, install it in a temporary directory and run all te
-tests. 
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Build--install--test interactively}
 The most realistic way to unit-test your package is to build it, install it
-and then run all the test. The function
+and then run all the tests. The function
 <<eval=FALSE>>=
-  build_install_test()
+  build_install_test("/path/to/your/package")
 @
 does exactly that. It builds and installs the package in a temporary directory,
 starts a fresh R session, loads the newly installed package and runs all tests.
 The return value is a \code{tinytests} object.
 
+The package is built without manual or vignettes to speed up the
+whole process.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Using data stored in files}
 \label{sect:comparefiles}
 When your package is tested with \code{test\_package}, \pkg{tinytest} ensures
-that your working directory is the testing directory (by default \code{tinytest}).
-This means you can files that are stored in your folder directly.
+that your working directory is the testing directory (by default
+\code{tinytest}).  This means you can read files that are stored in your folder
+directly.
 
 Suppose that your package directory structure looks like this (default):
 \begin{itemize}
@@ -345,9 +341,6 @@ dat <- read.csv("women.csv")
 expect_equal(dat, women)
 @
 
-\textbf{Note.} This will work with \code{test\_all()} and with \code{R CMD
-check} but not with \code{run\_test\_file()} because the latter does not
-temporarily change working directory.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -357,9 +350,9 @@ running code it is desirable to automatically toggle these tests off on CRAN,
 but to run them during development. 
 
 You can not really skip tests at CRAN, because there is no certain way to
-detect whether a package is tested at one of the CRAN's machines. However,
-tests that are run with \code{test\_all} or \code{test\_dir} can be toggled on
-and off as follows.
+detect whether a package is tested at one of the CRAN's machines.  However,
+tests that are run with \code{test\_all}, \code{run\_test\_dir}, or
+\code{run\_test\_file} can be toggled on and off as follows.
 <<>>=
 if ( at_home() ){
   expect_equal(2, 1+1)
@@ -394,9 +387,9 @@ make sure all tested functionality works on the user's system.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Make your package spherical}
 
-Larger packages typically consist of a functions that are visible to the
-users of that package (exported functions) as well as a bunch of functions
-that are used by the exported functions. For example:
+Larger packages typically consist of functions that are visible to the users
+(exported functions) and a number of functions that are only used by the
+exported functions. For example:
 
 <<>>=
 # exported, user-visible function
@@ -410,15 +403,15 @@ conversion_factor <- function(unit){
 }
 @
 
-We can think of the exported functions as the \emph{surface} of your package,
-and all the other functions as the \emph{volume}. The surface is what a user
-sees, the volume is what the developer sees. The surface is how a user
-interacts with a package. 
+We can think of the exported functions as the \emph{surface} of the package and
+all the other functions as the \emph{volume}. The surface is what a user sees,
+the volume is what the developer sees. The surface is how a user interacts with
+a package. 
 
 
 If the surface is small (few functions exported), users are limited in the ways
-they can interact with your package, and that means there is less to test. So
-as a rule of thumb, it is a good idea to keep the surface small. Since a sphere
+they can interact with your package and that means there is less to test. So as
+a rule of thumb, it is a good idea to keep the surface small. Since a sphere
 has the smallest surface-to-volume ratio possible, I refer to this rule as
 \emph{keep your package spherical}.
 

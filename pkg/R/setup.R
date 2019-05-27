@@ -4,7 +4,7 @@
 #' Creates \code{inst/tinytest}, and an example test file in that
 #' directory. Creates \code{tests/tinytest.R} so the package is
 #' tested with \code{R CMD check}. Adds \code{tinytests} as a suggested
-#' package to the \code{DESCRIPTION}
+#' package to the \code{DESCRIPTION}.
 #'
 #' @param pkgdir  Package source directory
 #' @param force   Toggle overwrite existing files? (not folders)
@@ -20,11 +20,18 @@
 #' report bugs at \href{https://github.com/markvanderloo/tinytest/issues}{https://github.com/markvanderloo/tinytest/issues}.
 #'
 #'
+#' @examples
+#' \dontrun{
+#' # an easy way to set up a package 'haha' that passes
+#' # R CMD check
+#' pkgKitten::kitten("haha")
+#' tinytest::setup_tinytest("haha")
+#'}
 #'
-#' @return \code{NULL}
+#' @return \code{NULL}, invisibly.
 #'
 #' @export
-tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
+setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
 
   catf  <- function(fmt,...) cat(sprintf(fmt,...))
   stopf <- function(fmt,...) cat(stop(fmt,...),call.=FALSE)
@@ -101,6 +108,7 @@ expect_equal(1 + 1, 2)
     dcf <- cbind(dcf, Suggests = "tinytest")
     write.dcf(dcf, dfile)
   }
+
   invisible(NULL)
 }
 
