@@ -591,12 +591,12 @@ at_home <- function(){
 #' to the working directory of \code{R CMD check}.
 #'
 #' @family test-files
-#'
+#' @seealso \code{\link{setup}}
 #' @examples
 #' \dontrun{
 #' # Create a file with the following content, to use
 #' # tinytest as your unit testing framework:
-#'   if (requireNamespace("tinytest:, quietly=TRUE))
+#'   if (requireNamespace("tinytest", quietly=TRUE))
 #'     test_package("your package name")
 #' }
 #' @export
