@@ -26,8 +26,11 @@ R CMD build path/to/your/package
 R CMD check packagename_x.y.z.tar.gz
 ```
 
-Steps 1--3 can be partially automated by running `tinytest::setup()`.
+A very quick way to set things up is as follows.
 
+```
+tinytest::tinytest("/path/to/your/package")
+```
 
 #### Interactive package testing
 

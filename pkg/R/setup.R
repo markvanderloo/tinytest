@@ -24,7 +24,7 @@
 #' @return \code{NULL}
 #'
 #' @export
-setup <- function(pkgdir, force=FALSE, verbose=TRUE){
+tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
 
   catf  <- function(fmt,...) cat(sprintf(fmt,...))
   stopf <- function(fmt,...) cat(stop(fmt,...),call.=FALSE)

@@ -591,7 +591,7 @@ at_home <- function(){
 #' to the working directory of \code{R CMD check}.
 #'
 #' @family test-files
-#' @seealso \code{\link{setup}}
+#' @seealso \code{\link{tinytest}}
 #' @examples
 #' \dontrun{
 #' # Create a file with the following content, to use
