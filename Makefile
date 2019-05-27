@@ -7,11 +7,11 @@ pkg: doc
 
 check: doc
 	R CMD build pkg
-	R CMD check dummy*.tar.gz
+	R CMD check *.tar.gz
 
 cran: doc
 	R CMD build pkg
-	R CMD check --as-cran dummy*.tar.gz
+	R CMD check --as-cran *.tar.gz
 
 test: doc
 	R -s -e "tinytest::build_install_test('pkg')"
