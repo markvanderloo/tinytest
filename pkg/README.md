@@ -3,11 +3,14 @@
 
 #### Package setup
 
+
 I assume that `pkg` is your package directory.
+
 
 1. Put files with names starting with `test` in `pkg/inst/tinytest`, e.g. `test_haha.R`. Test files are normal
    R scripts, interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
 2. Put a file named `tinytest.R` in `pkg/tests` and give it the following contents.
+3. Add `tinytest` to `Suggests:` in the `DESCRIPTION` file.
 ```
 if ( requireNamespace("tinytest", quietly = TRUE ) ){
   test_package("packagename")
@@ -23,7 +26,8 @@ R CMD build path/to/your/package
 R CMD check packagename_x.y.z.tar.gz
 ```
 
-3. Add `tinytest` to `Suggests:` in the `DESCRIPTION` file.
+Steps 1--3 can be partially automated by running `tinytest::setup()`.
+
 
 #### Interactive package testing
 

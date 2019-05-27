@@ -276,13 +276,19 @@ names starting with \code{test} (for example \code{test\_haha.R}).
 \end{verbatim}
 \item In your \code{DESCRIPTION} file, add \pkg{tinytest} to \code{Suggests:}.
 \end{enumerate}
+You can automatically create a minimal running test infrastructure
+with the \code{setup} function. \marginpar{\code{setup}}
+<<eval=FALSE>>=
+setup("/path/to/your/package")
+@
 
 In a terminal, you can now do
 \begin{verbatim}
     R CMD build /path/to/your/package
     R CMD check PACKAGENAME_X.Y.Z.tar.gz
 \end{verbatim}
-and all tests will run.
+and all tests will run. 
+
 
 To run all the tests interactively, make sure that all functions of your 
 new package are loaded. After that, run\marginpar{\code{test\_all}}

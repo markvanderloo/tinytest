@@ -1,4 +1,5 @@
 version 0.9.4
+- New function 'setup' that adds 'tinytest' infrastructure to a package source directory.
 - Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
   argument 'current' evaluated in the wrong scope, resulting in unfound variables.
 - Resolved some inaccuracies in the documentation
