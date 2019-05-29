@@ -19,5 +19,9 @@ test: doc
 manual: doc
 	R CMD Rd2pdf --force -o manual.pdf ./pkg
 
-
+revdep: pkg
+	rm -rf revcheck
+	mkdir revcheck
+	mv *.tar.gz revcheck
+	R -s -e "out <- tools::check_packages_in_dir('revcheck',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revcheck/output.RDS')"
 
