@@ -369,6 +369,39 @@ ignore <- function(fun){
   }
 }
 
+# we need a special capture function for 
+# Sys.setenv because it's return value does
+# not inlcude argument names (it is an unnamed 
+# logical vector). We need the names to be able to
+# unset the env vars later on.
+capture_envvar <- function(fun, env){
+  function(...){
+    for ( x in names(list(...)) ) env[[x]] <- Sys.getenv(x)
+    out <- fun(...)
+    invisible(out)
+  }
+}
+
+unset_envvar <- function(env){
+  L <- as.list(env)
+  # Sys.setenv chrashes with empty list
+  if ( length(L)>0 ) do.call(Sys.setenv, L)
+}
+
+capture_options <- function(fun, env){
+  function(...){
+    out <- fun(...)
+    for ( x in names(out) ) env[[x]] <- out[[x]]
+    invisible(out)
+  }
+}
+
+reset_options <- function(env){
+  options(as.list(env))
+}
+
+
+
 
 #' Run an R file containing tests; gather results
 #'
@@ -376,12 +409,21 @@ ignore <- function(fun){
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
+#'
+#'
 #' @details
 #'
 #' In \pkg{tinytest}, a test file is just an R script where some or all
 #' of the statements express an \code{\link[=expect_equal]{expectation}}.
 #' \code{run_test_file} runs the file while gathering results of the
-#' expectations in a data frame.
+#' expectations in a \code{\link{tinytests}} object.
+#' 
+#' @section User-defined side effects:
+#' 
+#' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
+#' defined in a test file are captured and undone once the test file has run.
+#' 
+#' 
 #'
 #' @note
 #' Not all terminals support ansi escape characters, so colorized output can be
@@ -418,12 +460,34 @@ run_test_file <- function( file, at_home=TRUE
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
+  # convenience print function
+  catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
 
+  ## where to come back after running the file
   oldwd <- getwd()
+  ## Do we need to change working directory?
   wd_set <- length(dirname(file)) > 0
+  
+  ## this will store the names of all environment
+  ## variables created while running the file.
+  envvar <- new.env()
+
+  ## this will store option values that are overwritten by
+  ## the user when running the file.
+  oldop <- new.env()
+
+  ## clean up side effects
   on.exit({
-      Sys.unsetenv("TT_AT_HOME")
+      ## Clean up tinytest side effects
+      # go back to the original working directory
       setwd(oldwd)
+      # unset 'at_home' marker
+      Sys.unsetenv("TT_AT_HOME")
+      ## Clean up user side effects
+      # unset env vars set by the user in 'file'
+      unset_envvar(envvar)
+      # reset options to the state before running 'file'
+      reset_options(oldop)
   })
   if (wd_set){
       setwd(dirname(file))
@@ -444,18 +508,20 @@ run_test_file <- function( file, at_home=TRUE
   e$expect_error      <- capture(expect_error, o)
   e$expect_identical  <- capture(expect_identical, o)
 
+  ## add checkFoo equivalents of expect_foo
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
 
+  ## Reduce user side effects by making sure that any env var set 
+  ## in a test file is unset after running it.
+  e$Sys.setenv <- capture_envvar(Sys.setenv, envvar)
 
-  catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
-
+  ## Reduce user side effects by capturing options that will be reset
+  ## on exit
+  e$options <- capture_options(options, oldop)
 
   # parse file, store source references.
-  #cat(sprintf("Running %s ", basename(file)) )
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
-
-  ns <- c(nres=0,npass=0)
 
   o$file <- file
   for ( i in seq_along(parsed) ){
@@ -474,8 +540,9 @@ run_test_file <- function( file, at_home=TRUE
 
   }
   catf("\n")
-  test_output <- o$gimme()
+  
 
+  test_output <- o$gimme()
   structure(test_output, class="tinytests")
 }
 

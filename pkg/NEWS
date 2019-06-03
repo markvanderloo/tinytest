@@ -1,4 +1,6 @@
 version 0.9.4
+- User-defined side-effects created by calling 'options' and/or 'Sys.setenv' in
+  a test file are automatically removed after running a test file.
 - New function 'setup' that adds 'tinytest' infrastructure to a package source directory.
 - Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
   argument 'current' evaluated in the wrong scope, resulting in unfound variables.

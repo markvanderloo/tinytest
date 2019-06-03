@@ -260,6 +260,22 @@ Other cases where this may be useful is to perform tests in a loop, e.g. when
 there is a systematic set of cases to test.
 
 
+\subsection{Side effects}
+
+It is a good practice to create test files that run independent
+of other test files. For this reason, \pkg{tinytest} records
+\begin{itemize}
+\item options, set with \code{options()};
+\item environment variables, set with \code{Sys.setenv()}
+\end{itemize}
+After a test file is executed, all options and environment variables set during
+the test run are reset to their original values (i.e.  the values prior to
+calling \code{run\_test\_file}).
+
+
+
+
+
 
 \section{Testing packages}
 

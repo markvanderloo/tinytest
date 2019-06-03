@@ -15,3 +15,5 @@
 testpkgs/
 pkg/man/
 output/
+revcheck/
+tinytest.Rcheck/
