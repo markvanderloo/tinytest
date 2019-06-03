@@ -12,9 +12,9 @@ summary.tinytests <- function(object, ...){
   file   <- sapply(object, function(x) attr(x,"file"))
   if (length(object) > 0) file   <- basename(file)
 
-  tab    <- table(file, Results=result)
+  tab    <- table(File = file, Results=result)
   tab    <- cbind(tab, Tests = rowSums(tab))
-  tab    <- rbind(tab, Total = rowSums(tab))
+  tab    <- rbind(tab, Total = colSums(tab))
   tab    <- as.table(tab[,c(3,1,2),drop=FALSE])
   n <- dimnames(tab)
   names(n) <- c("File", "Results")

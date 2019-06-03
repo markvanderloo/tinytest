@@ -675,7 +675,7 @@ at_home <- function(){
 #' results when one or more tests fail. This function is intended to be
 #' used with \code{R CMD check} and not for interactive use (use \code{\link{test_all}}
 #' or \code{\link{build_install_test}} instead). Tests that are only run 
-#' \code{\link{at_home}} are skipped.
+#' \code{\link{at_home}} are skipped by default (as if it was run on CRAN).
 #'
 #' @param pkgname \code{[character]} scalar. Name of the package
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
