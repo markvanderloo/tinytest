@@ -1,14 +1,15 @@
 version 0.9.4
 - User-defined side-effects created by calling 'options' and/or 'Sys.setenv' in
   a test file are automatically removed after running a test file.
-- New function 'setup' that adds 'tinytest' infrastructure to a package source directory.
+- New function 'setup' that adds 'tinytest' infrastructure to a package source
+  directory.
 - Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
   argument 'current' evaluated in the wrong scope, resulting in unfound variables.
 - Resolved some inaccuracies in the documentation
-- When running tests from a file, the reported call is equal to the
-  source expression when it is short. For longer, multiline expressions
-  the result of 'match.call' is now used. This improves output printing when expect_* functions are
-  programmed over, e.g. within 'if' or 'for' statements.
+- When running tests from a file, the reported call is equal to the source
+  expression when it is short. For longer, multiline expressions the result of
+  'match.call' is now used. This improves output printing when expect_* 
+  functions are programmed over, e.g. within 'if' or 'for' statements.
 
 version 0.9.3 
 - New function 'expect_identical'
