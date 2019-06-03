@@ -270,9 +270,11 @@ of other test files. For this reason, \pkg{tinytest} records
 \end{itemize}
 After a test file is executed, all options and environment variables set during
 the test run are reset to their original values (i.e.  the values prior to
-calling \code{run\_test\_file}).
-
-
+calling \code{run\_test\_file}). The default behavior can be toggled as follows.
+<<eval=FALSE>>=
+run_test_dir("/path/to/my/testdir"
+           , remove_side_effects = FALSE)
+@
 
 
 
@@ -380,6 +382,36 @@ CRAN since tests are initiated with \code{test\_package} in that case.
 It is possible to switch the tests off by \code{test\_all(..., at\_home=FALSE)}
 and similar for \code{test\_dir}.
 
+If you want \code{R CMD check} to behave differently at home than from CRAN
+then the \code{tinytest.R} file in \code{pkg/tests} should look something like
+this.
+<<echo=FALSE>>=
+pr <- options(prompt="   ")
+@
+<<eval=FALSE>>=
+if (requireNamespace("tinytest", quietly=TRUE)){
+  # Do a local check on the environment
+  on_cran <- identical(Sys.getenv("ONCRAN"),"TRUE")
+  # now run tinytest
+  tinytest::test_package("PACKAGENAME", at_home = !on_cran)
+}
+@
+<<echo=FALSE>>=
+options(pr)
+@
+In this setting, all tests that that depend on \code{at\_home()} being
+\code{TRUE} will run, unless the environment variable \code{"ONCRAN"} is set to
+\code{"TRUE"}. 
+
+It is up to the package author to decide how to test for this. Some authors use
+special versioning in their \code{DESCRIPTION} file to detect whether \code{R
+CMD check} is run on CRAN or not\footnote{See
+\href{https://stackoverflow.com/questions/36166288/skip-tests-on-cran-but-run-locally}{this
+stackoverflow question}.}. Any approach will require some kind of manual
+intervention.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing your package after installation}
@@ -410,11 +442,11 @@ exported functions. For example:
 <<>>=
 # exported, user-visible function
 inch2cm <- function(x){
-	x*conversion_factor("inch")
+  x*conversion_factor("inch")
 }
 # not exported function, package-internal
 conversion_factor <- function(unit){
-	confac <- c(inch=2.54, pound=1/2.2056)
+  confac <- c(inch=2.54, pound=1/2.2056)
   confac[unit]
 }
 @

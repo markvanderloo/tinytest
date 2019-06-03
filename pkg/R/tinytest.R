@@ -417,7 +417,7 @@ reset_options <- function(env){
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
-#'
+#' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects? See section on side effects.
 #'
 #' @details
 #'
@@ -462,9 +462,12 @@ reset_options <- function(env){
 #'
 #' @family test-files
 #' @export
-run_test_file <- function( file, at_home=TRUE
+run_test_file <- function( file
+                         , at_home=TRUE
                          , verbose = getOption("tt.verbose", TRUE)
-                         , color   = getOption("tt.pr.color", TRUE) ){
+                         , color   = getOption("tt.pr.color", TRUE)
+                         , remove_side_effects = TRUE ){
+
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
@@ -491,11 +494,12 @@ run_test_file <- function( file, at_home=TRUE
       setwd(oldwd)
       # unset 'at_home' marker
       Sys.unsetenv("TT_AT_HOME")
-      ## Clean up user side effects
-      # unset env vars set by the user in 'file'
-      unset_envvar(envvar)
-      # reset options to the state before running 'file'
-      reset_options(oldop)
+      if ( remove_side_effects ){ ## Clean up user side effects
+        # unset env vars set by the user in 'file'
+        unset_envvar(envvar)
+        # reset options to the state before running 'file'
+        reset_options(oldop)
+      }
   })
   if (wd_set){
       setwd(dirname(file))
@@ -574,6 +578,11 @@ run_test_file <- function( file, at_home=TRUE
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param color   \code{[logical]} toggle colorize output
+#' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects. 
+#'   Environment variables (\code{Sys.setenv()}) and options \code{options()}
+#'   defined in a test file are reset before running the next test file.
+#' 
+#'                
 #'
 #' @return A \code{tinytests} object
 #'
@@ -602,7 +611,8 @@ run_test_file <- function( file, at_home=TRUE
 run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , at_home = TRUE
                        , verbose = getOption("tt.verbose",TRUE)
-                       , color   = getOption("tt.pr.color",TRUE) ){
+                       , color   = getOption("tt.pr.color",TRUE)
+                       , remove_side_effects = TRUE ){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
@@ -611,7 +621,12 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
   test_output <- list()
 
   for ( file in testfiles ){
-    test_output <- c(test_output, run_test_file(file,at_home=at_home, verbose=verbose, color=color))
+    test_output <- c(test_output
+                   , run_test_file(file
+                                 , at_home = at_home
+                                 , verbose = verbose
+                                 , color   = color
+                                 , remove_side_effects = remove_side_effects))
   }
     structure(test_output,class="tinytests")
 }
@@ -670,8 +685,8 @@ at_home <- function(){
 #'
 #'
 #' @section Details:
-#' The functon \code{\link{at_home}} returns \code{TRUE} when 
-#' \code{Sys.getenv("TT_AT_HOME")} is equal to \code{"TRUE"} (string).
+#' We set \code{at_home=FALSE} by default so \code{R CMD check} will run the same
+#' as at CRAN.
 #' 
 #'
 #' @family test-files
@@ -684,13 +699,13 @@ at_home <- function(){
 #'     test_package("your package name")
 #' }
 #' @export
-test_package <- function(pkgname, testdir = "tinytest", at_home=at_home(), ...){
+test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
   require(pkgname, character.only=TRUE) 
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
-
+  
   out <- run_test_dir("./", at_home=at_home, ...) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
