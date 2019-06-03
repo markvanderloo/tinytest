@@ -665,6 +665,14 @@ at_home <- function(){
 #' @param pkgname \code{[character]} scalar. Name of the package
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
+#' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
+#' @param ... extra arguments, passed to \code{\link{run_test_dir}}
+#'
+#'
+#' @section Details:
+#' The functon \code{\link{at_home}} returns \code{TRUE} when 
+#' \code{Sys.getenv("TT_AT_HOME")} is equal to \code{"TRUE"} (string).
+#' 
 #'
 #' @family test-files
 #' @seealso \code{\link{setup_tinytest}}
@@ -676,14 +684,14 @@ at_home <- function(){
 #'     test_package("your package name")
 #' }
 #' @export
-test_package <- function(pkgname, testdir = "tinytest"){
+test_package <- function(pkgname, testdir = "tinytest", at_home=at_home(), ...){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
   require(pkgname, character.only=TRUE) 
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
 
-  out <- run_test_dir("./", at_home=FALSE) 
+  out <- run_test_dir("./", at_home=at_home, ...) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
     msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
