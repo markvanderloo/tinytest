@@ -376,7 +376,11 @@ ignore <- function(fun){
 # unset the env vars later on.
 capture_envvar <- function(fun, env){
   function(...){
-    for ( x in names(list(...)) ) env[[x]] <- Sys.getenv(x)
+    for ( x in names(list(...)) ){
+      # record the first occurrence so we capture the 
+      # original value 
+      if ( !x %in% ls(envir=env) ) env[[x]] <- Sys.getenv(x)
+    }
     out <- fun(...)
     invisible(out)
   }
@@ -391,7 +395,11 @@ unset_envvar <- function(env){
 capture_options <- function(fun, env){
   function(...){
     out <- fun(...)
-    for ( x in names(out) ) env[[x]] <- out[[x]]
+    for ( x in names(out) ){ 
+     # record only the first occurrence so we capture
+     # the original value
+     if (!x %in% ls(envir=env)) env[[x]] <- out[[x]]
+    }
     invisible(out)
   }
 }

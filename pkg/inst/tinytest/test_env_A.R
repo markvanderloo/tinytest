@@ -10,4 +10,16 @@ expect_equal(Sys.getenv("hihihaha"), "8")
 options(hihihaha=8)
 expect_equal(getOption("hihihaha"), 8)
 
+# We set another envvar and unset it as well. We don't want to bother
+# users already following good practice 
+k <- Sys.getenv("hoho")
+Sys.setenv(hoho=2)
+Sys.setenv(hoho=k)
+
+# We set another option and unset it as well. We don't want to bother
+# users already following good practice
+oldopt <- options("hoho")
+options(hoho=2)
+options(hoho=oldopt)
+
 
