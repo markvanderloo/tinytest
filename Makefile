@@ -25,3 +25,15 @@ revdep: pkg
 	mv *.tar.gz revcheck
 	R -s -e "out <- tools::check_packages_in_dir('revcheck',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revcheck/output.RDS')"
 
+vignette:
+	./vignettes.sh
+
+clean:
+	rm -f pkg/vignettes/*.aux
+	rm -f pkg/vignettes/*.log
+	rm -f pkg/vignettes/*.out
+	rm -f pkg/vignettes/*.pdf
+	rm -f pkg/vignettes/*.toc
+	rm -rf revdep
+	rm -f *.tar.gz
+
