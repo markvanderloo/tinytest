@@ -560,12 +560,6 @@ run_test_file <- function( file
 
 
 
-
-
-
-
-
-
 #' Run all tests in a directory
 #'
 #' \code{run\_test\_dir} runs all test files in a directory.
@@ -578,11 +572,24 @@ run_test_file <- function( file
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param color   \code{[logical]} toggle colorize output
-#' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects. 
-#'   Environment variables (\code{Sys.setenv()}) and options \code{options()}
-#'   defined in a test file are reset before running the next test file.
-#' 
-#'                
+#' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
+#'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
+#'  defined in a test file are reset before running the next test file.
+#' @param lc_collate \code{[character]} Locale setting used to sort the
+#'  test files into the order of execution. The default \code{"C"} is 
+#'  platform-independent and is probably different from how your OS sorts
+#'  them (e.g. A before a). See Details.
+#'
+#' @section Details:
+#'
+#' Test files should run independent from each other so their order
+#' of execution does not matter. In tinytest, test files cannot share
+#' variables. The default behavior of this fuction furher discourages 
+#' interdependence by resetting environment variables and options that 
+#' are set in a test file after the file is executed. If an environment
+#' variable needs to survive a single file, use \code{base::Sys.setenv()}
+#' explicitly. Similarly, if an option setting needs to survive, use
+#' \code{base::options}
 #'
 #' @return A \code{tinytests} object
 #'
@@ -612,12 +619,31 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , at_home = TRUE
                        , verbose = getOption("tt.verbose",TRUE)
                        , color   = getOption("tt.pr.color",TRUE)
-                       , remove_side_effects = TRUE ){
+                       , remove_side_effects = TRUE
+                       , lc_collate="C" ){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
 
   testfiles <- dir("./", pattern=pattern, full.names=TRUE)
+
+  # Sort according to LC_COLLATE 
+  old_collate <- Sys.getlocale("LC_COLLATE")
+
+  colset <- tryCatch({
+      if(!is.na(lc_collate)) Sys.setlocale("LC_COLLATE", lc_collate)
+      TRUE
+    }, warning=function(e){ 
+        msg <- sprintf("Could not sort test files in 'C' locale, using %s\n"
+            , old_collate)
+        message(paste(msg, e$message,"\n")) 
+        FALSE
+    }, error=warning)
+  testfiles <- sort(testfiles)
+  if (colset) Sys.setlocale("LC_COLLATE", old_collate)
+  
+
+
   test_output <- list()
 
   for ( file in testfiles ){

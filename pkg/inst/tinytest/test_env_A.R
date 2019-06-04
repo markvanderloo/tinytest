@@ -22,4 +22,9 @@ oldopt <- options("hoho")
 options(hoho=2)
 options(hoho=oldopt)
 
+# Here's an envvar that must survive the slaughter after this file was run
+base::Sys.setenv(hehe=3)
+
+# And one for options as well
+base::options(hehe=3)
 

@@ -1,15 +1,21 @@
 version 0.9.4
-- User-defined side-effects created by calling 'options' and/or 'Sys.setenv' in
-  a test file are automatically removed after running a test file.
-- New function 'setup' that adds 'tinytest' infrastructure to a package source
-  directory.
+
+- Test files are now sorted in "C" locale (bytewise by filename) to
+  improve platform independence of running order. This default can
+  be overwritten.
+- Global settings set by 'options' and 'Sys.setenv' in a test file are
+  automatically removed after running a test file. This improves independence
+  between test files. This default can be overwritten, see Chapter 3 of the
+  'Using tinytest' vignette.
+- New function 'setup_tinytest' that adds 'tinytest' infrastructure to a
+  package source directory.
 - Fix in 'expect_warning' and 'expect_error'. In some circumstances evaluation 
   argument 'current' evaluated in the wrong scope, resulting in unfound variables.
 - Resolved some inaccuracies in the documentation
 - More control over testing packages in 'R CMD check' with extra arguments
   to 'test_packages'.
 - When running tests from a file, the reported call is equal to the source
-  expression when it is short. For longer, multiline expressions the result of
+  expression when it is short. For multiline expressions the result of
   'match.call' is now used. This improves output printing when expect_* 
   functions are programmed over, e.g. within 'if' or 'for' statements.
 

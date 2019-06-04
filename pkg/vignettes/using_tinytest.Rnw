@@ -227,6 +227,7 @@ head(as.data.frame(out), 3)
 The last two columns indicate the line numbers where the test was defined.
 
 A `summary` of the output gives a table with passes and fails per file.
+\marginpar{\scriptsize{\code{summary}}}
 <<>>=
 summary(out)
 @
@@ -260,21 +261,34 @@ Other cases where this may be useful is to perform tests in a loop, e.g. when
 there is a systematic set of cases to test.
 
 
-\subsection{Side effects}
-
-It is a good practice to create test files that run independent
-of other test files. For this reason, \pkg{tinytest} records
+\subsection{Running order and side effects}
+It is a generally a good idea to write test files that are independent from
+each other.  This means that the order of running them is unimportant for the
+test results and test files can be maintained independently. The function
+\code{run\_test\_file} and by extension \code{run\_test\_dir},
+\code{test\_all}, and \code{test\_package} encourage this by resetting
 \begin{itemize}
 \item options, set with \code{options()};
 \item environment variables, set with \code{Sys.setenv()}
 \end{itemize}
-After a test file is executed, all options and environment variables set during
-the test run are reset to their original values (i.e.  the values prior to
-calling \code{run\_test\_file}). The default behavior can be toggled as follows.
+after a test file is executed. 
+
+
+To escape this behavior, use \code{base::Sys.setenv()} respectively
+\code{base::options()}. Alternatively use \code{remove\_side\_effects=FALSE}.
 <<eval=FALSE>>=
 run_test_dir("/path/to/my/testdir"
            , remove_side_effects = FALSE)
+test_all("/path/to/my/testdir"
+           , remove_side_effects = FALSE)
+# Only in tests/tinytest.R:
+test_package("PACKAGENAME", remove_side_effects=FALSE)
 @
+
+Default test files are sorted using bytewise ordering on the filenames. This
+guarantees platform-independence but is likely different from how your
+operating system sorts files. Details on how to switch this behavior are in
+\code{help("run\_test\_dir")}.
 
 
 
