@@ -3,55 +3,43 @@
 
 #### Package setup
 
-
-I assume that `pkg` is your package directory.
-
-
-1. Put files with names starting with `test` in `pkg/inst/tinytest`, e.g. `test_haha.R`. Test files are normal
-   R scripts, interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
-2. Put a file named `tinytest.R` in `pkg/tests` and give it the following contents.
-3. Add `tinytest` to `Suggests:` in the `DESCRIPTION` file.
-```
-if ( requireNamespace("tinytest", quietly = TRUE ) ){
-  test_package("packagename")
-}
-```
-Here, you need to replace `packagename` with the name of your package.
-
-
-Tests will now be run by
+A quick way to set things up is as follows.
 
 ```
-R CMD build path/to/your/package
-R CMD check packagename_x.y.z.tar.gz
+tinytest::setup_tinytest("pkgdir")
 ```
+where `pkgdir` is a package source directory with a valid `DESCRIPTION` file
 
-A very quick way to set things up is as follows.
+The setup is as follows.
 
-```
-tinytest::setup_tinytest("/path/to/your/package")
-```
+1. Files with names starting with `test` are in `pkg/inst/tinytest`, e.g. `test_haha.R`. Test files are R scripts interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
+2. `tinytest` is added `Suggests:` in the `DESCRIPTION` file.
+3. A file named `tinytest.R` is set up in `pkg/tests` to make sure that tests
+will be run by `R CMD check`.
+
+
 
 #### Interactive package testing
 
 
-| Function                   | description                                 |
-|----------------------------|---------------------------------------------|
-| `test_all(pkg)`            | run all test files (package must be loaded).|
-| `build_install_test(pkg)`  | build, install, and test in temp dir.       |
-| `run_test_dir(dir)`        | run all test files in a directory.          |
-| `run_test_file(file)`      | run a single test file.                     |
+| Function                        | description                                              |
+|---------------------------------|----------------------------------------------------------|
+| `test_all("pkgdir")`            | run all test files (pkg must be loaded).                 |
+| `build_install_test("pkgdir")`  | build, install, and test in temp dir.                    |
+| `run_test_dir("pkgdir")`        | run all test files in a directory (pkg must be loaded).  |
+| `run_test_file("testfile")`     | run a single test file (pkg must be loaded).             |
 
 
 All functions return an object of class `tinytests`. Results can be printed to
-screen or converted to data frame  with `as.data.frame` for analyses. The option
-`verbose` (default: `TRUE`) toggles between showing test progress in the
-terminal.
+screen, summarized with `summary` or converted to data frame  with
+`as.data.frame` for analyses. The option `verbose` (default: `TRUE`) toggles
+between showing test progress in the terminal.
 
 #### Test functions
 
-The syntax of test functions resembles that of [testthat](https://CRAN.R-project.org/package=testthat). 
-For expectations comparing two results, the first argument represents the _observed_ value while
+The syntax of test functions resembles that of
+[testthat](https://CRAN.R-project.org/package=testthat).  For expectations
+comparing two results, the first argument represents the _observed_ value while
 the second argument represents the _desired_ value.
 
 |Function                     | description                                   |
@@ -96,7 +84,7 @@ It is also possible to influence these options using `print.tinytest`.
 
 #### Run tests for an installed package
 
-For a package called `haha` that is tested using `tinytest`, any user that has
+For a package called `haha` that is tested with `tinytest`, any user that has
 `haha` and `tinytest` installed can run tests as follows.
 
 ```
@@ -140,7 +128,8 @@ expect_equal(obtained, desired)
 If you wish to publish the package on CRAN, make sure that the files are small
 enough for the package to be acceptable. See the [cran repository
 policy](https://cran.r-project.org/web/packages/policies.html) for explicit
-bounds on package size. Alternatively you can avoid installing
-the data and associated test files by adding them to [.Rbuildignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Building-package-tarballs).
+bounds on package size. Alternatively you can avoid installing the data and
+associated test files by adding them to
+[.Rbuildignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Building-package-tarballs).
 
 

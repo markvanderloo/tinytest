@@ -1,5 +1,4 @@
 version 0.9.4
-
 - Test files are now sorted in "C" locale (bytewise by filename) to
   improve platform independence of running order. This default can
   be overwritten.
