@@ -574,22 +574,24 @@ run_test_file <- function( file
 #' @param color   \code{[logical]} toggle colorize output
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
 #'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
-#'  defined in a test file are reset before running the next test file.
+#'  defined in a test file are reset before running the next test file (see details).
 #' @param lc_collate \code{[character]} Locale setting used to sort the
-#'  test files into the order of execution. The default \code{"C"} is 
-#'  platform-independent and is probably different from how your OS sorts
-#'  them (e.g. A before a). See Details.
-#'
+#'  test files into the order of execution. The default \code{NA} ensures
+#'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
+#'  and more platform-independent sorting (see details).
+#'  
 #' @section Details:
 #'
-#' Test files should run independent from each other so their order
-#' of execution does not matter. In tinytest, test files cannot share
-#' variables. The default behavior of this fuction furher discourages 
-#' interdependence by resetting environment variables and options that 
-#' are set in a test file after the file is executed. If an environment
-#' variable needs to survive a single file, use \code{base::Sys.setenv()}
-#' explicitly. Similarly, if an option setting needs to survive, use
-#' \code{base::options}
+#' In general, we cannot guarantee that files will be run in any particular
+#' order accross all platforms, as it depends on the available collation charts
+#' (a chart that determines how alphabets are sorted).  For this reason it is a
+#' good idea to create test files that run independent of each other so their
+#' order of execution does not matter. In tinytest, test files cannot share
+#' variables. The default behavior of test runners furher discourages
+#' interdependence by resetting environment variables and options that are set
+#' in a test file after the file is executed. If an environment variable needs
+#' to survive a single file, use \code{base::Sys.setenv()} explicitly.
+#' Similarly, if an option setting needs to survive, use \code{base::options}
 #'
 #' @return A \code{tinytests} object
 #'
@@ -620,27 +622,13 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , verbose = getOption("tt.verbose",TRUE)
                        , color   = getOption("tt.pr.color",TRUE)
                        , remove_side_effects = TRUE
-                       , lc_collate="C" ){
+                       , lc_collate = getOption("tt.collate",NA) ){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
 
   testfiles <- dir("./", pattern=pattern, full.names=TRUE)
-
-  # Sort according to LC_COLLATE 
-  old_collate <- Sys.getlocale("LC_COLLATE")
-
-  colset <- tryCatch({
-      if(!is.na(lc_collate)) Sys.setlocale("LC_COLLATE", lc_collate)
-      TRUE
-    }, warning=function(e){ 
-        msg <- sprintf("Could not sort test files in 'C' locale, using %s\n"
-            , old_collate)
-        message(paste(msg, e$message,"\n")) 
-        FALSE
-    }, error=warning)
-  testfiles <- sort(testfiles)
-  if (colset) Sys.setlocale("LC_COLLATE", old_collate)
+  testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
   
 
 
@@ -657,6 +645,31 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
     structure(test_output,class="tinytests")
 }
 
+
+# Sort according to LC_COLLATE 
+locale_sort <- function(x, lc_collate=NA, ...){
+  if (is.na(lc_collate)) return(sort(x,...))
+
+  # catch current locale
+  old_collate <- Sys.getlocale("LC_COLLATE")
+
+  # set to user-defined locale if possible, otherwise sort using current locale 
+  colset <- tryCatch({
+      Sys.setlocale("LC_COLLATE", lc_collate)
+      TRUE
+    }, warning=function(e){ 
+        msg <- sprintf("Could not sort test files in 'C' locale, using %s\n"
+            , old_collate)
+        message(paste(msg, e$message,"\n")) 
+        FALSE
+    }, error=warning)
+
+  out <- sort(x)
+
+  # reset to old locale
+  if (colset) Sys.setlocale("LC_COLLATE", old_collate)
+  out
+}
 
 
 #' Test a package during development

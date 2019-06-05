@@ -46,11 +46,10 @@ options(prompt="R>  ", continue = "    ")
 @
 
 
-\subsection*{Before you read this}
-I expect that readers of this document know how to write R functions. If you
-want to use \pkg{tinytest} for your package, I expect that you have a basic
-understanding of the directory structure that constitutes the source of an R
-package.
+\subsection*{Reading guide}
+Readers of this document are expected to know how to write R functions
+and have a basic understanding of a package source directory structure.
+
 
 
 \newpage{}
@@ -285,9 +284,15 @@ test_all("/path/to/my/testdir"
 test_package("PACKAGENAME", remove_side_effects=FALSE)
 @
 
-Default test files are sorted using bytewise ordering on the filenames. This
-guarantees platform-independence but is likely different from how your
-operating system sorts files. Details on how to switch this behavior are in
+Test files are sorted and run based on the current locale. This means
+that the order of execution is in general not platform-independent.
+You can control the sorting behavior interactively or by setting
+\code{options(tt.collate)}. To be precise, adding 
+<<eval=FALSE>>=
+options(tt.collate="C")
+@
+to \code{/tests/tinytest.R} before running \code{test\_package} will
+ensure bytewise sorting on most systems. See also
 \code{help("run\_test\_dir")}.
 
 

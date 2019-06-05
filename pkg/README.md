@@ -77,7 +77,7 @@ are shown in full. Global printing options can be set with `options(option=value
 | `tt.pr.passes`| FALSE    | print passing tests?          |
 | `tt.pr.limit` | 10       | how many results to print?    |
 | `tt.pr.nlong` | 3        | how many tests in long format?|
-| `tt.pr.color` | TRUE     | print colored output?|
+| `tt.pr.color` | TRUE     | print colored output?         |
 
 It is also possible to influence these options using `print.tinytest`.
 
@@ -131,5 +131,16 @@ policy](https://cran.r-project.org/web/packages/policies.html) for explicit
 bounds on package size. Alternatively you can avoid installing the data and
 associated test files by adding them to
 [.Rbuildignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Building-package-tarballs).
+
+
+#### More information
+
+See the vignette.
+```
+vignette("using_tinytest", package="tinytest")
+```
+
+
+
 
 
