@@ -395,11 +395,11 @@ if ( at_home() ){
   expect_equal(2, 1+1)
 }
 @
-If a test file is run using \code{test\_all} or \code{test\_dir} then by
+If a test file is run using \code{test\_all} or \code{run\_test\_dir} then by
 default the code following the if-conditions is executed. It will be skipped on
 CRAN since tests are initiated with \code{test\_package} in that case.
 It is possible to switch the tests off by \code{test\_all(..., at\_home=FALSE)}
-and similar for \code{test\_dir}.
+and similar for \code{run\_test\_dir}.
 
 If you want \code{R CMD check} to behave differently at home than from CRAN
 then the \code{tinytest.R} file in \code{pkg/tests} should look something like
