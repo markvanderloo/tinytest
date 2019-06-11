@@ -1,6 +1,8 @@
 version 0.9.5
-- Fix 'expect_warning' and 'expect_error' would crahs when run on the CLI.
-  (Thanks to Bryan Hanson)
+- Colored output is turned off automatically when the pkg is loaded
+  in a "dumb" terminal. (Thanks to Dirk Eddelbeutel for the suggestion, #12).
+- Fix 'expect_warning' and 'expect_error' would crash when run on the CLI.
+  (Thanks to Bryan Hanson #13)
 
 version 0.9.4
 - New function 'setup_tinytest' that adds 'tinytest' infrastructure to a

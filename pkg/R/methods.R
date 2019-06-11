@@ -67,6 +67,14 @@ summary.tinytests <- function(object, ...){
 #' }
 #'
 #' For example, set \code{options(tt.pr.limit=Inf)} to print all test results.
+#' Furthermore, there is the option
+#' \itemize{
+#' \item{\code{tt.pr.color},}
+#' }
+#' which determines whether colored output is printed.
+#' If R is running in a dumb terminal (detected by comparing 
+#' environment variable \code{"TERM"} to \code{"dumb"}), then
+#' this option is set to \code{FALSE} when the package is loaded.
 #' 
 #' @rdname tinytests 
 #' @export
