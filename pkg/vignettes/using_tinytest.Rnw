@@ -382,52 +382,75 @@ expect_equal(dat, women)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Skipping tests on \code{CRAN}}
-There are limits to the amount of time a test can take on CRAN. For longer
-running code it is desirable to automatically toggle these tests off on CRAN,
-but to run them during development. 
+It is not possible to detect whether a test is running on CRAN. This means we
+are forced to detect that we are running tests in our own environment. 
 
-You can not really skip tests at CRAN, because there is no certain way to
-detect whether a package is tested at one of the CRAN's machines.  However,
-tests that are run with \code{test\_all}, \code{run\_test\_dir}, or
-\code{run\_test\_file} can be toggled on and off as follows.
-<<>>=
-if ( at_home() ){
-  expect_equal(2, 1+1)
-}
-@
-If a test file is run using \code{test\_all} or \code{run\_test\_dir} then by
-default the code following the if-conditions is executed. It will be skipped on
-CRAN since tests are initiated with \code{test\_package} in that case.
-It is possible to switch the tests off by \code{test\_all(..., at\_home=FALSE)}
-and similar for \code{run\_test\_dir}.
-
-If you want \code{R CMD check} to behave differently at home than from CRAN
-then the \code{tinytest.R} file in \code{pkg/tests} should look something like
-this.
+In the following example we use the host name to detect if we are running on
+our own machine and explicitly pass this information to \code{test\_package}.
 <<echo=FALSE>>=
-pr <- options(prompt="   ")
+options(prompt="  ", continue="  ")
 @
 <<eval=FALSE>>=
-if (requireNamespace("tinytest", quietly=TRUE)){
-  # Do a local check on the environment
-  on_cran <- identical(Sys.getenv("ONCRAN"),"TRUE")
-  # now run tinytest
-  tinytest::test_package("PACKAGENAME", at_home = !on_cran)
+# contents of pkgdir/tests/tinytest.R
+if ( requireNamespace("tinytest", quietly=TRUE) ){
+   home <- identical( Sys.info()["nodename"], "YOURHOSTNAME" )
+   tinytest::test_package("PKGNAME", at_home = home)
 }
 @
-<<echo=FALSE>>=
-options(pr)
+Other ways to detect whether you are running `at home' include
+\begin{itemize}
+\item Set a custom environment variable (from your OS) and detect it with \code{Sys.getenv}.
+<<>>=
+home <- identical( Sys.getenv("HONEYIMHOME"), "TRUE" )
 @
-In this setting, all tests that that depend on \code{at\_home()} being
-\code{TRUE} will run, unless the environment variable \code{"ONCRAN"} is set to
-\code{"TRUE"}. 
+\item Use 4-number package versioning while developing and 3-number versioning
+for CRAN releases\footnote{As \href{https://stackoverflow.com/questions/36166288/skip-tests-on-cran-but-run-locally}{recommended here} by Dirk Eddelbuettel.}.
+<<eval=FALSE>>=
+home <- length(unclass(packageVersion("PKGNAME"))[[1]]) == 4
+@
+\end{itemize}
 
-It is up to the package author to decide how to test for this. Some authors use
-special versioning in their \code{DESCRIPTION} file to detect whether \code{R
-CMD check} is run on CRAN or not\footnote{See
-\href{https://stackoverflow.com/questions/36166288/skip-tests-on-cran-but-run-locally}{this
-stackoverflow question}.}. Any approach will require some kind of manual
-intervention.
+<<echo=FALSE>>=
+options(prompt="R> ", continue="   ")
+@
+
+
+\subsubsection*{When tests are run interactively}
+All the interactive test runners have \code{at\_home=TRUE} by default, so while
+you are developing all tests are run, unless you exclude them explicitly.
+<<>>=
+run_test_file("test_hehe.R", verbose=FALSE)
+run_test_file("test_hehe.R", verbose=FALSE, at_home=FALSE)
+@
+
+Here is an overview of test runners and their default setting for \code{at\_home}.
+
+\begin{center}
+\begin{tabular}{rll}
+Function               & Default \code{at\_home}  & Intended use \\
+\hline
+\code{run\_test\_file}      & \code{TRUE}   & Interactive by developer\\
+\code{run\_test\_dir}       & \code{TRUE}   & Interactive by developer\\
+\code{test\_all}            & \code{TRUE}   & Interactive by developer\\
+\code{build\_install\_test} & \code{TRUE}   & Interactive by developer\\
+\code{test\_package}        & \code{FALSE}  & \code{R CMD check}, or after installation by user.
+\end{tabular}
+\end{center}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -435,12 +458,10 @@ intervention.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing your package after installation}
 Supposing your package is called \pkg{hehe} and the \pkg{tinytest}
-infrastructure is used, the following commands run all of \pkg{hehe}'s
-tests.
+infrastructure is used. If the package is installed, the following command runs
+\pkg{hehe}'s tests. 
 <<eval=FALSE>>=
-library(hehe)
-library(tinytest)
-run_test_dir( system.file("tinytest",package="hehe") )
+tinytest::test_package("hehe")
 @
 This can come in handy when a user of \pkg{hehe} reports a bug and you want to
 make sure all tested functionality works on the user's system.

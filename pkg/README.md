@@ -12,11 +12,19 @@ where `pkgdir` is a package source directory with a valid `DESCRIPTION` file
 
 The setup is as follows.
 
-1. Files with names starting with `test` are in `pkg/inst/tinytest`, e.g. `test_haha.R`. Test files are R scripts interspersed with test commands, such as `expect_equal(0, myfunc(1))`.
-2. `tinytest` is added `Suggests:` in the `DESCRIPTION` file.
+1. Files having names starting with `test` are in `pkg/inst/tinytest`, e.g.
+   `test_haha.R`. Test files are R scripts interspersed with test commands, such
+   as `expect_equal(myfunc(1), 0)`.
+2. `tinytest` is added to `Suggests:` in the `DESCRIPTION` file.
 3. A file named `tinytest.R` is set up in `pkg/tests` to make sure that tests
-will be run by `R CMD check`.
+   will be run by `R CMD check`.
 
+A nice way to set up a completely new package that passes `R CMD check` is as follows
+```
+pkgKitten::kitten("hihi")
+tinytest::setup_tinytest("hihi")
+```
+where `hihi` is the name of the new package.
 
 
 #### Interactive package testing
@@ -80,6 +88,9 @@ are shown in full. Global printing options can be set with `options(option=value
 | `tt.pr.color` | TRUE     | print colored output?         |
 
 It is also possible to influence these options using `print.tinytest`.
+Colored output is suppressed on systems with a
+[`"dumb"`](https://en.wikipedia.org/wiki/Computer_terminal#Dumb_terminals)
+terminal.
 
 
 #### Run tests for an installed package
@@ -88,9 +99,7 @@ For a package called `haha` that is tested with `tinytest`, any user that has
 `haha` and `tinytest` installed can run tests as follows.
 
 ```
-library(haha)
-library(tinytest)
-run_test_dir( system.file("tinytest",package="haha") )
+tinytest::test_package("haha")
 ```
 
 #### Skipping or ignoring tests 
@@ -99,7 +108,7 @@ Use `ignore(testfunction)` to run a test but not include the result in the outpu
 
 ```
 # both tests run, but only second is recorded.
-if ( ignore(expect_equal)(2, 1+1) ){
+if ( ignore(expect_equal)(1 + 1, 2) ){
   expect_true( 1 > 0 )
 }
 ```
@@ -108,12 +117,14 @@ Note the placement of brackets.
 
 Use `at_home()` to detect whether a test is running interactively, or via 
 `test_package()` (i.e. the way `R CMD check` will run it).
-
 ```
 if ( at_home() ){
   # run tests requiring lots of time.
 }
 ```
+The package vignette has some tips on how to use this feature, and how you can
+set up your package so `R CMD check` also runs tests protected by `at_home()`
+in your environment.
 
 #### Comparing with data stored on file
 

@@ -715,13 +715,12 @@ at_home <- function(){
   identical(Sys.getenv("TT_AT_HOME"),"TRUE")
 }
 
-#' Test a package during R CMD check
+#' Test a package during R CMD check or after installation
 #'
-#' Run all tests in a package. Throw an error and print all failed test
+#' Run all tests in an installed package. Throw an error and print all failed test
 #' results when one or more tests fail. This function is intended to be
-#' used with \code{R CMD check} and not for interactive use (use \code{\link{test_all}}
-#' or \code{\link{build_install_test}} instead). Tests that are only run 
-#' \code{\link{at_home}} are skipped by default (as if it was run on CRAN).
+#' used by \code{R CMD check} or by a user that installed a package that
+#' uses the \pkg{tinytest} test infrastructure.
 #'
 #' @param pkgname \code{[character]} scalar. Name of the package
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
@@ -732,8 +731,11 @@ at_home <- function(){
 #'
 #' @section Details:
 #' We set \code{at_home=FALSE} by default so \code{R CMD check} will run the same
-#' as at CRAN.
-#' 
+#' as at CRAN. See the package vignette (Section 4) for tips on how to set up
+#' the package structure.
+#' \code{vignette("using_tinytest",package="tinytest")}.
+#'
+#' @return \code{TRUE}, invisibly if all tests pass. Errors otherwise.
 #'
 #' @family test-files
 #' @seealso \code{\link{setup_tinytest}}
