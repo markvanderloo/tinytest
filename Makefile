@@ -3,6 +3,7 @@ doc:
 	R -s -e "pkgload::load_all('pkg');roxygen2::roxygenize('pkg')"
 
 pkg: doc
+	rm -f *.tar.gz
 	R CMD build pkg
 
 check: doc
@@ -12,6 +13,9 @@ check: doc
 cran: doc
 	R CMD build pkg
 	R CMD check --as-cran *.tar.gz
+
+install: pkg
+	R CMD INSTALL *.tar.gz
 
 test: doc
 	R -s -e "tinytest::build_install_test('pkg')"
