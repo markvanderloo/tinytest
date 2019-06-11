@@ -239,7 +239,11 @@ expect_error <- function(current, pattern=".*"){
   expr <- substitute(current)
   result <- FALSE
   diff <- "No Error"
-  e <- sys.frame(-2) 
+  
+  # Resolves GH issue 4. When run in interactive mode, the
+  # nr of frames is less than 2.
+  n <- if (sys.nframe() >= 2) -2 else -1
+  e <- sys.frame(n) 
   tryCatch(eval(expr, envir=e), error=function(e){
             if (grepl(pattern, e$message)){
                 result <<- TRUE
@@ -261,7 +265,10 @@ expect_warning <- function(current, pattern=".*"){
   expr <- substitute(current)
   diff <- "No Warning"
 
-  e <- sys.frame(-2) 
+  # Resolves GH issue 4. When run in interactive mode, the
+  # nr of frames is less than 2.
+  n <- if (sys.nframe() >= 2) -2 else -1
+  e <- sys.frame(n) 
   withCallingHandlers(eval(expr, envir=e)
     , warning = function(w){
         if (grepl(pattern, w$message)){
