@@ -8,6 +8,27 @@ A lightweight, no-dependency, but full-featured package for unit testing
 
 [Overview of functionality](pkg/README.md)
 
+
+## Installing tinytest
+
+### From CRAN
+
+In `R`, do
+```r
+install.packages("tinytest")
+```
+
+### From github
+
+In your (bash) shell, do
+
+```bash
+git clone https://github.com/markvanderloo
+cd tinytest
+make install
+```
+
+
 ## tinytest philosophy.
 
 ### Testing should be as easy as possible. 
@@ -25,7 +46,7 @@ The purpose of testing is to  gather evidence (data) that builds confidence in
 the quality of software. Unit tests consist of expressions where an expected
 result is compared with the result of a program or function. For example:
 
-```{r}
+```r
 addOne <- function(x) x + 1
 subOne <- function(x) x - 2
 
