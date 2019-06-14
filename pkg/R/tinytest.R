@@ -242,12 +242,12 @@ expect_silent <- function(current){
     , error = function(e){
         result <<- FALSE 
         msg <<- e$message
-        type <<- "An Error"
+        type <<- "An error"
     } 
     , warning = function(w){
         result <<- FALSE
         msg <<- w$message
-        type <<- "A Warning"
+        type <<- "A warning"
     }
   )
 
