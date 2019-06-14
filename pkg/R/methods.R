@@ -40,7 +40,7 @@ summary.tinytests <- function(object, ...){
 #' @param i an index
 #' @param x a \code{tinytests} object 
 #'
-#' @return For \code{[.tinytests} another, smaller \code{tinytests} object.
+#' @return For \code{`[.tinytests`} a \code{tinytests} object.
 #'
 #' @export
 #' @rdname tinytests
@@ -58,7 +58,7 @@ summary.tinytests <- function(object, ...){
 #' By default, the first 3 failing test results are printed in long form,
 #' the next 7 failing test results are printed in short form and all other 
 #' failing tests are not printed. These defaults can be changed by passing options
-#' to  \code{print.tinytest}, or by setting one or more of the following general
+#' to  \code{print.tinytest}, or by setting one or more of the following global
 #' options:
 #' \itemize{
 #' \item{\code{tt.pr.passes} Set to \code{TRUE} to print output of non-failing tests.}

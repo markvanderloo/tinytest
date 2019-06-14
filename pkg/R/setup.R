@@ -6,9 +6,9 @@
 #' tested with \code{R CMD check}. Adds \code{tinytests} as a suggested
 #' package to the \code{DESCRIPTION}.
 #'
-#' @param pkgdir  Package source directory
-#' @param force   Toggle overwrite existing files? (not folders)
-#' @param verbose Toggle print progress
+#' @param pkgdir  \code{[character]} Package source directory
+#' @param force   \code{[logical]} Toggle overwrite existing files? (not folders)
+#' @param verbose \code{[logical]} Toggle print progress
 #'
 #' @section Note on \code{DESCRIPTION}:
 #'

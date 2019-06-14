@@ -75,7 +75,7 @@ lineformat <- function(x){
   else sprintf("%d",x)
 }
 
-#' @param type Toggle format type
+#' @param type \code{[logical]} Toggle format type
 #'
 #' @return A character string
 #'
@@ -422,7 +422,7 @@ add_RUnit_style <- function(e){
 #' Ignoring is only useful for test files, and not for use directly
 #' at the command-line. See also the \href{../docs/using_tinytest.pdf}{vignette}.
 #'
-#' @param fun An \code{expect_} function
+#' @param fun \code{[function]} An \code{expect_} function
 #'
 #' @return An ignored \code{function}
 #' @family test-functions
@@ -552,6 +552,7 @@ reset_options <- function(env){
 #' print(out, nlong=0, passes=TRUE)
 #'
 #' @family test-files
+#' @seealso \code{\link{ignore}}
 #' @export
 run_test_file <- function( file
                          , at_home=TRUE
@@ -674,7 +675,7 @@ run_test_file <- function( file
 #'  
 #' @section Details:
 #'
-#' In general, we cannot guarantee that files will be run in any particular
+#' We cannot guarantee that files will be run in any particular
 #' order accross all platforms, as it depends on the available collation charts
 #' (a chart that determines how alphabets are sorted).  For this reason it is a
 #' good idea to create test files that run independent of each other so their
