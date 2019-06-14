@@ -44,4 +44,9 @@ expect_false(ignore(expect_error)(stop("foo"),pattern="bar"))
 expect_true(ignore(expect_warning)(warning("fu!")))
 expect_false(ignore(expect_warning)(warning("fu!"), pattern="bar"))
 
+expect_true(ignore(expect_silent)(1 + 1))
+expect_false(ignore(expect_silent)(1 + "a"))
+expect_false(ignore(expect_silent)(1:3 + 1:2))
+
+
 

@@ -233,6 +233,39 @@ expect_false <- function(current){
 
 
 #' @rdname expect_equal
+#' @export
+expect_silent <- function(current){
+  result <- TRUE
+  msg <- ""
+  type <- "none"
+  tryCatch(current
+    , error = function(e){
+        result <<- FALSE 
+        msg <<- e$message
+        type <<- "An Error"
+    } 
+    , warning = function(w){
+        result <<- FALSE
+        msg <<- w$message
+        type <<- "A Warning"
+    }
+  )
+
+  call <- sys.call(sys.parent(1))
+  diff <- if (msg != ""){
+    sprintf("Execution was not silent. %s was thrown with message\n  '%s'",type,msg)
+  } else {
+    NA_character_
+  }
+  tinytest(result
+    , call  = sys.call(sys.parent(1))
+    , short = if (result) NA_character_ else "xcpt"
+    , diff  = diff
+  )
+}
+
+
+#' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
 #' @export
 expect_error <- function(current, pattern=".*"){
@@ -526,6 +559,7 @@ run_test_file <- function( file
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
   e$expect_identical  <- capture(expect_identical, o)
+  e$expect_silent  <- capture(expect_silent, o)
 
   ## add checkFoo equivalents of expect_foo
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)

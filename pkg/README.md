@@ -59,6 +59,7 @@ the second argument represents the _desired_ value.
 | `expect_identical`          | Target and current mustbe `identical`         |
 | `expect_warning`            | Expression must yield a warning               |
 | `expect_error`              | Expression must yield an error                |
+| `expect_silent`             | Expect no errors, no warnings                 |
 
 
 For tests in a script there is an alternative syntax in the style of 
