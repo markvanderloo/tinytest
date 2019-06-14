@@ -236,7 +236,8 @@ expect_false <- function(current){
 
 #' @rdname expect_equal
 #'
-#' @param quiet Make sure that printed output does not go to screen.
+#' @param quiet \code{[logical]} suppress output printed by the \code{current} 
+#'        expression (see examples)
 #'
 #' @details
 #'
