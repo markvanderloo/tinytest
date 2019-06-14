@@ -23,7 +23,7 @@ install.packages("tinytest")
 In your (bash) shell, do
 
 ```bash
-git clone https://github.com/markvanderloo
+git clone https://github.com/markvanderloo/tinytest
 cd tinytest
 make install
 ```
