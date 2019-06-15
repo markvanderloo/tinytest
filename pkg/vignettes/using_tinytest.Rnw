@@ -28,7 +28,7 @@
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\pkg}[1]{\textbf{#1}}
 \let\oldmarginpar\marginpar
-\renewcommand{\marginpar}[1]{\oldmarginpar{\scriptsize #1}}
+\renewcommand{\marginpar}[1]{\oldmarginpar{\raggedleft\scriptsize #1}}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1ex}
