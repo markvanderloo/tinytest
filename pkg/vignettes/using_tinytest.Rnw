@@ -3,12 +3,12 @@
 \usepackage{enumitem}
 \setlist{nosep}
 
-% simpler, but issue with your margin notes \usepackage[margin=1in]{geometry}
+% simpler, but issue with your margin notes
+% \usepackage[margin=1in]{geometry}
 \usepackage{vmargin}
 \setpapersize{USletter} % or a4 for you
-%  Left Top Right Bottom
 % Left Top Right Bottom headheight?? headsep footheight footsep
-\setmarginsrb{0.75in}{0.25in}{1.1in}{0.35in}{15pt}{15pt}{10pt}{20pt}
+\setmarginsrb{0.75in}{0.25in}{1.1in}{0.25in}{15pt}{0pt}{10pt}{20pt}
 
 \usepackage{hyperref}
 
