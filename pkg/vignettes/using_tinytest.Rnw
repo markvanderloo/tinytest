@@ -3,6 +3,7 @@
 \usepackage{enumitem}
 \usepackage{xcolor}  % for color definitions
 \usepackage{sectsty} % to modify heading colors
+\usepackage{fancyhdr}
 \setlist{nosep}
 
 % simpler, but issue with your margin notes
@@ -15,10 +16,12 @@
 \usepackage{hyperref}
 
 \definecolor{bluetext}{RGB}{0,101,165}
+\definecolor{graytext}{RGB}{80,80,80}
+
 \hypersetup{
   pdfborder={0 0 0}
  , colorlinks=true 
- , urlcolor=red
+ , urlcolor=blue
  , linkcolor=bluetext
  , linktoc=all
  , citecolor=blue
@@ -27,14 +30,26 @@
 \sectionfont{\color{bluetext}}
 \subsectionfont{\color{bluetext}}
 
+% no serif=better reading from screen.
 \renewcommand{\familydefault}{\sfdefault}
 
+% header and footers
+\pagestyle{fancy}
+\fancyhf{}                          % empty header and footer
+\renewcommand{\headrulewidth}{0pt}  % remove line on top
+\rfoot{\color{bluetext} tinytest \Sexpr{packageVersion("tinytest")}}
+\lfoot{\color{black}\thepage}  % side-effect of \color{}: lowers the printed text a little(?)
 
+\usepackage{fancyvrb}
+
+
+% custom commands make life easier.
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\pkg}[1]{\textbf{#1}}
 \let\oldmarginpar\marginpar
 \renewcommand{\marginpar}[1]{\oldmarginpar{\color{bluetext}\raggedleft\scriptsize #1}}
 
+% skip line at start of new paragraph
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1ex}
 
@@ -42,8 +57,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Using tinytest}
 \author{Mark van der Loo}
+\date{\today{} | Package version \Sexpr{packageVersion("tinytest")}}
 
 \begin{document}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=n,formatcom=\color{graytext}}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontshape=sl,formatcom=\color{graytext}}
 \newlength{\fancyvrbtopsep}
 \newlength{\fancyvrbpartopsep}
 \makeatletter
@@ -54,6 +72,7 @@
 \setlength{\fancyvrbtopsep}{0pt}
 \setlength{\fancyvrbpartopsep}{0pt}
 \maketitle{}
+\thispagestyle{empty}
 
 \tableofcontents{}
 <<echo=FALSE>>=
@@ -633,7 +652,7 @@ to this as a \emph{regression}.
 
 
   \bibitem{csardi2016cyclocomp}
-    \href{https://cran.r-project.org/package=cyclocomp}{cyclocomp: cyclomatic complexity of r code}
+    \href{https://cran.r-project.org/package=cyclocomp}{cyclocomp: cyclomatic complexity of R code}
     G\'abor Cs\'ardi (2016)
     R package version 1.1.0
 
