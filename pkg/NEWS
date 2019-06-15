@@ -4,6 +4,8 @@ version 0.9.5
 - Colored output is turned off automatically when the pkg is loaded
   in a "dumb" terminal. (Thanks to Dirk Eddelbeutel for the suggestion, #12).
 - Improved documentation, including on how to skip tests on CRAN.
+- Improved vignette layout (thanks to Dirk Eddelbuettel's PR #15 for
+  geometry settings)
 - Fix 'expect_warning' and 'expect_error' would crash when run on the CLI.
   (Thanks to Bryan Hanson #13)
 
