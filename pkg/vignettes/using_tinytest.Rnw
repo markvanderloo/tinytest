@@ -29,6 +29,7 @@
 
 \sectionfont{\color{bluetext}}
 \subsectionfont{\color{bluetext}}
+\subsubsectionfont{\color{bluetext}}
 
 % no serif=better reading from screen.
 \renewcommand{\familydefault}{\sfdefault}
