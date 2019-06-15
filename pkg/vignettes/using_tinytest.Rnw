@@ -1,6 +1,8 @@
 %\VignetteIndexEntry{Using tinytest}
 \documentclass[11pt]{article}
 \usepackage{enumitem}
+\usepackage{xcolor}  % for color definitions
+\usepackage{sectsty} % to modify heading colors
 \setlist{nosep}
 
 % simpler, but issue with your margin notes
@@ -12,28 +14,34 @@
 
 \usepackage{hyperref}
 
+\definecolor{bluetext}{RGB}{0,101,165}
 \hypersetup{
   pdfborder={0 0 0}
  , colorlinks=true 
  , urlcolor=red
- , linkcolor=blue
+ , linkcolor=bluetext
+ , linktoc=all
  , citecolor=blue
 }
 
+\sectionfont{\color{bluetext}}
+\subsectionfont{\color{bluetext}}
+
 \renewcommand{\familydefault}{\sfdefault}
 
-\title{Using tinytest}
-\author{Mark van der Loo}
 
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\pkg}[1]{\textbf{#1}}
 \let\oldmarginpar\marginpar
-\renewcommand{\marginpar}[1]{\oldmarginpar{\raggedleft\scriptsize #1}}
+\renewcommand{\marginpar}[1]{\oldmarginpar{\color{bluetext}\raggedleft\scriptsize #1}}
 
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1ex}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Using tinytest}
+\author{Mark van der Loo}
 
 \begin{document}
 \newlength{\fancyvrbtopsep}
