@@ -159,7 +159,7 @@ print.tinytest <- function(x,...){
 #' @export
 expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 
-  check <- all.equal(current, target,...)
+  check <- all.equal(current, target, tol=tol, ...)
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
   short <- if(equal) NA_character_ else shortdiff(current, target, tolerance=tol)
@@ -198,7 +198,9 @@ shortdiff <- function(current, target, ...){
 #' @rdname expect_equal
 #' @export
 expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
-  out <- expect_equal(current, target, check.attributes=FALSE,use.names=FALSE,...)
+  out <- expect_equal(current, target
+          , check.attributes=FALSE,use.names=FALSE
+          , tol=tol, ...)
   attr(out, 'call') <- sys.call(sys.parent(1))
   out
 }
