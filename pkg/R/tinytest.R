@@ -637,14 +637,10 @@ run_test_file <- function( file
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
-
-    fmtstr <- if ( color ){
-      "\rRunning %s (%02d|\033[0;32m%02d\033[0m|\033[0;31m%02d\033[0m)"
-    } else {
-      "\rRunning %s (T%02d|P%02d|F%02d)"
-    }
-    catf(fmtstr, basename(file), o$ntest(), o$npass(), o$nfail() )
-
+     
+    catf("\rRunning %30s: %4d tests. ", basename(file), o$ntest())
+    if ( o$nfail() == 0 ) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
+    else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", o$nfail())
   }
   catf("\n")
   
@@ -847,7 +843,7 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
   if ( any(i_fail) ){
     msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
     msg <- paste(msg, "\n")
-    stop(msg, call.=FALSE)
+    if (!interactive()) stop(msg, call.=FALSE)
   } else {
     invisible(TRUE)
   }

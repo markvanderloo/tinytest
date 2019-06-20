@@ -1,4 +1,6 @@
 version 0.9.5
+- Better 'verbosity' while running test files (thanks to Dirk Eddelbuettel for
+  discussions and feedback)
 - Added 'test_silent'. Check for lack of errors or warnings (Thanks to Bryan
   Hanson for the suggestion, #14)
 - Colored output is turned off automatically when the pkg is loaded
