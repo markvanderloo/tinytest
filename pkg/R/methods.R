@@ -1,7 +1,7 @@
 
 
 #' @rdname tinytests
-#' @param object a tinytests object
+#' @param object a \code{tinytests} object
 #' @return For \code{summary} a \code{\link{table}} object
 #' @export
 summary.tinytests <- function(object, ...){
@@ -26,7 +26,45 @@ summary.tinytests <- function(object, ...){
   
   cat(hdr,"\n\n")
   tab
-}   
+}
+
+#' @rdname tinytests
+#' @param x a \code{tinytests} object
+#' 
+#' @return For \code{all_pass}, \code{any_pass}, \code{all_fail}, \code{any_fail}: 
+#'  a single \code{logical}
+#' @export
+all_pass <- function(x){
+  stopifnot(inherits(x,'tinytests'))
+  all(sapply(x, isTRUE))
+}
+
+#' @rdname tinytests
+#' @export
+any_pass <- function(x){
+  stopifnot(inherits(x,'tinytests'))
+  any(sapply(x, isTRUE))
+}
+
+#' @rdname tinytests
+#' @export
+all_fail <- function(x){
+  stopifnot(inherits(x,'tinytests'))
+   all(sapply(x, isFALSE))
+}
+
+
+#' @rdname tinytests
+#' @export
+any_fail <- function(x){
+  stopifnot(inherits(x,'tinytests'))
+   any(sapply(x, isFALSE))
+}
+
+
+
+
+   
 
 #' Tinytests object
 #'
