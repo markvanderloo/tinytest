@@ -811,7 +811,8 @@ at_home <- function(){
 #' Test a package during R CMD check or after installation
 #'
 #' Run all tests in an installed package. Throw an error and print all failed test
-#' results when one or more tests fail. This function is intended to be
+#' results when one or more tests fail if not in interactive mode (e.g. when
+#' R CMD check tests a package). This function is intended to be
 #' used by \code{R CMD check} or by a user that installed a package that
 #' uses the \pkg{tinytest} test infrastructure.
 #'
@@ -828,7 +829,8 @@ at_home <- function(){
 #' the package structure.
 #' \code{vignette("using_tinytest",package="tinytest")}.
 #'
-#' @return \code{TRUE}, invisibly if all tests pass. Errors otherwise.
+#' @return If \code{interactive()}, a \code{tinytests} object. If not
+#'  \code{interactive()}, an error is thrown when at least one test fails.
 #'
 #' @family test-files
 #' @seealso \code{\link{setup_tinytest}}
@@ -854,7 +856,7 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
     msg <- paste(msg, "\n")
     if (!interactive()) stop(msg, call.=FALSE)
   } else {
-    invisible(TRUE)
+    invisible(out)
   }
 }
 
