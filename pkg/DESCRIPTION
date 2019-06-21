@@ -13,7 +13,7 @@ Description: Provides a lightweight (zero-dependency) and easy to use
     over. Fully automated build-install-test sequence for packages. Skip tests when
     not run locally (e.g. on CRAN). Flexible and configurable output printing. Compare
     computed output with output stored with the package.
-Version: 0.9.4.6
+Version: 0.9.4.7
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
 Imports: utils
