@@ -29,8 +29,6 @@ summary.tinytests <- function(object, ...){
 }
 
 #' @rdname tinytests
-#' @param x a \code{tinytests} object
-#' 
 #' @return For \code{all_pass}, \code{any_pass}, \code{all_fail}, \code{any_fail}: 
 #'  a single \code{logical}
 #' @export
