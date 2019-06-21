@@ -613,7 +613,7 @@ run_test_file <- function( file
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
   e$expect_identical  <- capture(expect_identical, o)
-  e$expect_silent  <- capture(expect_silent, o)
+  e$expect_silent     <- capture(expect_silent, o)
 
   ## add checkFoo equivalents of expect_foo
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
@@ -626,19 +626,28 @@ run_test_file <- function( file
   ## on exit
   e$options <- capture_options(options, oldop)
 
-  # parse file, store source references.
+  # parse file, store source reference.
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
-
   o$file <- file
+
+  # format file name for printing while running.
+  prfile <- basename(file)
+  if (nchar(prfile) > 30 ){
+    prfile <- paste0("..",substr(prfile, nchar(prfile)-27,nchar(prfile)))
+  }  
+  prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
+
+  # evaluate expressions one by one
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
-     
-    catf("\rRunning %30s: %4d tests. ", basename(file), o$ntest())
+    
+    # print the test counter. 
+    catf("\r%s %4d tests. ", prfile, o$ntest())
     if ( o$nfail() == 0 ) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
     else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", o$nfail())
   }

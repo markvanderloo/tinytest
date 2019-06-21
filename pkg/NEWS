@@ -1,4 +1,6 @@
 version 0.9.5
+- When `interactive()`, `test_package()` will not throw an error upon a failing
+  test.
 - Better 'verbosity' while running test files (thanks to Dirk Eddelbuettel for
   discussions and feedback)
 - Added 'test_silent'. Check for lack of errors or warnings (Thanks to Bryan
