@@ -648,7 +648,9 @@ run_test_file <- function( file
     
     # print the test counter. 
     catf("\r%s %4d tests ", prfile, o$ntest())
-    if ( o$nfail() == 0 ) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
+    # print status after counter
+    if ( o$ntest() == 0 ) {} # print nothing if nothing was tested
+    else if ( o$nfail() == 0) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
     else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", o$nfail())
   }
   catf("\n")
