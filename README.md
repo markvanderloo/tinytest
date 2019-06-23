@@ -18,7 +18,7 @@ In `R`, do
 install.packages("tinytest")
 ```
 
-### From github
+### From GitHub
 
 In your (bash) shell, do
 
@@ -35,7 +35,7 @@ make install
 
 Testing infrastructure must not get in the way of the developer. Setting up
 tests should be done with ease. In `tinytest` tests are simple R-scripts
-where test statements can be intersperced with other code (e.g. to prepare
+where test statements can be interspersed with other code (e.g. to prepare
 some results for testing).
 
 
@@ -77,18 +77,18 @@ can be summarized and investigated by any method you already know in R.
 
 There is a case where the failure of a test should cause an error, namely when
 testing for deployment (e.g. publishing a package on CRAN). Therefore, when
-running of `R CMD check`, an error will be thrown if a test is failed. This way
+running `R CMD check`, an error will be thrown if a test has failed. This way
 the error interrupts the _deployment_ process instead of the _testing_ process.
 
 
 ### Run all tests
 
 By default all tests are run and the results are summarized to one line of
-output per failed result.
+output per failed test.
 
 ### Tests are installed with the package
 
-So a package author can request test results from users that installed the package on a local system.
+So a package author can request test results from users that installed the package.
 
 
 ### Show you what you need
