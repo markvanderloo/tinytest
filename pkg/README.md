@@ -56,7 +56,7 @@ the second argument represents the _desired_ value.
 | `expect_false`              | Argument must evaluate to `FALSE`             |
 | `expect_equal`              | Data and attributes of arguments must be equal|
 | `expect_equivalent`         | Data of arguments must be equal               |
-| `expect_identical`          | Target and current mustbe `identical`         |
+| `expect_identical`          | Target and current must be `identical`        |
 | `expect_warning`            | Expression must yield a warning               |
 | `expect_error`              | Expression must yield an error                |
 | `expect_silent`             | Expect no errors, no warnings                 |
