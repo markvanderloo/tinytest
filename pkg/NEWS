@@ -13,6 +13,8 @@ version 0.9.5
 - Improved documentation, including on how to skip tests on CRAN.
 - Improved vignette layout (thanks to Dirk Eddelbuettel's suggestions and initial 
   PR #15 for geometry settings)
+- Improved behavior of 'setup_tinytest()' when a 'Suggests' field is
+  already present in DESCRIPTION
 - Fix: toleracence was not passed to 'all.equal' by 'expect_equal' and 
   'expect_equivalent' (Thanks to An Chu #17)
 - Fix 'expect_warning' and 'expect_error' would crash when run on the CLI.
