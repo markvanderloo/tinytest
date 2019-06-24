@@ -605,7 +605,7 @@ run_test_file <- function( file
   o <- output()
   # we sleeve the expectation functions so their
   # output  will be captured in 'o'
-  e <- new.env()
+  e <- new.env(parent=globalenv())
   e$expect_equal      <- capture(expect_equal, o)
   e$expect_equivalent <- capture(expect_equivalent, o)
   e$expect_true       <- capture(expect_true, o)
@@ -614,6 +614,8 @@ run_test_file <- function( file
   e$expect_error      <- capture(expect_error, o)
   e$expect_identical  <- capture(expect_identical, o)
   e$expect_silent     <- capture(expect_silent, o)
+  e$ignore            <- ignore
+  e$at_home           <- tinytest::at_home
 
   ## add checkFoo equivalents of expect_foo
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)

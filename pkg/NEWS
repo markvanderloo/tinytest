@@ -17,6 +17,8 @@ version 0.9.5
   'expect_equivalent' (Thanks to An Chu #17)
 - Fix 'expect_warning' and 'expect_error' would crash when run on the CLI.
   (Thanks to Bryan Hanson #13)
+- Fix: method dispatch in packages defining S4 methods.
+
 
 version 0.9.4
 - New function 'setup_tinytest' that adds 'tinytest' infrastructure to a

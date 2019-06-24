@@ -24,10 +24,10 @@ manual: doc
 	R CMD Rd2pdf --force -o manual.pdf ./pkg
 
 revdep: pkg
-	rm -rf revcheck
-	mkdir revcheck
-	mv *.tar.gz revcheck
-	R -s -e "out <- tools::check_packages_in_dir('revcheck',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revcheck/output.RDS')"
+	rm -rf revdep
+	mkdir revdep
+	mv *.tar.gz revdep
+	R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
 vignette:
 	./vignettes.sh
@@ -38,6 +38,7 @@ clean:
 	rm -f pkg/vignettes/*.out
 	rm -f pkg/vignettes/*.pdf
 	rm -f pkg/vignettes/*.toc
+	rm -rf *.Rcheck
 	rm -rf revdep
 	rm -f *.tar.gz
 
