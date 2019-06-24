@@ -98,10 +98,10 @@ expect_equal(1 + 1, 2)
   }
 
   ## Add tinytest to DESCRIPTION file
-  suggests <- dcf["Suggests"]
+  suggests <- if ("Suggests" %in% colnames(dcf)) dcf[1,"Suggests"] else NA
   if (!is.na(suggests) && !grepl("tinytest",suggests)){
     catf("Adding 'tinytest' to DESCRIPTION if necessary\n")
-    dcf[1,"Suggests"] <- sprintf("%s,\n tinytest")
+    dcf[1,"Suggests"] <- sprintf("%s,\n tinytest",suggests)
     write.dcf(dcf, dfile)
   } else {
     catf("Adding 'tinytest' to DESCRIPTION\n")
