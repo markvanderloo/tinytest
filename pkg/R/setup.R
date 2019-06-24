@@ -33,7 +33,7 @@
 #' @export
 setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
 
-  catf  <- function(fmt,...) cat(sprintf(fmt,...))
+  catf  <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
   stopf <- function(fmt,...) cat(stop(fmt,...),call.=FALSE)
 
   if (!dir.exists(pkgdir)){
@@ -100,13 +100,22 @@ expect_equal(1 + 1, 2)
   ## Add tinytest to DESCRIPTION file
   suggests <- if ("Suggests" %in% colnames(dcf)) dcf[1,"Suggests"] else NA
   if (!is.na(suggests) && !grepl("tinytest",suggests)){
-    catf("Adding 'tinytest' to DESCRIPTION if necessary\n")
-    dcf[1,"Suggests"] <- sprintf("%s,\n tinytest",suggests)
+    catf("Adding 'tinytest' to DESCRIPTION/Suggests\n")
+    dcf[1,"Suggests"] <- sprintf("%s, tinytest",suggests)
     write.dcf(dcf, dfile)
-  } else {
-    catf("Adding 'tinytest' to DESCRIPTION\n")
+  } else if ( is.na(suggests) ) {
+    catf("Adding 'Suggests: tinytest' to DESCRIPTION\n")
     dcf <- cbind(dcf, Suggests = "tinytest")
     write.dcf(dcf, dfile)
+  }
+
+  # If another test package is already present, perhaps the user
+  # wants to take it out.
+  other_test_package <- c("RUnit","testthat","unity","testit")
+  suggested <- trimws(strsplit(dcf[1,"Suggests"], ",")[[1]])
+  if (any(other_test_package %in% suggested)){
+    pkgs <- paste(other_test_package[other_test_package %in% suggested], collapse=", ")
+    catf("You may want to remove the following packages from DESCRIPTION/Suggests: %s\n", pkgs)
   }
 
   invisible(NULL)
