@@ -24,6 +24,7 @@ version 0.9.5
 - Fix: method dispatch in packages defining S4 methods now works.
 - Fix: 'setup' now adds 'tinytest' to 'Suggests:' rather then adding an
   extra 'Suggests' field in DESCRIPTION.
+- Corrections in README and vignette, thanks to GH user 'salim-b' PR #18, #19
 - Internal: simplified code for 'expect_warning' and 'expect_error' 
   (thanks to Lionel Henry for suggestions).
 
