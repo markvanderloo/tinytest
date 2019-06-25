@@ -22,9 +22,10 @@ version 0.9.5
 - Fix 'expect_warning' and 'expect_error' would crash when run on the CLI.
   (Thanks to Bryan Hanson #13)
 - Fix: method dispatch in packages defining S4 methods now works.
-- FIx: 'setup' now adds 'tinytest' to 'Suggests:' rather then adding an
+- Fix: 'setup' now adds 'tinytest' to 'Suggests:' rather then adding an
   extra 'Suggests' field in DESCRIPTION.
-
+- Internal: simplified code for 'expect_warning' and 'expect_error' 
+  (thanks to Lionel Henry for suggestions).
 
 version 0.9.4
 - New function 'setup_tinytest' that adds 'tinytest' infrastructure to a

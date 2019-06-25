@@ -310,15 +310,10 @@ expect_silent <- function(current, quiet=TRUE){
 #' @param pattern \code{[character]} A regular expression to match the message.
 #' @export
 expect_error <- function(current, pattern=".*"){
-  expr <- substitute(current)
   result <- FALSE
   diff <- "No Error"
   
-  # Resolves GH issue 4. When run in interactive mode, the
-  # nr of frames is less than 2.
-  n <- if (sys.nframe() >= 2) -2 else -1
-  e <- sys.frame(n) 
-  tryCatch(eval(expr, envir=e), error=function(e){
+  tryCatch(current, error=function(e){
             if (grepl(pattern, e$message)){
                 result <<- TRUE
             } else {
@@ -336,14 +331,9 @@ expect_error <- function(current, pattern=".*"){
 expect_warning <- function(current, pattern=".*"){
   
   result <- FALSE
-  expr <- substitute(current)
   diff <- "No Warning"
 
-  # Resolves GH issue 4. When run in interactive mode, the
-  # nr of frames is less than 2.
-  n <- if (sys.nframe() >= 2) -2 else -1
-  e <- sys.frame(n) 
-  withCallingHandlers(eval(expr, envir=e)
+  withCallingHandlers(current
     , warning = function(w){
         if (grepl(pattern, w$message)){
           result <<- TRUE
@@ -351,8 +341,9 @@ expect_warning <- function(current, pattern=".*"){
           diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
                           , w$message, pattern)
         }
-        eval(invokeRestart("muffleWarning"), envir=e)
-    })
+        invokeRestart("muffleWarning")
+      }
+  )
 
   tinytest(result, call=sys.call(sys.parent(1))
            , short = if (result) NA_character_ else "xcpt"
