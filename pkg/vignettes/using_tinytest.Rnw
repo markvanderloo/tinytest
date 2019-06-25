@@ -140,6 +140,7 @@ Currently, the following expectations are implemented.
 \code{expect\_false(current)}              & does `current' evaluate to \code{FALSE}\\
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
 \code{expect\_warning(current, pattern)}   & warning message matching \code{pattern}\\
+\code{expect\_message(current, pattern)}   & message matching \code{pattern}\\
 \code{expect\_silent(current, pattern)}    & expect no warnings or errors (just run)\\
 \end{tabular}
 \end{center}
