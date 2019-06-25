@@ -360,6 +360,52 @@ expect_warning <- function(current, pattern=".*"){
 }
 
 
+#' @rdname expect_equal
+#' @export
+expect_message <- function(current, pattern=".*"){
+  value <- ""
+  tc <- textConnection("value", open="w", local=TRUE)
+  sink(file=tc,type="message", split=FALSE)
+  
+
+  result <- TRUE
+  msg    <- ""
+  tryCatch(current
+    , error = function(e){
+        result <<- FALSE
+        msg <<- sprintf("Expected message, got error:\n '%s'",e$message)
+      }
+    , warning = function(w){
+        result <<- FALSE
+        msg <<- sprintf("Expected message, got warning:\n '%s'", w$message)
+      }
+  )
+  sink()
+
+  call <- sys.call(sys.parent(1))
+  # we got a warning or error instead of a message:
+  if (!result){
+    tinytest(
+        result
+      , call
+      , diff  = msg
+      , short = "xcpt" 
+    ) 
+  # we got a message, check if it matches 'pattern'
+  } else if (!grepl(pattern, value)){
+    tinytest(FALSE
+      , call
+      , diff = sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
+      , short = "xcpt"
+    )
+  } else {
+    tinytest(TRUE, call)
+  }
+  
+}
+
+
+
 
 
 # reference object to store or ignore output
@@ -610,6 +656,7 @@ run_test_file <- function( file
   e$expect_equivalent <- capture(expect_equivalent, o)
   e$expect_true       <- capture(expect_true, o)
   e$expect_false      <- capture(expect_false, o)
+  e$expect_message    <- capture(expect_message, o)
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
   e$expect_identical  <- capture(expect_identical, o)

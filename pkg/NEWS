@@ -1,8 +1,10 @@
 version 0.9.5
+- New function 'expect_message'.
 - New functions 'all_pass', 'all_fail', 'any_pass', 'any_fail' for investigating
   'tinytests' objects.
 - When `interactive()`, 'test_package' will not throw an error upon a failing
-  test. Still throws an error when not `interactive()`.
+  test. Still throws an error when not `interactive()`. This makes it more
+  usefull for interactive testing of installed packages.
 - 'test_package()' now returns a 'tinytests' object.
 - Better 'verbosity' while running test files (thanks to Dirk Eddelbuettel for
   discussions and feedback)
