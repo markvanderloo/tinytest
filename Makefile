@@ -11,6 +11,7 @@ check: doc
 	R CMD check *.tar.gz
 
 cran: doc
+	rm -rf *.tar.gz
 	R CMD build pkg
 	R CMD check --as-cran *.tar.gz
 
