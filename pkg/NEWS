@@ -1,3 +1,6 @@
+version 0.9.6
+- Fixed error caught on CRAN
+
 version 0.9.5
 - New function 'expect_message'.
 - New functions 'all_pass', 'all_fail', 'any_pass', 'any_fail' for investigating

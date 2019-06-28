@@ -371,8 +371,11 @@ expect_message <- function(current, pattern=".*"){
         msg <<- sprintf("Expected message, got warning:\n '%s'", w$message)
       }
   )
-  sink()
-
+  sink(file = NULL, type="message")
+  close(tc)
+  
+  # collapse the value string in case multiple messages were caught.
+  value <- paste(value, collapse="\n")
   call <- sys.call(sys.parent(1))
   # we got a warning or error instead of a message:
   if (!result){
@@ -383,7 +386,7 @@ expect_message <- function(current, pattern=".*"){
       , short = "xcpt" 
     ) 
   # we got a message, check if it matches 'pattern'
-  } else if (!grepl(pattern, value)){
+  } else if ( !grepl(pattern, value ) ) {
     tinytest(FALSE
       , call
       , diff = sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
@@ -459,7 +462,7 @@ add_RUnit_style <- function(e){
 #'
 #' Ignored expectations are not reported in the test results.
 #' Ignoring is only useful for test files, and not for use directly
-#' at the command-line. See also the \href{../docs/using_tinytest.pdf}{vignette}.
+#' at the command-line. See also the package vignette: \code{vignette("using_tinytest")}.
 #'
 #' @param fun \code{[function]} An \code{expect_} function
 #'
