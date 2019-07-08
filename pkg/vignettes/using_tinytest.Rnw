@@ -132,7 +132,7 @@ isTRUE( expect_true(2 == 1 + 1) )
 Currently, the following expectations are implemented.
 \begin{center}
 \begin{tabular}{ll}
-\textbf{Function} & \textbf{what it looks for}\\
+\textbf{Function} & \textbf{what it expects}\\
 \code{expect\_equal(current, target)}      & equality (using \code{all.equal})\\
 \code{expect\_equivalent(current, target)} & equality, ignoring attributes\\
 \code{expect\_identical(current, target)}  & equality, (using, \code{identical})\\

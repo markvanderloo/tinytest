@@ -15,7 +15,9 @@ cran: doc
 	R CMD build pkg
 	R CMD check --as-cran *.tar.gz
 
-install: pkg
+install: doc
+	rm -rf *.tar.gz
+	R CMD build pkg
 	R CMD INSTALL *.tar.gz
 
 test: doc

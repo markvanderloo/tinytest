@@ -368,7 +368,8 @@ expect_message <- function(current, pattern=".*"){
       }
     , warning = function(w){
         result <<- FALSE
-        msg <<- sprintf("Expected message, got warning:\n '%s'", w$message)
+        msg <<- paste(sprintf("Expected message, got warning:\n '%s'", w$message)
+                    , collapse="\n")
       }
   )
   sink()
@@ -383,7 +384,7 @@ expect_message <- function(current, pattern=".*"){
       , short = "xcpt" 
     ) 
   # we got a message, check if it matches 'pattern'
-  } else if (!grepl(pattern, value)){
+  } else if (!isTRUE(grepl(pattern, value)) ){
     tinytest(FALSE
       , call
       , diff = sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
