@@ -307,6 +307,20 @@ expect_silent <- function(current, quiet=TRUE){
 
 
 #' @rdname expect_equal
+#' @export
+expect_null <- function(current){
+  call <- sys.call(sys.parent(1))
+  if (is.null(current)){
+    tinytest(TRUE, call=call)
+  } else {
+    tinytest(FALSE, call=call, short="data"
+      , diff = sprintf("Expected NULL, got '%s'", paste(class(current), collapse=", "))
+    )
+  }
+}
+
+
+#' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
 #' @export
 expect_error <- function(current, pattern=".*"){

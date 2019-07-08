@@ -1,3 +1,7 @@
+version 0.9.6
+- New function 'expect_null'
+
+
 version 0.9.5
 - New function 'expect_message'.
 - New functions 'all_pass', 'all_fail', 'any_pass', 'any_fail' for investigating
