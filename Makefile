@@ -7,6 +7,7 @@ pkg: doc
 	R CMD build pkg
 
 check: doc
+	rm -rf *.tar.gz
 	R CMD build pkg
 	R CMD check *.tar.gz
 
