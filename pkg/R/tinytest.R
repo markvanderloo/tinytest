@@ -325,7 +325,7 @@ expect_null <- function(current){
 #' @export
 expect_error <- function(current, pattern=".*"){
   result <- FALSE
-  diff <- "No Error"
+  diff <- "No error"
   
   tryCatch(current, error=function(e){
             if (grepl(pattern, e$message)){
@@ -345,7 +345,7 @@ expect_error <- function(current, pattern=".*"){
 expect_warning <- function(current, pattern=".*"){
   
   result <- FALSE
-  diff <- "No Warning"
+  diff <- "No warning"
 
   withCallingHandlers(current
     , warning = function(w){
@@ -402,9 +402,11 @@ expect_message <- function(current, pattern=".*"){
     ) 
   # we got a message, check if it matches 'pattern'
   } else if (!isTRUE(grepl(pattern, value)) ){
+    df <- if (value == "") "No message"
+          else sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
     tinytest(FALSE
       , call
-      , diff = sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
+      , diff = df
       , short = "xcpt"
     )
   } else {
