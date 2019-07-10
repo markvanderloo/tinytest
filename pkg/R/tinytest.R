@@ -665,6 +665,7 @@ run_test_file <- function( file
   e$expect_equivalent <- capture(expect_equivalent, o)
   e$expect_true       <- capture(expect_true, o)
   e$expect_false      <- capture(expect_false, o)
+  e$expect_null       <- capture(expect_null, o)
   e$expect_message    <- capture(expect_message, o)
   e$expect_warning    <- capture(expect_warning, o)
   e$expect_error      <- capture(expect_error, o)
