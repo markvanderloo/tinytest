@@ -1,0 +1,480 @@
+%\VignetteIndexEntry{tinytest by example}
+\documentclass[11pt]{article}
+\usepackage{enumitem}
+\usepackage{xcolor}  % for color definitions
+\usepackage{sectsty} % to modify heading colors
+\usepackage{fancyhdr}
+\setlist{nosep}
+
+% simpler, but issue with your margin notes
+\usepackage[left=1cm,right=3cm, bottom=2cm, top=1cm]{geometry}
+
+\usepackage{hyperref}
+
+\definecolor{bluetext}{RGB}{0,101,165}
+\definecolor{graytext}{RGB}{80,80,80}
+
+\hypersetup{
+  pdfborder={0 0 0}
+ , colorlinks=true 
+ , urlcolor=blue
+ , linkcolor=bluetext
+ , linktoc=all
+ , citecolor=blue
+}
+
+\sectionfont{\color{bluetext}}
+\subsectionfont{\color{bluetext}}
+\subsubsectionfont{\color{bluetext}}
+
+% no serif=better reading from screen.
+\renewcommand{\familydefault}{\sfdefault}
+
+% header and footers
+\pagestyle{fancy}
+\fancyhf{}                          % empty header and footer
+\renewcommand{\headrulewidth}{0pt}  % remove line on top
+\rfoot{\color{bluetext} tinytest \Sexpr{packageVersion("tinytest")}}
+\lfoot{\color{black}\thepage}  % side-effect of \color{}: lowers the printed text a little(?)
+
+\usepackage{fancyvrb}
+
+
+% custom commands make life easier.
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+\let\oldmarginpar\marginpar
+\renewcommand{\marginpar}[1]{\oldmarginpar{\color{bluetext}\raggedleft\scriptsize #1}}
+
+% skip line at start of new paragraph
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Tinytest by example}
+\author{Mark van der Loo}
+\date{\today{} | Package version \Sexpr{packageVersion("tinytest")}}
+
+\begin{document}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=n,formatcom=\color{graytext}}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontshape=sl,formatcom=\color{graytext}}
+\newlength{\fancyvrbtopsep}
+\newlength{\fancyvrbpartopsep}
+\makeatletter
+\FV@AddToHook{\FV@ListParameterHook}{\topsep=\fancyvrbtopsep\partopsep=\fancyvrbpartopsep}
+\makeatother
+
+
+\setlength{\fancyvrbtopsep}{0pt}
+\setlength{\fancyvrbpartopsep}{0pt}
+\maketitle{}
+\thispagestyle{empty}
+
+\tableofcontents{}
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+library(tinytest)
+@
+
+
+\subsection*{Introduction}
+This document provides a number of real-life examples on how \pkg{tinytest} is
+used by other packages. The examples aim to illustrate the purpose of testing
+functions and serve as a complement to the technical documentation and the
+`using \code{tinytest}' vignette. There is a section for each function.  Each
+section starts with a short example that demonstrates the core purpose of the
+function. Next, one or more examples from packages that are published on CRAN
+are shown and explained.
+
+Sometimes a few lines of code were modified or deleted for brevity. This is
+indicated with comment between square brackets, e.g.
+<<eval=FALSE>>=
+## [this is an extra comment, only for this vignette] 
+@
+
+This document is probably not interesting to read front-to-back. It is more
+aimed to browse once in a while to get an idea on how \pkg{tinytest} can be 
+used in practice. 
+
+Package authors are invited to contribute new use cases so new users can 
+learn from them. Please contact the author of this package either by email
+or via the \href{http://github.com/markvanderloo/tinytest}{github repository}.
+
+\newpage{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\code{expect\_equal}}
+R objects are described by the data they contain and the attributes attached to
+them. For example, in the vector \code{c(x=1,y=2)}, the data consist of the
+numbers \code{1} and \code{2} (in that order). There is a single attribute
+called \code{names}, consisting of the two strings \code{"x"} and \code{"y"}
+(in that order).
+
+The \code{expect\_equal} function whether both the data and the attributes of two
+objects are the same. 
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_equal(1,1)
+expect_equal(1, c(x=1))
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+
+Here is an example of the \pkg{stringdist} package. This package implements
+various methods to determine how different two strings are.  In this test, we
+check one aspect of the `optimal string alignment' algorithm. In particular, we
+test if it correctly counts the switch of two adjacent characters as a single
+operation.
+<<eval=FALSE>>=
+expect_equal(stringdist("ab", "ba", method="osa"), 1)
+@
+
+The \pkg{benchr} package is a package to time R code, and it uses
+\code{expect\_equal} to extensively check the outputs. Here are a few examples.
+<<eval=FALSE>>=
+b <- benchr::benchmark(1 + 1, 2 + 2)
+m <- mean(b)
+
+expect_equal(class(m), c("summaryBenchmark", "data.frame"))
+expect_equal(dim(m), c(2L, 7L))
+expect_equal(names(m), c("expr", "n.eval", "mean", "trimmed", "lw.ci", "up.ci", "relative"))
+
+expect_equal(class(m$expr), "factor")
+expect_equal(levels(m$expr), c("1 + 1", "2 + 2"))
+expect_true(all(sapply(m[-1], is.numeric)))
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_equivalent}}
+This function ignores the attributes when comparing two R objects. Two objects
+are equivalent when their data are the same.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_equivalent(1,1)
+expect_equivalent(1, c(x=1))
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+
+The \pkg{validate} package offers functions to define restrictions on data, and
+then confront the data with them. The function \code{values} extracts the
+boolean results in the form of a matrix with specific row- and column names. In
+the example below we are only interested in testing whether the \emph{contents}
+of the matrix is computed correctly.
+<<eval=FALSE>>=
+v <- validator(x > 0)
+d <- data.frame(x=c(1,-1,NA))
+expect_equivalent(values(confront(d,v)), matrix(c(TRUE,FALSE,NA)) )
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_identical}}
+This is the most strict test on equality. Two objects must be
+physically the same to be identical.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+La <- list(x=1); 
+Lb <- list(x=1)
+expect_identical(La, Lb)
+a <- new.env()
+a$x <- 1
+b <- new.env()
+b$x <- 1
+expect_identical(a,b)
+@
+Here, \code{La} and \code{Lb} are indistinguishable from R's point of view.
+They only differ in their location in memory. The environments \code{a} and \code{b}
+\emph{are} distinguishable since they contain an explicit identifier which make them
+unique.
+<<>>=
+print(a)
+print(b)
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+The \code{stringdistmatrix} function of \pkg{stringdist} computes a matrix of
+string dissimilarity measures between all elements of a character vector.
+Below, it is tested whether the argument \code{useNames="none"} and the legacy
+(deprecated) argument \code{useName=FALSE}.
+<<eval=FALSE>>=
+  a <- c(k1 = "aap",k2="noot")
+  expect_identical(stringdistmatrix(a,useNames="none")
+                 , stringdistmatrix(a,useNames=FALSE))
+@
+
+The \pkg{wand} package can retrieve MIME types for files and directories.
+This means there are many cases to test. In this particular package this
+is done by creating two lists, one with input and one with expected
+results. The tests are then performed as follows:
+<<eval=FALSE>>=
+list(
+## [long list of results removed for brevity]
+) -> results
+fils <- list.files(system.file("extdat", package="wand"), full.names=TRUE)
+tst <- lapply(fils, get_content_type)
+names(tst) <- basename(fils)
+
+for(n in names(tst)) expect_identical(results[[n]], tst[[n]])
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_null}}
+The result of an operation should be \code{NULL}.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_null(iris$hihi)
+expect_null(iris$Species)
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+This function is new in version 0.9.7 and not used in any depending packages
+yet.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_true}, \code{expect\_false}}
+The result of an operation should be precisely \code{TRUE} or \code{FALSE}.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_true(1 == 1)
+expect_false(1 == 2)
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+The \pkg{anytime} package converts many types of strings to date/time objects
+(\code{POSIXct} or \code{Date}). Here is a part of it's \pkg{tinytest} test
+suite.
+<<eval=FALSE>>==
+## Datetime: factor and ordered (#44)
+refD <- as.Date("2016-09-01")
+expect_true(refD == anydate(as.factor("2016-09-01")))
+expect_true(refD == anydate(as.ordered("2016-09-01")))
+expect_true(refD == utcdate(as.factor("2016-09-01")))
+expect_true(refD == utcdate(as.ordered("2016-09-01")))
+@
+Note that \code{==} used here has subtly different behavior from
+\code{all.equal} used by \code{expect\_equal}. In the above case,
+\code{==} does not compare time zone data, which is not added by \code{as.Date}
+but is added by \code{anytime}. This means that for example 
+<<eval=FALSE>>=
+expect_equal(anydate(as.factor("2016-09-01")), refD)
+@
+would fail.
+
+
+The \pkg{ulid} package uses \code{expect\_true} to verify the type of a
+result.
+<<eval=FALSE>>=
+x <- ULIDgenerate(20)
+expect_true(is.character(x))
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_message}}
+Expect that a message is emitted. Optionally you can specify
+a regular expression that the message must match.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_message(message("hihi"))
+expect_message(message("hihi"), pattern = "hi")
+expect_message(message("hihi"), pattern= "ha")
+expect_message(print("hihi"))
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_warning}}
+Expect that a warning is emitted. Optionally you can specify
+a regular expression that the warning must match.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_warning(warning("hihi"))
+expect_warning(warning("hihi"), pattern = "hi")
+expect_warning(warning("hihi"), pattern= "ha")
+expect_warning(1+1)
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_error}}
+Expect that an error is emitted. Optionally you can specify
+a regular expression that the error must match.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_error(stop("hihi"))
+expect_error(stop("hihi"), pattern = "hi")
+expect_error(stop("hihi"), pattern= "ha")
+expect_error(print("hoho"))
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+
+The \pkg{ChemoSpec2D} package implements exploratory methods for 2D-spectrometry data.
+Scaled data has negative values, so one cannot take the logarithm. The
+function \code{centscaleSpectra2D} must eject an error in such cases and this
+is tested as follows. 
+<<eval=FALSE>>=
+# Check that log and centering cannot be combined
+expect_error(
+  centscaleSpectra2D(tiny, center = TRUE, scale = "log"),
+  "Cannot take log of centered data")
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{expect\_silent}}
+Sometimes a test is only run to check that the code does not crash. 
+This function tests that no warnings or errors are emitted when 
+evaluating it's argument.
+<<echo=FALSE>>=
+options(prompt="R>  ",
+        continue = "    ",
+        width=75)
+@
+<<>>=
+expect_silent(print(10))
+expect_silent(stop("haha"))
+@
+<<echo=FALSE>>=
+options(prompt="  ",
+        continue = "  ",
+        width=75)
+@
+
+The \pkg{validate} package defines an object called a \code{validation}, which
+is the result of confronting a dataset with one or more data quality
+restrictions in the form of rules. A \pkg{validation} object can be plotted,
+but this would crash with an error in a certain edge case. Here is a test that
+was added in response to a reported issue. 
+<<eval=FALSE>>=
+data <- data.frame(A = 1)
+rule <- validator(A > 0)
+cf <- confront(data, rule)
+expect_silent(plot(rule))
+expect_silent(plot(cf))
+@
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage{}
+\section{\code{ignore}}
+Ignore allows you to not record the result of a test. It is not used very often.
+Its use is probably almost exclusive to \pkg{tinytest} where it is used
+while testing the expectation functions.
+
+
+The following result is not recorded (note placement of brackets!)
+<<eval=FALSE>>=
+ignore(expect_equal)(1+1, 2)
+@
+
+
+The \pkg{digest} package computes hashes of R objects. It uses \code{ignore} in
+one of it's files.
+<<eval=FALSE>>=
+mantissa <- gsub(" [0-9]*$", "", x.hex)
+ignore(expect_true)(all(
+    sapply(
+        head(seq_along(mantissa), -1),
+        function(i){
+            all(
+                grepl(
+                    paste0("^", mantissa[i], ".*"),
+                    tail(mantissa, -i)
+                )
+            )
+        }
+    )
+))
+@
+
+
+
+
+
+
+\end{document}
