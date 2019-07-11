@@ -109,11 +109,11 @@ or via the \href{http://github.com/markvanderloo/tinytest}{github repository}.
 \section{\code{expect\_equal}}
 R objects are described by the data they contain and the attributes attached to
 them. For example, in the vector \code{c(x=1,y=2)}, the data consist of the
-numbers \code{1} and \code{2} (in that order). There is a single attribute
+numbers \code{1} and \code{2} (in that order) and there is a single attribute
 called \code{names}, consisting of the two strings \code{"x"} and \code{"y"}
 (in that order).
 
-The \code{expect\_equal} function whether both the data and the attributes of two
+The \code{expect\_equal} function tests whether both the data and the attributes of two
 objects are the same. 
 <<echo=FALSE>>=
 options(prompt="R>  ",
@@ -124,6 +124,12 @@ options(prompt="R>  ",
 expect_equal(1,1)
 expect_equal(1, c(x=1))
 @
+Numbers do not have to be exactly the same to be equal (by default).
+<<>>=
+0.9-0.7-0.2
+expect_equal(0.9-0.7-0.2,0) 
+expect_equal(0.9-0.7-0.2,0, tolerance=0)
+@
 <<echo=FALSE>>=
 options(prompt="  ",
         continue = "  ",
@@ -131,7 +137,7 @@ options(prompt="  ",
 @
 
 
-Here is an example of the \pkg{stringdist} package. This package implements
+Here is an example from the \pkg{stringdist} package. This package implements
 various methods to determine how different two strings are.  In this test, we
 check one aspect of the `optimal string alignment' algorithm. In particular, we
 test if it correctly counts the switch of two adjacent characters as a single
@@ -188,11 +194,24 @@ d <- data.frame(x=c(1,-1,NA))
 expect_equivalent(values(confront(d,v)), matrix(c(TRUE,FALSE,NA)) )
 @
 
+The \pkg{anytime} package translates text data into data/time format
+(\code{Date} or \code{POSIXct}). Here, a test is performed to
+equivalence, to ignore the timezone label that is attached by anytime
+but not by \code{as.Date}.
+<<eval=FALSE>>=
+refD <- as.Date("2016-01-01")+0:2
+
+expect_equivalent(refD, anydate(20160101L + 0:2))
+@
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage{}
 \section{\code{expect\_identical}}
-This is the most strict test on equality. Two objects must be
-physically the same to be identical.
+This is the most strict test for equality. The best way to think about this is
+that two objects must be byte-by-byte indistinguishable in order to be identical.
+The differences can be subtle, as shown below.
 <<echo=FALSE>>=
 options(prompt="R>  ",
         continue = "    ",
@@ -216,11 +235,15 @@ unique.
 print(a)
 print(b)
 @
+Another difference with \code{expect\_equal} and \code{expect\_equivalent} is that
+\code{expect\_identical} does not allow any tolerance for numerical differences.
+
 <<echo=FALSE>>=
 options(prompt="  ",
         continue = "  ",
         width=75)
 @
+
 
 The \code{stringdistmatrix} function of \pkg{stringdist} computes a matrix of
 string dissimilarity measures between all elements of a character vector.
@@ -471,6 +494,54 @@ ignore(expect_true)(all(
     )
 ))
 @
+
+
+
+\newpage
+
+\begin{thebibliography}{5}
+
+  \bibitem{anytime}
+    \href{https://cran.r-project.org/package=anytime}{anytime}
+    D. Eddelbuettel (2019) \emph{Anything to `POSIXct' or `Date' Converter}.
+    R package version 0.3.3.5
+
+  \bibitem{benchr}
+  \href{https://CRAN.R-project.org/package=RUnit}{benchr}
+  Arttem Klevtsov (2019) \emph{High Precise Measurement of R Expressions Execution Time}.
+  R package version 0.2.3-1.
+
+  \bibitem{ChemoSpec2D}
+    \href{https://cran.r-project.org/package=cyclocomp}{ChemoSpec2D}
+    B.A. Hanson (2019) \emph{Exploratory Chemometrics for 2D Spectroscopy}
+    R package version 0.3.166
+
+  \bibitem{digest}
+    \href{https://cran.r-project.org/package=digest}{digest}
+    D. Eddelbuettel (2019) \emph{Create Compact Hash Digests of R Objects}
+    R package version 0.6.20 
+
+  \bibitem{stringdist}
+    \href{https://cran.r-project.org/package=stringr}{stringdist}
+    M. van der Loo (2014). \emph{The stringdist package for approximate string matching}.
+    The R Journal 6(1) 111-122
+
+  \bibitem{ulid}
+    \href{https://cran.r-project.org/package=ulid}{ulid}
+    B. Rudis (2019) \emph{Generate Universally Unique Lexicographically Sortable Identifiers}.
+    R package version 0.3.0
+
+  \bibitem{validate}
+    \href{https://cran.r-project.org/package=validate}{validate}
+    M. van der Loo, E. de Jonge and P. Hsieh (2019) \emph{Data Validation Infrastructure for R}.
+    R package version 0.2.7 
+
+  \bibitem{wand}
+    \href{https://cran.r-project.org/package=wand}{wand}
+    B. Rudis (2019) \emph{Retrieve `Magic' Attributes from Files and Directories}
+    R package version 0.5.0
+\end{thebibliography}
+
 
 
 
