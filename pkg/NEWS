@@ -1,5 +1,6 @@
 version 0.9.7
 - New function 'expect_null'
+- Added second vignette with real-life examples of tinytest tests.
 
 version 0.9.6
 - Fixed error caught on CRAN
