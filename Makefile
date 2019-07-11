@@ -33,8 +33,11 @@ revdep: pkg
 	mv *.tar.gz revdep
 	R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
-vignette:
-	./vignettes.sh
+using:
+	./using_tinytest.sh
+
+examples:
+	./tinytest_examples.sh
 
 clean:
 	rm -f pkg/vignettes/*.aux
