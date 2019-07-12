@@ -565,7 +565,7 @@ reset_options <- function(env){
 #'
 #' @param file \code{[character]} File location of a .R file.
 #' @param at_home \code{[logical]} toggle local tests.
-#' @param verbose \code{[logical]} toggle verbosity during execution
+#' @param verbose \code{[integer]} verbosity level. 0: be quiet, 1: print status per file, 2: print status per test expression.
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects? See section on side effects.
 #'
@@ -615,15 +615,15 @@ reset_options <- function(env){
 #' @export
 run_test_file <- function( file
                          , at_home=TRUE
-                         , verbose = getOption("tt.verbose", TRUE)
+                         , verbose = getOption("tt.verbose", 2)
                          , color   = getOption("tt.pr.color", TRUE)
-                         , remove_side_effects = TRUE ){
+                         , remove_side_effects = TRUE 
+                         , ...){
 
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
   # convenience print function
-  catf <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
 
   ## where to come back after running the file
   oldwd <- getwd()
@@ -699,6 +699,9 @@ run_test_file <- function( file
   }  
   prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
 
+  # internal use only: load pkg if passed by run_test_dir
+  L <- list(...)
+  if (!is.null(L$pkg)) require(L$pkg, character.only=TRUE, quiet=TRUE)
   # evaluate expressions one by one
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
@@ -707,18 +710,25 @@ run_test_file <- function( file
     o$call <- expr
     out  <- eval(expr, envir=e)
     
-    # print the test counter. 
-    catf("\r%s %4d tests ", prfile, o$ntest())
-    # print status after counter
-    if ( o$ntest() == 0 ) {} # print nothing if nothing was tested
-    else if ( o$nfail() == 0) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
-    else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", o$nfail())
+    if (verbose == 2) print_status(prfile, o, color)
   }
-  catf("\n")
+  if (verbose == 1) print_status(prfile, o, color)
+  if (verbose >= 1) catf("\n")
   
-
+  # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
   structure(test_output, class="tinytests")
+}
+
+# helper functions for printing test status.
+catf <- function(fmt,...) cat(sprintf(fmt,...))
+
+print_status <- function(filename, env, color){
+  catf("\r%s %4d tests ", filename, env$ntest())
+  # print status after counter
+  if ( env$ntest() == 0 ) {} # print nothing if nothing was tested
+  else if ( env$nfail() == 0) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
+  else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", env$nfail())
 }
 
 
@@ -738,10 +748,12 @@ run_test_file <- function( file
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
 #'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
 #'  defined in a test file are reset before running the next test file (see details).
+#' @param ncpu Number of CPUs to use. Paralellizes tests over files.
 #' @param lc_collate \code{[character]} Locale setting used to sort the
 #'  test files into the order of execution. The default \code{NA} ensures
 #'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
 #'  and more platform-independent sorting (see details).
+#' @param ... Arguments passed to \code{run_test_file}
 #'  
 #' @section Details:
 #'
@@ -755,6 +767,10 @@ run_test_file <- function( file
 #' in a test file after the file is executed. If an environment variable needs
 #' to survive a single file, use \code{base::Sys.setenv()} explicitly.
 #' Similarly, if an option setting needs to survive, use \code{base::options}
+#'
+#' @section Parallel tests:
+#' If \code{ncpu > 1}
+#'
 #'
 #' @return A \code{tinytests} object
 #'
@@ -782,10 +798,12 @@ run_test_file <- function( file
 #' @export
 run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , at_home = TRUE
-                       , verbose = getOption("tt.verbose",TRUE)
+                       , verbose = getOption("tt.verbose", 2)
                        , color   = getOption("tt.pr.color",TRUE)
                        , remove_side_effects = TRUE
-                       , lc_collate = getOption("tt.collate",NA) ){
+                       , ncpu = 1
+                       , lc_collate = getOption("tt.collate",NA)
+                       , ... ){
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
@@ -795,17 +813,21 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
   
 
 
-  test_output <- list()
-
-  for ( file in testfiles ){
-    test_output <- c(test_output
-                   , run_test_file(file
-                                 , at_home = at_home
-                                 , verbose = verbose
-                                 , color   = color
-                                 , remove_side_effects = remove_side_effects))
+  if (ncpu == 1){
+    test_output <- lapply(testfiles, run_test_file
+                           , at_home = at_home
+                           , verbose = verbose
+                           , color   = color
+                           , remove_side_effects = remove_side_effects
+                           , ...)
+  } else {
+     test_output <- parallel::mclapply(testfiles
+        , run_test_file, at_home=at_home, verbose=min(verbose,1)
+        , color=color, remove_side_effects=TRUE, ...)
   }
-    structure(test_output,class="tinytests")
+  # by using '(mc)lapply' we get a list of tinytests objects. We need to unwind
+  # one level to a list of 'tinytest' objects and class it 'tinytests'.
+  structure(unlist(test_output,recursive=FALSE), class="tinytests")
 }
 
 
@@ -847,7 +869,7 @@ locale_sort <- function(x, lc_collate=NA, ...){
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
-#' @param ... passed to \code{run_test_dir}.
+#' @param ... passed to \code{run_test_dir} (e.g. \code{ncpu}).
 #'
 #' @rdname run_test_dir
 #' @export
@@ -883,7 +905,7 @@ at_home <- function(){
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
-#' @param ... extra arguments, passed to \code{\link{run_test_dir}}
+#' @param ... extra arguments passed to \code{\link{run_test_dir}} (e.g. \code{ncpu}).
 #'
 #'
 #' @section Details:
@@ -908,11 +930,10 @@ at_home <- function(){
 test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
-  require(pkgname, character.only=TRUE) 
   testdir <- system.file(testdir, package=pkgname)
   setwd(testdir)
   
-  out <- run_test_dir("./", at_home=at_home, ...) 
+  out <- run_test_dir("./", at_home=at_home, pkg=pkgname,...) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
     msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
@@ -938,6 +959,7 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
 #' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst}
 #'    containing test files.
 #' @param at_home \code{[logical]} toggle local tests.
+#' @param ncpu Number of CPUs to use (see \code{\link{run_test_dir}} for details).
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param keep_tempdir \code{[logical]} keep directory where the pkg is
 #'   installed and where tests are run? If \code{TRUE}, the directory is not deleted
@@ -955,7 +977,8 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
 #' @export
 build_install_test <- function(pkgdir="./", testdir="tinytest"
                              , at_home=TRUE
-                             , verbose=getOption("tt.verbose",TRUE)
+                             , verbose=getOption("tt.verbose",2)
+                             , ncpu = 1
                              , keep_tempdir=FALSE){
   oldwd <- getwd()
   tdir  <- tempfile()
@@ -992,11 +1015,12 @@ suppressPackageStartupMessages({
   library('%s', lib.loc='%s',character.only=TRUE)
   library('tinytest')
 })
-#                                testdir       pkgname       tdir          at_home     verbose
-out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s'), at_home=%s, verbose=%s)
+#                                testdir       pkgname       tdir
+out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s')
+               , at_home=%s, verbose=%s, ncpu=%s, pkg='%s')
 saveRDS(out, file='output.RDS')
 "
-  scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose)
+  scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose, ncpu, pkgname)
 
   write(scr, file="test.R")
   system("Rscript test.R")
