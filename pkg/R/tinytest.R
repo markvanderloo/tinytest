@@ -1,4 +1,5 @@
 #' @importFrom utils install.packages file_test capture.output
+#' @importFrom parallel makeCluster parLapply stopCluster
 {}
 
 # define this internally, since the desired behavior was introduced at R 3.5.0
@@ -568,7 +569,8 @@ reset_options <- function(env){
 #' @param verbose \code{[integer]} verbosity level. 0: be quiet, 1: print status per file, 2: print status per test expression.
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects? See section on side effects.
-#'
+#' @param ... Currently unused
+#' 
 #' @details
 #'
 #' In \pkg{tinytest}, a test file is just an R script where some or all
@@ -704,7 +706,7 @@ run_test_file <- function( file
   needs_pkg <- !is.null(L$pkg)
   pkgs_loaded_before <- .packages()
   if ( needs_pkg && !(L$pkg %in% pkgs_loaded_before) ){ 
-    require(L$pkg, character.only=TRUE, quiet=TRUE)
+    require(L$pkg, character.only=TRUE, quietly=TRUE)
   }
 
   # evaluate expressions one by one
@@ -886,7 +888,6 @@ locale_sort <- function(x, lc_collate=NA, ...){
 #'   direcory where \code{DESCRIPTION} and \code{NAMESPACE} reside).
 #' @param testdir \code{[character]} scalar. Subdirectory where test files are
 #'   stored.
-#' @param ... passed to \code{run_test_dir} (e.g. \code{ncpu}).
 #'
 #' @rdname run_test_dir
 #' @export
