@@ -699,9 +699,14 @@ run_test_file <- function( file
   }  
   prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
 
-  # internal use only: load pkg if passed by run_test_dir
+  # load pkg if passed by run_test_dir and not already loaded.
   L <- list(...)
-  if (!is.null(L$pkg)) require(L$pkg, character.only=TRUE, quiet=TRUE)
+  needs_pkg <- !is.null(L$pkg)
+  pkgs_loaded_before <- .packages()
+  if ( needs_pkg && !(L$pkg %in% pkgs_loaded_before) ){ 
+    require(L$pkg, character.only=TRUE, quiet=TRUE)
+  }
+
   # evaluate expressions one by one
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
@@ -714,6 +719,16 @@ run_test_file <- function( file
   }
   if (verbose == 1) print_status(prfile, o, color)
   if (verbose >= 1) catf("\n")
+  
+  # clean up side effects: unload all pkgs loaded in this function
+  # plus all pkgs that came with it (e.g. via 'depends', or those
+  # loaded while running the test file)
+  if (needs_pkg && !(L$pkg %in% pkgs_loaded_before)){
+    pkgs_to_unload <- setdiff(.packages(), pkgs_loaded_before)
+    for (pkg in pkgs_to_unload){
+      detach(paste0("package:",pkg), unload=TRUE, character.only=TRUE)
+    }
+  }
   
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
@@ -821,9 +836,11 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                            , remove_side_effects = remove_side_effects
                            , ...)
   } else {
-     test_output <- parallel::mclapply(testfiles
-        , run_test_file, at_home=at_home, verbose=min(verbose,1)
-        , color=color, remove_side_effects=TRUE, ...)
+     cl <- parallel::makeCluster(ncpu, outfile = "")
+     test_output <- parallel::parLapply(cl, testfiles
+        , run_test_file, at_home = at_home, verbose = min(verbose,1)
+        , color = color, remove_side_effects = TRUE, ...)
+     parallel::stopCluster(cl)
   }
   # by using '(mc)lapply' we get a list of tinytests objects. We need to unwind
   # one level to a list of 'tinytest' objects and class it 'tinytests'.
