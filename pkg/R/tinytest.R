@@ -212,7 +212,10 @@ expect_true <- function(current){
   result <- isTRUE(current)
   call <- sys.call(sys.parent(1))
   if (!result){
-    diff  <- "Expected TRUE, got FALSE"
+    this <- if ( isFALSE(current) ) "FALSE"
+            else if (is.logical(current)) sprintf("'logical' of length %d",length(current))
+            else sprintf("object of class '%s'",class(current))
+    diff  <- sprintf("Expected TRUE, got %s", this)
     short <- shortdiff(TRUE, FALSE)
     tinytest(result, call=call,diff=diff, short=short)
   } else {
@@ -226,6 +229,9 @@ expect_false <- function(current){
   result <- isFALSE(current)
   call   <- sys.call(sys.parent(1))
   if (!result){
+    this <- if ( isFALSE(current) ) "TRUE"
+            else if (is.logical(current)) sprintf("'logical' of length %d",length(current))
+            else sprintf("object of class '%s'",class(current))
     diff  <- "Expected FALSE, got TRUE"
     short <- shortdiff(TRUE, FALSE)
     tinytest(result, call=call,diff=diff, short=short)
