@@ -221,9 +221,9 @@ checks. An example test file in tinytest can look like this.
 
 A particular file can be run using\marginpar{\code{run\_test\_file}}
 <<eval>>=
-run_test_file("test_addOne.R", verbose=FALSE)
+run_test_file("test_addOne.R", verbose=0)
 @
-We use \code{verbose=FALSE} to avoid cluttering the output in this vignette.
+We use \code{verbose=0} to avoid cluttering the output in this vignette.
 By default, verbosity is turned on, and a colorized counter is shown while
 tests are run. It shows number of tests uncolored, number of failures in red
 and number of passes in green. If you work with a terminal that does not
@@ -236,7 +236,7 @@ test can be found.
 By default only failing tests are  printed. You can store the output and print 
 all of them.
 <<>>=
-test_results <- run_test_file("test_addOne.R", verbose=FALSE)
+test_results <- run_test_file("test_addOne.R", verbose=0)
 print(test_results, passes=TRUE)
 @
 Or you can set
@@ -257,7 +257,7 @@ By default, this will run all files of which the name starts with
 To create some results, run the tests in this package.
 <<>>=
 out <- run_test_dir(system.file("tinytest", package="tinytest")
-       , verbose=FALSE)
+       , verbose=0)
 @
 The results can be turned into data using \code{as.data.frame}.
 \marginpar{\code{as.data.frame}}
@@ -460,8 +460,8 @@ options(prompt="R> ", continue="   ")
 All the interactive test runners have \code{at\_home=TRUE} by default, so while
 you are developing all tests are run, unless you exclude them explicitly.
 <<>>=
-run_test_file("test_hehe.R", verbose=FALSE)
-run_test_file("test_hehe.R", verbose=FALSE, at_home=FALSE)
+run_test_file("test_hehe.R", verbose=0)
+run_test_file("test_hehe.R", verbose=0, at_home=FALSE)
 @
 
 Here is an overview of test runners and their default setting for \code{at\_home}.

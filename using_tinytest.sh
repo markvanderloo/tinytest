@@ -9,12 +9,12 @@ oldwd=`pwd`
 
 cd pkg/vignettes
 
-R -e "Sweave(dir(pattern='Rnw$'))"
-pdflatex *.tex
-pdflatex *.tex
-pdflatex *.tex
+R -e "Sweave('using_tinytest.Rnw'))"
+pdflatex using_tinytest.tex
+pdflatex using_tinytest.tex
+pdflatex using_tinytest.tex
 
-evince *.pdf &
+evince using_tinytest.pdf &
 
 
 

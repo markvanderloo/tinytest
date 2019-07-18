@@ -1,7 +1,10 @@
 version 0.9.7
+- Run test files in parallel (e.g. use test_package("pkg", ncpu=2)) on OSs supporting forks.
 - New function 'expect_null'
 - Improved reporting for 'expect_true', 'expect_false'
 - Added second vignette with real-life examples of tinytest tests.
+- build_install_test gains argument 'color' and 'verbose'
+
 
 
 version 0.9.6
