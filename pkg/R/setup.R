@@ -15,10 +15,6 @@
 #' Fails when it does not exist. It is assumed that the
 #' package is named in the \code{DESCRIPTION}.
 #'
-#' @note
-#' This function is still a little experimental, please
-#' report bugs at \href{https://github.com/markvanderloo/tinytest/issues}{https://github.com/markvanderloo/tinytest/issues}.
-#'
 #'
 #' @examples
 #' \dontrun{
