@@ -771,7 +771,8 @@ print_status <- function(filename, env, color){
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
 #'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
 #'  defined in a test file are reset before running the next test file (see details).
-#' @param ncpu Number of CPUs to use. Paralellizes tests over files.
+#' @param ncpu Number of CPUs to use, or a \code{cluster} object returned by
+#'   \code{\link[parallel]{makeCluster}}. Test files are run in parallel.
 #' @param lc_collate \code{[character]} Locale setting used to sort the
 #'  test files into the order of execution. The default \code{NA} ensures
 #'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
@@ -792,7 +793,14 @@ print_status <- function(filename, env, color){
 #' Similarly, if an option setting needs to survive, use \code{base::options}
 #'
 #' @section Parallel tests:
-#' If \code{ncpu > 1}
+#' If \code{ncpu > 1} or if \code{ncpu} inherits from \code{"cluster"}, the
+#' tests are paralellized over a cluster of worker nodes.
+#'
+#' If \code{ncpu} is numeric, a cluster will be set up for the time of the
+#' test runs and shut down afterwards. If \code{ncpu} is a predefined cluster,
+#' tests are run on that cluster. No cleaning up is done afterwards so for example
+#' packages loaded during the test run are still on the cluster nodes once
+#' the tests are finished. 
 #'
 #'
 #' @return A \code{tinytests} object
@@ -824,9 +832,13 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , verbose = getOption("tt.verbose", 2)
                        , color   = getOption("tt.pr.color",TRUE)
                        , remove_side_effects = TRUE
-                       , ncpu = 1
+                       , ncpu = getOption(Ncpu, 1L)
                        , lc_collate = getOption("tt.collate",NA)
                        , ... ){
+
+  if (!is.numeric(ncpu) | inherits(ncpu,"cluster"))
+    stop("ncpu must be 'numeric' or an object of class 'cluster'")
+
   oldwd <- getwd()
   on.exit( setwd(oldwd) )
   setwd(dir)
@@ -836,7 +848,7 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
   
 
 
-  if (ncpu == 1){
+  if (!inherits(ncpu, "cluster") && ncpu == 1){
     test_output <- lapply(testfiles, run_test_file
                            , at_home = at_home
                            , verbose = verbose
@@ -844,13 +856,16 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                            , remove_side_effects = remove_side_effects
                            , ...)
   } else {
-     cl <- parallel::makeCluster(ncpu, outfile = "")
+     cl <- if ( is.numeric(ncpu) ) parallel::makeCluster(ncpu, outfile = "")
+           else ncpu
+           
      test_output <- parallel::parLapply(cl, testfiles
         , run_test_file, at_home = at_home, verbose = min(verbose,1)
         , color = color, remove_side_effects = TRUE, ...)
-     parallel::stopCluster(cl)
+
+     if ( is.numeric(ncpu) ) parallel::stopCluster(cl)
   }
-  # by using '(mc)lapply' we get a list of tinytests objects. We need to unwind
+  # by using '(parL)|(l)apply' we get a list of tinytests objects. We need to unwind
   # one level to a list of 'tinytest' objects and class it 'tinytests'.
   structure(unlist(test_output,recursive=FALSE), class="tinytests")
 }
