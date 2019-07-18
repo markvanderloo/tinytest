@@ -118,3 +118,28 @@ expect_equal(1 + 1, 2)
 }
 
 
+#' The puppy for a pkgKitten
+#'
+#' Does exactly the same as \code{\link{setup_tinytest}}, but prints 
+#' a loving message aferwards (and who doesn't want that!?). Just
+#' think about those puppies.
+#'
+#' @inheritparams setup_tinytest
+#'
+#'
+#' @keywords internal
+#' @export
+puppy <- function(pkgdir, force=FALSE, verbose=TRUE){
+  setup_tinytest(pkgdir=pkgdir, force=force, verbose=verbose)
+  catf("\nThank you %s, for showing us some PUPPY LOVE <3\n",Sys.info()["user"])
+  catf(doggy)
+}
+
+doggy <- "
+    ,-.___,-.
+    \\_/_ _\\_/
+      )O_O(
+     { (_) }  W00F!
+      `-^-'   
+"
+
