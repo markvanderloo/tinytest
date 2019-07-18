@@ -159,7 +159,7 @@ print.tinytest <- function(x,...){
 #' @export
 expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 
-  check <- all.equal(current, target, tol=tol, ...)
+  check <- all.equal(target, current, tol=tol, ...)
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
   short <- if(equal) NA_character_ else shortdiff(current, target, tolerance=tol)
@@ -173,7 +173,7 @@ expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 expect_identical <- function(current, target){
   result <- identical(current, target)
   diff <-  if (result) NA_character_
-           else paste(" ", all.equal(current, target), collapse="\n")
+           else paste(" ", all.equal(target, current), collapse="\n")
   short <- if (result) NA_character_
            else shortdiff(current, target, tolerance=0)
   tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff, short=short)
@@ -182,7 +182,7 @@ expect_identical <- function(current, target){
 
 # are there differences in data and/or attributes, or just in the attributes?
 shortdiff <- function(current, target, ...){
-  equivalent_data <- all.equal(current, target
+  equivalent_data <- all.equal(target, current
                        , check_attributes=FALSE
                        , use.names=FALSE,...)
   if (isTRUE(equivalent_data)) "attr"
