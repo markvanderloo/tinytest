@@ -832,7 +832,7 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , verbose = getOption("tt.verbose", 2)
                        , color   = getOption("tt.pr.color",TRUE)
                        , remove_side_effects = TRUE
-                       , ncpu = getOption(Ncpu, 1L)
+                       , ncpu = getOption("Ncpu", 1L)
                        , lc_collate = getOption("tt.collate",NA)
                        , ... ){
 
