@@ -566,6 +566,20 @@ reset_options <- function(env){
 }
 
 
+# ns: a namespace 
+# envir : an environment where test files are evaluated
+# output: an environment where test results are captured
+add_captured_expectations <- function(ns="tinytest", envir, output){
+  x <- getNamespaceExports(ns)
+  exports <- x[grepl("^expect_", x)]
+  for ( ex in exports ){
+    efun <- capture(getFromNamespace(ex,ns), output)
+    # we need to run efun once, to make sure it is bound to the
+    # correct function.
+    tryCatch(efun(),error=function(e){}, warning=function(w){})
+    assign(ex, efun, envir=envir)
+  }
+}
 
 
 #' Run an R file containing tests; gather results
@@ -671,6 +685,7 @@ run_test_file <- function( file
   # we sleeve the expectation functions so their
   # output  will be captured in 'o'
   e <- new.env(parent=globalenv())
+#  add_captured_expectations(envir = e, output=o)
   e$expect_equal      <- capture(expect_equal, o)
   e$expect_equivalent <- capture(expect_equivalent, o)
   e$expect_true       <- capture(expect_true, o)
