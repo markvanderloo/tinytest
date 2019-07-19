@@ -336,6 +336,26 @@ to \code{/tests/tinytest.R} before running \code{test\_package} will
 ensure bytewise sorting on most systems. See also
 \code{help("run\_test\_dir")}.
 
+\subsection{Running tests in parallel}
+The function \code{run\_test\_dir} can run test files in
+the testing directory in parallel. By extension, the same
+holds for \code{test\_package} and \code{test\_all}.
+<<eval=FALSE>>=
+test_package("PACKAGENAME", ncpu=2)
+@
+For parallel testing, no assumptions about the order in which the tests files
+are run can be made. The argument \code{ncpu} also accepts a cluster that is
+set up with \code{parallel::makeCluster()}. This way it is possible to set up a
+test cluster that runs besides the interactive R session and can be reused to
+offload testing.
+
+When running with \code{ncpu=}$n$, a new cluster is set up before running
+the tests. The R sessions in this cluster start clean: they are not copies
+(forks) of your current R session. This means that you need to make sure
+that every test file does the proper setup, including for example loading
+necessary packages. An exception is \code{test\_package}. Since this
+function `knows' what package will be tested, it will load the tested
+package on each node.
 
 
 

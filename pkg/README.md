@@ -105,6 +105,15 @@ For a package called `haha` that is tested with `tinytest`, any user that has
 tinytest::test_package("haha")
 ```
 
+#### Run tests in parallel
+
+Run tests in parallel over files.
+
+```
+tinytest::test_package("haha", ncpu=3)
+tinytest::run_test_dir("./pkg", ncpu=17)
+```
+
 #### Skipping or ignoring tests 
 
 Use `ignore(testfunction)` to run a test but not include the result in the output.
