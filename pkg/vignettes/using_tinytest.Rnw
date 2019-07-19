@@ -223,11 +223,10 @@ A particular file can be run using\marginpar{\code{run\_test\_file}}
 <<eval>>=
 run_test_file("test_addOne.R", verbose=0)
 @
-We use \code{verbose=0} to avoid cluttering the output in this vignette.
-By default, verbosity is turned on, and a colorized counter is shown while
-tests are run. It shows number of tests uncolored, number of failures in red
-and number of passes in green. If you work with a terminal that does not
-support ANSI color codes, or if you are uncomfortable reading these colors, use
+We use \code{verbose=0} to avoid cluttering the output in this vignette.  By
+default, verbosity is turned on, and a counter is shown while tests are run.
+The counter is colorized on terminals supporting ANSI color extensions. If you
+are uncomfortable reading these colors or prefer colorless output, use
 \code{color=FALSE} or set \code{options(tt.pr.color=FALSE)}.
 
 
