@@ -349,11 +349,12 @@ run_test_file <- function( file
 catf <- function(fmt,...) cat(sprintf(fmt,...))
 
 print_status <- function(filename, env, color){
-  catf("\r%s %4d tests ", filename, env$ntest())
+  prefix <- sprintf("\r%s %4d tests ", filename, env$ntest())
   # print status after counter
-  if ( env$ntest() == 0 ) {} # print nothing if nothing was tested
-  else if ( env$nfail() == 0) catf(if(color) "\033[0;32mOK\033[0m" else "OK")
-  else catf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", env$nfail())
+  postfix <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
+  else if ( env$nfail() == 0) sprintf(if(color) "\033[0;32mOK\033[0m" else "OK")
+  else sprintf(if (color) "\033[0;31m%d errors\033[0m" else "%d errors", env$nfail())
+  cat(prefix, postfix)
 }
 
 
@@ -460,8 +461,8 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
   } else {
      cl <- if ( is.numeric(ncpu) ) parallel::makeCluster(ncpu, outfile = "")
            else ncpu
-           
-     test_output <- parallel::parLapply(cl, testfiles
+    parallel::clusterEvalQ(cl, library(tinytest))           
+    test_output <- parallel::parLapply(cl, testfiles
         , run_test_file, at_home = at_home, verbose = min(verbose,1)
         , color = color, remove_side_effects = TRUE, ...)
 
