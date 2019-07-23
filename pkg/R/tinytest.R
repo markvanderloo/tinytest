@@ -1,4 +1,4 @@
-#' @importFrom utils install.packages file_test capture.output
+#' @importFrom utils install.packages file_test capture.output getFromNamespace
 #' @importFrom parallel makeCluster parLapply stopCluster
 {}
 
@@ -143,20 +143,174 @@ reset_options <- function(env){
 }
 
 
-# ns: a namespace 
 # envir : an environment where test files are evaluated
 # output: an environment where test results are captured
-add_captured_expectations <- function(ns="tinytest", fn, envir, output){
-  x <- getNamespaceExports(ns)
-  exports <- intersect(x, fn)
-  for ( ex in exports ){
-    efun <- capture(getFromNamespace(ex,ns), output)
-    # we need to run efun once, to make sure it is bound to the
-    # correct function.
-    tryCatch(efun(),error=function(e){}, warning=function(w){})
-    assign(ex, efun, envir=envir)
+add_locally_masked_functions <- function(envir, output){
+  
+  # Local masking of native functions. 'manually' bevause
+  # it is faster then loading via getFromNamespace()
+  envir$expect_equal      <- capture(expect_equal, output)
+  envir$expect_equivalent <- capture(expect_equivalent, output)
+  envir$expect_true       <- capture(expect_true, output)
+  envir$expect_false      <- capture(expect_false, output)
+  envir$expect_null       <- capture(expect_null, output)
+  envir$expect_message    <- capture(expect_message, output)
+  envir$expect_warning    <- capture(expect_warning, output)
+  envir$expect_error      <- capture(expect_error, output)
+  envir$expect_identical  <- capture(expect_identical, output)
+  envir$expect_silent     <- capture(expect_silent, output)
+  envir$ignore            <- ignore
+  envir$at_home           <- tinytest::at_home
+
+  ## add 'checkFoo' equivalents of 'expect_foo' (native functions only)
+  if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(envir)
+
+  ## mask 'library' to load extensions (if any)
+  envir$library <- library_loading_extensions(envir, output)
+  envir$require <- require_loading_extensions(envir, output)
+}
+
+
+## A tinytest extending library sets specific option that is
+## picked up by add_masked_extensions
+library_loading_extensions <- function(envir, output){
+  function(...){
+    out <- library(...)
+    envir$tinytest_runtime <- NULL
+    pkg <- list(...)[["package"]]
+    add_masked_extensions(pkg, envir, output)
+    invisible(out)
   }
 }
+
+require_loading_extensions <- function(envir, output){
+  function(...){
+    out <- require(...)
+    envir$tinytest_runtime <- NULL
+    pkg <- list(...)[["package"]]
+    add_masked_extensions(pkg, envir, output)
+    invisible(out)
+  }
+}
+
+## Add extensions listed in tt.extensions.
+add_masked_extensions <- function(pkg, envir, output){
+  ext <- getOption("tt.extensions", FALSE)
+  if (isFALSE(ext)) return()
+
+  
+  # we only load new functions.
+  functions <- setdiff(ls(envir), ext[[pkg]])
+  for ( func in functions ){
+    fun <- tryCatch(getFromNamespace(func, pkg)
+        , error = function(e){
+            msg <- sprintf("Loading '%s' extensions failed with message: '%s'"
+                          , pkg, e$message)
+            warning(msg, call.=FALSE)
+    })
+    envir[[func]] <- capture(fun, output)
+    # run once to materialize the function
+    tryCatch(envir[[func]](), warning=function(w){}, error=function(e){})
+  }
+}
+
+
+#' Register or unregister extension functions
+#'
+#' Functions to use in \code{.onLoad} and \code{.onUnload} by packages that
+#' extent \pkg{tinytest}.
+#'
+#' @param pkg \code{[character]} scalar. Name of the package providing extensions.
+#' @param functions \code{[character]} vector. Name of the functions in the package that must be added.
+#'
+#'
+#' @section The tinytest API:
+#'
+#' Packages can extend \pkg{tinytest} with expectation functions \emph{if and only}
+#' if the following requirements are satisfied.
+#'
+#' \enumerate{
+#'  \item{The extending functions return a \code{\link{tinytest}} object.  This 
+#'        can be created by calling the constructor with the arguments
+#'    \itemize{
+#'      \item{\code{result}: A logical scalar: \code{TRUE} or \code{FALSE} (not
+#'            \code{NA}) }
+#'      \item{\code{call}: The call to the expectation function. Usually the 
+#'            result of \code{sys.call(sys.parent(1))} }
+#'      \item{\code{diff}: A character scalar, with a long description of the 
+#'            difference. Sentences may be separated by \code{"\\n"}.}
+#'      \item{\code{short}: Either \code{"data"}, if the difference is in the 
+#'            data. \code{"attr"} when attributes differ or \code{"xcpt"} when 
+#'            an expectation about an exception is not met. If there are 
+#'            differences in data and in attributes, the attributes take 
+#'            precedence.}
+#'    }
+#'    Observe that this requires the extending package to add \pkg{tinytest} to 
+#'    the \code{Imports} field in the package's \code{DESCRIPTION} file (this 
+#'    also holds for the following two requirements). 
+#'  }
+#' \item{Functions are registered in \code{.onLoad()} using 
+#'       \code{register_tinytest_extension()}. Functions that are already 
+#'       registered are skipped, and will not be overwritten.}
+#' \item{Functions are deregistered in \code{.onUnload()} using 
+#'       \code{unregister_tinytest_extension().}}
+#' }
+#' It is \emph{recommended} to:
+#' \enumerate{
+#'   \item{Follow the syntax conventions of \pkg{tinytest} so expectation 
+#'         functions start with \code{expect_}.}
+#'   \item{Explain to users of the extension package how to use the extension 
+#'         (see below).}
+#' }
+#' The \pkg{tinytest} API offers the following further facilities.
+#' \enumerate{
+#'  \item{A registered extending function can detect wether it is run by 
+#'        \pkg{tinytest} by checking whether \code{exists("tinytest_runtime")}
+#'        evaluates to \code{TRUE}. The value of \code{tinytest_runtime},
+#'        when it exists, is random and cannot be relied upon for testing. }
+#' }
+#'
+#' @section Using tinytest extensions:
+#' Users can use an extension by adding \code{library(pkg)} or 
+#' \code{require(pkg)}, where \code{pkg} is the name of the extending package, 
+#' to any file where one of the extensions is used. Extensions are available
+#' after the extending package is loaded. When multiple extension packages are 
+#' used, the ones loaded first (notably: \pkg{tinytest}) take precedence over 
+#' the ones loaded later, in case of name collisions. It is not possible to use 
+#' \code{pkg::function} because in that case results will not be captured by 
+#' \code{\link{run_test_file}.}
+#'
+#'
+#' 
+#' @export 
+register_tinytest_extension <- function(pkg, functions){
+  ext <- getOption("tt.extensions",FALSE)
+  if (isFALSE(ext)){
+    L <-list(functions)
+    names(L) <- pkg
+    options(tt.extensions = L)
+  } else {
+    ext[[pkg]] <- functions
+    options(tt.extensions = ext)
+  }
+}
+
+
+#' @rdname register_tinytest_extension
+#' @export
+unregister_tinytest_extension <- function(pkg){
+  ext <- getOption("tt.extensions", FALSE)
+  if (isFALSE(ext)) return()
+  L[[pkg]] <- NULL
+  if (length(L) == 0) options(tt.extensions == NULL)
+  else (tt.extensions = L)
+}
+
+
+
+
+
+
 
 
 #' Run an R file containing tests; gather results
@@ -258,36 +412,13 @@ run_test_file <- function( file
 
   if (at_home) Sys.setenv(TT_AT_HOME=TRUE)
 
+  # An environment to capture the output in.
   o <- output()
-  # we sleeve the expectation functions so their
-  # output  will be captured in 'o'
+  # An environment to run the test scripts in
   e <- new.env(parent=globalenv())
-#  add_captured_expectations(envir = e, output=o)
-  e$expect_equal      <- capture(expect_equal, o)
-  e$expect_equivalent <- capture(expect_equivalent, o)
-  e$expect_true       <- capture(expect_true, o)
-  e$expect_false      <- capture(expect_false, o)
-  e$expect_null       <- capture(expect_null, o)
-  e$expect_message    <- capture(expect_message, o)
-  e$expect_warning    <- capture(expect_warning, o)
-  e$expect_error      <- capture(expect_error, o)
-  e$expect_identical  <- capture(expect_identical, o)
-  e$expect_silent     <- capture(expect_silent, o)
-  e$ignore            <- ignore
-  e$at_home           <- tinytest::at_home
-
-
-  ## add checkFoo equivalents of expect_foo
-  if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(e)
-
-  ext <- getOption("tt.extensions",FALSE)
-  if (!isFALSE(ext)){
-    for ( i in seq_along(ext)){
-      catf("adding extensions by %s\n",names(ext)[i])
-      add_captured_expectations(names(ext)[i], ext[[i]], envir=e, output=o)
-    }
-  }
-
+  # We locally mask expectation functions in the evaluation
+  # environment 'e' so their output  will be captured in 'o'
+  add_locally_masked_functions(envir = e, output=o)
 
   ## Reduce user side effects by making sure that any env var set 
   ## in a test file is unset after running it.
