@@ -147,7 +147,7 @@ reset_options <- function(env){
 # output: an environment where test results are captured
 add_locally_masked_functions <- function(envir, output){
   
-  # Local masking of native functions. 'manually' bevause
+  # Local masking of native functions. 'manually' because
   # it is faster then loading via getFromNamespace()
   envir$expect_equal      <- capture(expect_equal, output)
   envir$expect_equivalent <- capture(expect_equivalent, output)
@@ -167,7 +167,9 @@ add_locally_masked_functions <- function(envir, output){
 
   ## mask 'library' to load extensions (if any)
   envir$library <- library_loading_extensions(envir, output)
+  
   envir$require <- require_loading_extensions(envir, output)
+  
 }
 
 
@@ -175,42 +177,47 @@ add_locally_masked_functions <- function(envir, output){
 ## picked up by add_masked_extensions
 library_loading_extensions <- function(envir, output){
   function(...){
+    loaded <- .packages()
     out <- library(...)
-    envir$tinytest_runtime <- NULL
-    pkg <- list(...)[["package"]]
-    add_masked_extensions(pkg, envir, output)
+    # there could be multiple pkgs loaded, curtesey of 'Depends'
+    pkgs <- setdiff(.packages(), loaded)
+    add_masked_extensions(pkgs, envir, output)
+    envir$tinytest_runtime <- TRUE
     invisible(out)
   }
 }
 
 require_loading_extensions <- function(envir, output){
   function(...){
-    out <- require(...)
-    envir$tinytest_runtime <- NULL
-    pkg <- list(...)[["package"]]
-    add_masked_extensions(pkg, envir, output)
+    loaded <- .packages()
+    out <- base::require(...)
+    # there could be multiple pkgs loaded, curtesey of 'Depends'
+    pkgs <- setdiff(.packages(), loaded) 
+    add_masked_extensions(pkgs, envir, output)
+    envir$tinytest_runtime <- TRUE
     invisible(out)
   }
 }
 
 ## Add extensions listed in tt.extensions.
-add_masked_extensions <- function(pkg, envir, output){
+add_masked_extensions <- function(pkgs, envir, output){
   ext <- getOption("tt.extensions", FALSE)
   if (isFALSE(ext)) return()
 
-  
-  # we only load new functions.
-  functions <- setdiff(ls(envir), ext[[pkg]])
-  for ( func in functions ){
-    fun <- tryCatch(getFromNamespace(func, pkg)
-        , error = function(e){
-            msg <- sprintf("Loading '%s' extensions failed with message: '%s'"
-                          , pkg, e$message)
-            warning(msg, call.=FALSE)
-    })
-    envir[[func]] <- capture(fun, output)
-    # run once to materialize the function
-    tryCatch(envir[[func]](), warning=function(w){}, error=function(e){})
+  for (pkg in pkgs){
+    # we only load new functions.
+    functions <- setdiff(ext[[pkg]], ls(envir))
+    for ( func in functions ){
+      fun <- tryCatch(getFromNamespace(func, pkg)
+          , error = function(e){
+              msg <- sprintf("Loading '%s' extensions failed with message: '%s'"
+                            , pkg, e$message)
+              warning(msg, call.=FALSE)
+      })
+      envir[[func]] <- capture(fun, output)
+      # run once to materialize the function
+      tryCatch(envir[[func]](), warning=function(w){}, error=function(e){})
+    }
   }
 }
 
