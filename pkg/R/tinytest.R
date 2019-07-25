@@ -225,7 +225,7 @@ add_masked_extensions <- function(pkgs, envir, output){
 #' Register or unregister extension functions
 #'
 #' Functions to use in \code{.onLoad} and \code{.onUnload} by packages that
-#' extent \pkg{tinytest}.
+#' extend \pkg{tinytest}.
 #'
 #' @param pkg \code{[character]} scalar. Name of the package providing extensions.
 #' @param functions \code{[character]} vector. Name of the functions in the package that must be added.
