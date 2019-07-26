@@ -308,8 +308,8 @@ register_tinytest_extension <- function(pkg, functions){
 unregister_tinytest_extension <- function(pkg){
   ext <- getOption("tt.extensions", FALSE)
   if (isFALSE(ext)) return()
-  L[[pkg]] <- NULL
-  if (length(L) == 0) options(tt.extensions == NULL)
+  ext[[pkg]] <- NULL
+  if (length(ext) == 0) options(tt.extensions = NULL)
   else (tt.extensions = L)
 }
 
