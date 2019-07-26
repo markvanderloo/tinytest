@@ -310,7 +310,7 @@ unregister_tinytest_extension <- function(pkg){
   if (isFALSE(ext)) return()
   ext[[pkg]] <- NULL
   if (length(ext) == 0) options(tt.extensions = NULL)
-  else (tt.extensions = L)
+  else (tt.extensions = ext)
 }
 
 
