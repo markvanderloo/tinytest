@@ -108,11 +108,18 @@ tinytest::test_package("haha")
 #### Run tests in parallel
 
 Run tests in parallel over files.
-
 ```
 tinytest::test_package("haha", ncpu=3)
-tinytest::run_test_dir("./pkg", ncpu=17)
 ```
+Or, for more control:
+```
+cl <- parallel::makeCluster(4)
+parallel::clusterCall(cl, source, "R/functions.R")
+test_all(cluster=cl)
+stopCluster(cl)
+```
+
+
 
 #### Skipping or ignoring tests 
 
