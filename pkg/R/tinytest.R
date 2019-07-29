@@ -383,7 +383,6 @@ run_test_file <- function( file
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
-  # convenience print function
 
   ## where to come back after running the file
   oldwd <- getwd()
@@ -447,14 +446,7 @@ run_test_file <- function( file
   }  
   prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
 
-  # load pkg if passed by run_test_dir and not already loaded.
-  L <- list(...)
-  needs_pkg <- !is.null(L$pkg)
-  pkgs_loaded_before <- .packages()
-  if ( needs_pkg && !(L$pkg %in% pkgs_loaded_before) ){ 
-    require(L$pkg, character.only=TRUE, quietly=TRUE)
-  }
-
+#  pkgs_loaded_before <- .packages()
   # evaluate expressions one by one
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
@@ -471,12 +463,10 @@ run_test_file <- function( file
   # clean up side effects: unload all pkgs loaded in this function
   # plus all pkgs that came with it (e.g. via 'depends', or those
   # loaded while running the test file)
-  if (needs_pkg && !(L$pkg %in% pkgs_loaded_before)){
-    pkgs_to_unload <- setdiff(.packages(), pkgs_loaded_before)
-    for (pkg in pkgs_to_unload){
-      detach(paste0("package:",pkg), unload=TRUE, character.only=TRUE)
-    }
-  }
+#  pkgs_to_unload <- setdiff(.packages(), pkgs_loaded_before)
+#  for (pkg in pkgs_to_unload){
+#    detach(paste0("package:",pkg), unload=TRUE, character.only=TRUE)
+#  }
   
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
@@ -512,8 +502,7 @@ print_status <- function(filename, env, color){
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
 #'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
 #'  defined in a test file are reset before running the next test file (see details).
-#' @param ncpu Number of CPUs to use, or a \code{cluster} object returned by
-#'   \code{\link[parallel]{makeCluster}}. Test files are run in parallel.
+#' @param cluster A \code{\link[parallel]{makeCluster}} object. 
 #' @param lc_collate \code{[character]} Locale setting used to sort the
 #'  test files into the order of execution. The default \code{NA} ensures
 #'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
@@ -522,26 +511,24 @@ print_status <- function(filename, env, color){
 #'  
 #' @section Details:
 #'
-#' We cannot guarantee that files will be run in any particular
-#' order accross all platforms, as it depends on the available collation charts
-#' (a chart that determines how alphabets are sorted).  For this reason it is a
-#' good idea to create test files that run independent of each other so their
-#' order of execution does not matter. In tinytest, test files cannot share
-#' variables. The default behavior of test runners furher discourages
-#' interdependence by resetting environment variables and options that are set
-#' in a test file after the file is executed. If an environment variable needs
-#' to survive a single file, use \code{base::Sys.setenv()} explicitly.
-#' Similarly, if an option setting needs to survive, use \code{base::options}
+#' We cannot guarantee that files will be run in any particular order accross
+#' all platforms, as it depends on the available collation charts (a chart that
+#' determines how alphabets are sorted).  For this reason it is a good idea to
+#' create test files that run independent of each other so their order of
+#' execution does not matter. In tinytest, test files cannot share variables.
+#' The default behavior of test runners furher discourages interdependence by
+#' resetting environment variables and options that are set in a test file
+#' after the file is executed. If an environment variable needs to survive a
+#' single file, use \code{base::Sys.setenv()} explicitly.  Similarly, if an
+#' option setting needs to survive, use \code{base::options}
 #'
 #' @section Parallel tests:
-#' If \code{ncpu > 1} or if \code{ncpu} inherits from \code{"cluster"}, the
-#' tests are paralellized over a cluster of worker nodes.
 #'
-#' If \code{ncpu} is numeric, a cluster will be set up for the time of the
-#' test runs and shut down afterwards. If \code{ncpu} is a predefined cluster,
-#' tests are run on that cluster. No cleaning up is done afterwards so for example
-#' packages loaded during the test run are still on the cluster nodes once
-#' the tests are finished. 
+#' If \code{inherits(cluster, "cluster")} the tests are paralellized over a
+#' cluster of worker nodes. \pkg{tinytest} will be loaded onto each cluster
+#' node. All other preparation, including loading code from the tested package,
+#' must be done by the user. It is also up to the user to clean up the cluster
+#' after running tests.
 #'
 #'
 #' @return A \code{tinytests} object
@@ -566,6 +553,8 @@ print_status <- function(filename, env, color){
 #' dat <- as.data.frame(out)
 #'
 #' @family test-files
+#' @seealso \code{\link[parallel]{makeCluster}},
+#' \code{\link[parallel]{clusterEvalQ}}, \code{\link[parallel]{clusterExport}}
 #'
 #' @export
 run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
@@ -573,23 +562,15 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , verbose = getOption("tt.verbose", 2)
                        , color   = getOption("tt.pr.color",TRUE)
                        , remove_side_effects = TRUE
-                       , ncpu = getOption("Ncpu", 1L)
+                       , cluster = NULL
                        , lc_collate = getOption("tt.collate",NA)
                        , ... ){
 
-  if (!is.numeric(ncpu) | inherits(ncpu,"cluster"))
-    stop("ncpu must be 'numeric' or an object of class 'cluster'")
 
-  oldwd <- getwd()
-  on.exit( setwd(oldwd) )
-  setwd(dir)
-
-  testfiles <- dir("./", pattern=pattern, full.names=TRUE)
+  testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
-  
 
-
-  if (!inherits(ncpu, "cluster") && ncpu == 1){
+  if ( !inherits(cluster, "cluster") ){
     test_output <- lapply(testfiles, run_test_file
                            , at_home = at_home
                            , verbose = verbose
@@ -597,14 +578,10 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                            , remove_side_effects = remove_side_effects
                            , ...)
   } else {
-     cl <- if ( is.numeric(ncpu) ) parallel::makeCluster(ncpu, outfile = "")
-           else ncpu
-    parallel::clusterEvalQ(cl, library(tinytest))           
-    test_output <- parallel::parLapply(cl, testfiles
+    parallel::clusterEvalQ(cluster, library(tinytest))           
+    test_output <- parallel::parLapply(cluster, testfiles
         , run_test_file, at_home = at_home, verbose = min(verbose,1)
         , color = color, remove_side_effects = TRUE, ...)
-
-     if ( is.numeric(ncpu) ) parallel::stopCluster(cl)
   }
   # by using '(parL)|(l)apply' we get a list of tinytests objects. We need to unwind
   # one level to a list of 'tinytest' objects and class it 'tinytests'.
@@ -640,10 +617,10 @@ locale_sort <- function(x, lc_collate=NA, ...){
 
 #' Test a package during development
 #'
-#' \code{test_all} is a convenience function for package development, that wraps
-#' \code{run_test_dir}. By default, it runs all files starting with
-#' \code{test} in \code{./inst/tinytest/}.  It is assumed that all functions to be
-#' tested are loaded.
+#' \code{test_all} is a convenience function for package development, that
+#' wraps \code{run_test_dir}. By default, it runs all files starting with
+#' \code{test} in \code{./inst/tinytest/}.  It is assumed that all functions to
+#' be tested are loaded.
 #'
 #'
 #' @param pkgdir \code{[character]} scalar. Root directory of the package (i.e.
@@ -685,6 +662,7 @@ at_home <- function(){
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
+#' @param ncpu A positive integer, or a \code{\link[parallel]{makeCluster}} object.
 #' @param ... extra arguments passed to \code{\link{run_test_dir}} (e.g. \code{ncpu}).
 #'
 #'
@@ -707,13 +685,31 @@ at_home <- function(){
 #'     test_package("your package name")
 #' }
 #' @export
-test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
-  oldwd <- getwd()
-  on.exit(setwd(oldwd))
+test_package <- function(pkgname, testdir = "tinytest"
+                       , at_home=FALSE, ncpu=NULL, ...){
+  on.exit({
+    if ( is.numeric(ncpu) ) parallel::stopCluster(cluster)
+  })
+
   testdir <- system.file(testdir, package=pkgname)
-  setwd(testdir)
-  
-  out <- run_test_dir("./", at_home=at_home, pkg=pkgname,...) 
+  if ( testdir == "" ){
+    stopf("testdir '%s' not found for package '%s'",testdir, pkgname)
+  }
+
+  # set up cluster if required
+  cluster <- if (is.null(ncpu)) NULL
+             else if (is.numeric(ncpu)) parallel::makeCluster(ncpu, outfile="")
+             else if (inherits(ncpu, "cluster")) ncpu
+             else stop("ncpu must be NULL, 'numeric', or 'cluster'")
+
+  # By now we have a cluster, or NULL. Load the pkg under scrutiny.
+  if ( is.null(cluster) ){
+    library(pkgname, character.only=TRUE)
+  } else {
+    parallel::clusterCall(cluster, library, pkgname, character.only=TRUE)
+  }
+
+  out <- run_test_dir(testdir, at_home=at_home, cluster=cluster,...) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) ){
     msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
@@ -727,9 +723,10 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
 
 #' build, install and test
 #'
-#' Builds and installs the package in \code{pkgdir} under a temporary directory.
-#' Next, loads the package in a fresh R session and runs all the tests. For this
-#' function to work the following system requirements are necessary.
+#' Builds and installs the package in \code{pkgdir} under a temporary
+#' directory.  Next, loads the package in a fresh R session and runs all the
+#' tests. For this function to work the following system requirements are
+#' necessary.
 #' \itemize{
 #'   \item{\code{R CMD build} is available on your system}
 #'   \item{\code{Rscript} is available on your system}
@@ -737,13 +734,13 @@ test_package <- function(pkgname, testdir = "tinytest", at_home=FALSE, ...){
 #'
 #' @param pkgdir \code{[character]} Package directory
 #' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst}
-#'    containing test files.
+#'   containing test files.
 #' @param at_home \code{[logical]} toggle local tests.
-#' @param ncpu Number of CPUs to use (see \code{\link{run_test_dir}} for details).
+#' @param ncpu \code{[numeric]} number of CPUs to use during the testing phase.
 #' @param verbose \code{[logical]} toggle verbosity during execution
 #' @param keep_tempdir \code{[logical]} keep directory where the pkg is
-#'   installed and where tests are run? If \code{TRUE}, the directory is not deleted
-#'   and it's location is printed.
+#'   installed and where tests are run? If \code{TRUE}, the directory is not
+#'   deleted and it's location is printed.
 #'
 #'
 #' @return A \code{tinytests} object.
@@ -791,16 +788,33 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
   ## In a fresh R session, load package and run tests
   script <- "
 suppressPackageStartupMessages({
+  pkgname <- '%s'
+  tdir    <- '%s'
+  testdir <- '%s'
+  at_home <- %s
+  verbose <- %d
+  ncpu    <- %d
+
   #        pkgname       tdir
-  library('%s', lib.loc='%s',character.only=TRUE)
+  library(pkgname, lib.loc=tdir,character.only=TRUE)
   library('tinytest')
 })
+
+if (ncpu > 1){
+  cluster <- parallel::makeCluster(ncpu, outfile='')
+  parallel::clusterCall(cluster, library, pkgname, character.only=TRUE)
+} else {
+  cluster <- NULL
+}
 #                                testdir       pkgname       tdir
-out <- run_test_dir(system.file('%s', package='%s', lib.loc='%s')
-               , at_home=%s, verbose=%s, ncpu=%s, pkg='%s')
+out <- run_test_dir(system.file(testdir, package=pkgname, lib.loc=tdir)
+               , at_home=at_home, verbose=verbose,cluster=cluster)
+
 saveRDS(out, file='output.RDS')
+
+if (!is.null(cluster)) parallel::stopCluster(cluster)
 "
-  scr <- sprintf(script, pkgname, tdir,testdir, pkgname,tdir, at_home, verbose, ncpu, pkgname)
+  scr <- sprintf(script, pkgname, tdir,testdir, at_home, verbose, ncpu)
 
   write(scr, file="test.R")
   system("Rscript test.R")

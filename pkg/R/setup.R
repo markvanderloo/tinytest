@@ -28,10 +28,8 @@
 #'
 #' @export
 setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
-
-  catf  <- function(fmt,...) if (verbose) cat(sprintf(fmt,...))
-  stopf <- function(fmt,...) cat(stop(fmt,...),call.=FALSE)
-
+  # local, verbosity-aware catf
+  catf <- function(fmt, ...) if (verbose) cat(sprintf(fmt,...))
   if (!dir.exists(pkgdir)){
     stopf("%s does not exist or is not a directory", pkgdir)
   }
