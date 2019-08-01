@@ -335,28 +335,6 @@ to \code{/tests/tinytest.R} before running \code{test\_package} will
 ensure bytewise sorting on most systems. See also
 \code{help("run\_test\_dir")}.
 
-\subsection{Running tests in parallel}
-The function \code{run\_test\_dir} can run test files in
-the testing directory in parallel. By extension, the same
-holds for \code{test\_package} and \code{test\_all}.
-<<eval=FALSE>>=
-test_package("PACKAGENAME", ncpu=2)
-@
-For parallel testing, no assumptions about the order in which the tests files
-are run can be made. The argument \code{ncpu} also accepts a cluster that is
-set up with \code{parallel::makeCluster()}. This way it is possible to set up a
-test cluster that runs besides the interactive R session and can be reused to
-offload testing.
-
-When running with \code{ncpu=}$n$, a new cluster is set up before running
-the tests. The R sessions in this cluster start clean: they are not copies
-(forks) of your current R session. This means that you need to make sure
-that every test file does the proper setup, including for example loading
-necessary packages. An exception is \code{test\_package}. Since this
-function `knows' what package will be tested, it will load the tested
-package on each node.
-
-
 
 \section{Testing packages}
 
@@ -499,22 +477,6 @@ Function               & Default \code{at\_home}  & Intended use \\
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Testing your package after installation}
 Supposing your package is called \pkg{hehe} and the \pkg{tinytest}
@@ -525,6 +487,92 @@ tinytest::test_package("hehe")
 @
 This can come in handy when a user of \pkg{hehe} reports a bug and you want to
 make sure all tested functionality works on the user's system.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Running tests in parallel}
+In \pkg{tinytest}, a file should be considered a closed unit: no information
+created in one test file should be used in another.  Under this condition,
+tests can automatically run in parallel by running different files in different
+R sessions.
+
+Running code in parallel takes some careful consideration around setting up a
+cluster, running the tests, and closing the cluster of preparing it for the
+next run. Depending on the test runner used, there are different levels of
+control and responsibility for the user to prepare the program for
+parallelization. Below we describe them from less easier to more control.
+
+\subsubsection*{\code{build\_install\_test}}
+This function creates and installs a package in a temporary
+location. By setting the \code{ncpu} parameter, the number of
+cores used at the testing phase can be increased.
+<<eval=FALSE>>=
+build_install_test("/path/to/your/package", ncpu=2)
+@
+We already mentioned that the order in which files are run is in principle
+system-dependent and it is a good practice not to rely on it. Under parallel
+sitiations, all bets on file order are off.
+
+
+\subsubsection*{\code{test\_package}.} 
+This function assumes that a package is installed. It can gather any
+information necessary to paralellize a test run. The simplest way to
+paralellize is to specify the number of CPUs used.
+<<eval=FALSE>>=
+test_package("PACKAGENAME", ncpu=2)
+@
+Here, \code{test\_package} will
+\begin{enumerate}
+\item Set up a local cluster using \code{parallel::makeCluster}.
+\item Load the package on each R instance of the cluster.
+\item Run test files in parallel over the cluster.
+\item Collect the results and close the cluster.
+\end{enumerate}
+In stead of just passing the number of CPUs it is possible to pass a
+\code{cluster} object. In that case \code{test\_package} will still load the
+package on each node. However, note that if the package gets updated and
+reinstalled, it should also be reloded.  It is in general hard to completely
+unload a package in R (see \code{?detach} and \code{?unloadNamespace} for some
+details on artifacts that will not be removed). So our advice is
+to restart a cluster for each test run.
+
+
+\subsubsection*{\code{run\_test\_dir}, \code{test\_all}}
+These function assumes that all functionality needed to run the 
+tests is loaded. They accept an object of type \code{cluster}.
+The user is responsible for setting up the nodes. 
+<<eval=FALSE>>=
+cl <- parallel::makeCluster(4)
+parallel::clusterCall(cl, source, "R/myfunctions.R")
+run_test_dir("inst/tinytest", cluster=cl)
+@
+It is possible to keep the cluster `alive', so modifications
+can be made to \code{"R/myfunctions.R"} and then run for
+example the following.
+<<eval=FALSE>>=
+parallel::clusterCall(cl, source, "R/myfunctions.R")
+test_all(cluster=cl)
+stopCluster(cl)
+@
+For heavy test routines it is thus possible to keep a test cluster
+up to offload computations. 
+
+For more complex situations, including packages that use \code{S4} classes, or
+compiled code, (re)loading takes more effort than sourcing a few R files.  In
+this cases it is often easier to restart a clean cluster for each test round.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
