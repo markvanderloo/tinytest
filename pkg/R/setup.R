@@ -122,7 +122,7 @@ expect_equal(1 + 1, 2)
 #' a loving message aferwards (and who doesn't want that!?). Just
 #' think about those puppies.
 #'
-#' @inheritparams setup_tinytest
+#' @inheritParams setup_tinytest
 #'
 #'
 #' @keywords internal

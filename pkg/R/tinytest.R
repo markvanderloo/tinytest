@@ -278,15 +278,23 @@ add_masked_extensions <- function(pkgs, envir, output){
 #' @section Using tinytest extensions:
 #' Users can use an extension by adding \code{library(pkg)} or
 #' \code{require(pkg)}, where \code{pkg} is the name of the extending package,
-#' to any file where one of the extensions is used. Extensions are available
-#' after the extending package is loaded, for the duration of the R session.
-#' When multiple extension packages are used, the ones loaded later take
-#' precedence over the ones loaded later, in case of name collisions. It is not
-#' possible to use \code{pkg::function} because in that case results will not
-#' be captured by \code{\link{run_test_file}.}
+#' to any file where one of the extensions is used. For package authors this
+#' means they need to add the extension package to the \code{Suggests:} field
+#' of their \code{DESCRIPTION} file.  Extensions are available after the
+#' extending package is loaded, for the duration of the R session.  When
+#' multiple extension packages are used, the ones loaded later take precedence
+#' over the ones loaded later, in case of name collisions. It is not possible
+#' to use \code{pkg::function} because in that case results will not be
+#' captured by \code{\link{run_test_file}.}
 #'
+#' @section Minimal example packages:
 #'
-#' 
+#' \itemize{
+#'  \item{Extending \pkg{tinytest}:
+#'  \href{https://github.com/markvanderloo/tinytest.extension}{tinytest.extension}.}
+#'  \item{Using a \pkg{tinytest} extension:
+#'    \href{https://github.com/markvanderloo/using.tinytest.extension}{using.tinytest.extension}.}
+#' }
 #' @export 
 register_tinytest_extension <- function(pkg, functions){
   ext <- getOption("tt.extensions",FALSE)
