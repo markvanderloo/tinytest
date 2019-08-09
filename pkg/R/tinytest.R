@@ -205,12 +205,12 @@ add_masked_extensions <- function(pkgs, envir, output){
   if (isFALSE(ext)) return()
 
   for (pkg in pkgs){
-    # we only load new functions.
-    functions <- setdiff(ext[[pkg]], ls(envir))
+    # we load new functions. Some may overwrite existing ones
+    functions <- ext[[pkg]] 
     for ( func in functions ){
       fun <- tryCatch(getFromNamespace(func, pkg)
           , error = function(e){
-              msg <- sprintf("Loading '%s' extensions failed with message: '%s'"
+              msg <- sprintf("Loading '%s' extensions failed with message:\n '%s'"
                             , pkg, e$message)
               warning(msg, call.=FALSE)
       })
@@ -259,8 +259,6 @@ add_masked_extensions <- function(pkgs, envir, output){
 #' \item{Functions are registered in \code{.onLoad()} using 
 #'       \code{register_tinytest_extension()}. Functions that are already 
 #'       registered are skipped, and will not be overwritten.}
-#' \item{Functions are deregistered in \code{.onUnload()} using 
-#'       \code{unregister_tinytest_extension().}}
 #' }
 #' It is \emph{recommended} to:
 #' \enumerate{
@@ -278,14 +276,14 @@ add_masked_extensions <- function(pkgs, envir, output){
 #' }
 #'
 #' @section Using tinytest extensions:
-#' Users can use an extension by adding \code{library(pkg)} or 
-#' \code{require(pkg)}, where \code{pkg} is the name of the extending package, 
+#' Users can use an extension by adding \code{library(pkg)} or
+#' \code{require(pkg)}, where \code{pkg} is the name of the extending package,
 #' to any file where one of the extensions is used. Extensions are available
-#' after the extending package is loaded. When multiple extension packages are 
-#' used, the ones loaded first (notably: \pkg{tinytest}) take precedence over 
-#' the ones loaded later, in case of name collisions. It is not possible to use 
-#' \code{pkg::function} because in that case results will not be captured by 
-#' \code{\link{run_test_file}.}
+#' after the extending package is loaded, for the duration of the R session.
+#' When multiple extension packages are used, the ones loaded later take
+#' precedence over the ones loaded later, in case of name collisions. It is not
+#' possible to use \code{pkg::function} because in that case results will not
+#' be captured by \code{\link{run_test_file}.}
 #'
 #'
 #' 
@@ -301,22 +299,6 @@ register_tinytest_extension <- function(pkg, functions){
     options(tt.extensions = ext)
   }
 }
-
-
-#' @rdname register_tinytest_extension
-#' @export
-unregister_tinytest_extension <- function(pkg){
-  ext <- getOption("tt.extensions", FALSE)
-  if (isFALSE(ext)) return()
-  ext[[pkg]] <- NULL
-  if (length(ext) == 0) options(tt.extensions = NULL)
-  else (tt.extensions = ext)
-}
-
-
-
-
-
 
 
 
