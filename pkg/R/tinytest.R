@@ -804,7 +804,13 @@ saveRDS(out, file='output.RDS')
 
 if (!is.null(cluster)) parallel::stopCluster(cluster)
 "
-  scr <- sprintf(script, pkgname, tdir,testdir, at_home, verbose, ncpu)
+  scr <- sprintf(script
+        , pkgname
+        , normalizePath(tdir, winslash="/")
+        , normalizePath(testdir,winslash="/")
+        , at_home
+        , verbose
+        , ncpu)
 
   write(scr, file="test.R")
   system("Rscript test.R")
