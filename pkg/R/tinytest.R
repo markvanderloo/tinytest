@@ -446,27 +446,17 @@ run_test_file <- function( file
   }  
   prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
 
-#  pkgs_loaded_before <- .packages()
-  # evaluate expressions one by one
+
   for ( i in seq_along(parsed) ){
     expr   <- parsed[[i]]
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
-    
     if (verbose == 2) print_status(prfile, o, color)
   }
   if (verbose == 1) print_status(prfile, o, color)
   if (verbose >= 1) catf("\n")
-  
-  # clean up side effects: unload all pkgs loaded in this function
-  # plus all pkgs that came with it (e.g. via 'depends', or those
-  # loaded while running the test file)
-#  pkgs_to_unload <- setdiff(.packages(), pkgs_loaded_before)
-#  for (pkg in pkgs_to_unload){
-#    detach(paste0("package:",pkg), unload=TRUE, character.only=TRUE)
-#  }
   
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
