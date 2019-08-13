@@ -87,6 +87,7 @@ any_fail <- function(x){
 }
 
 #' @param passes \code{[logical]} Toggle: print passing tests?
+#' @param sidefx \code{[logical]} Toggle: print side effects?
 #' @param limit \code{[numeric]} Max number of results to print
 #' @param nlong \code{[numeric]} First \code{nlong} results are printed in long format.
 #' @param ... passed to \code{\link{format.tinytest}}
