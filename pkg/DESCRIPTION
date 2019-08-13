@@ -1,7 +1,7 @@
 Package: tinytest
 Maintainer: Mark van der Loo <mark.vanderloo@gmail.com>
 License: GPL-3
-Title: Lightweight but Feature Complete Unit Testing Framework
+Title: Lightweight and Feature Complete Unit Testing Framework
 LazyData: no
 Type: Package
 LazyLoad: yes
@@ -14,7 +14,8 @@ Description: Provides a lightweight (zero-dependency) and easy to use
     packages. Skip tests when not run locally (e.g. on CRAN). Flexible and 
     configurable output printing. Compare computed output with output stored 
     with the package. Run tests in parallel. Extensible by other packages.
-Version: 0.9.6.9
+    Report side effects.
+Version: 0.9.6.10
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
 Imports: parallel, utils

@@ -20,8 +20,10 @@ expect_error(any_pass("hihi"))
 expect_error(all_fail("hihi"))
 expect_error(any_fail("hihi"))
 
-out <- run_test_file("runs/test_se.R",verbose=0)
+out <- run_test_file("runs/test_envvar.R",verbose=0)
 expect_true(is.na(out[[2]]))
 expect_equal(sum(is.na(sapply(out, c))),1)
 
-
+out <- run_test_file("runs/test_cwd.R", verbose=0)
+expect_true(is.na(out[[1]]))
+expect_true(is.na(out[[2]]))

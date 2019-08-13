@@ -447,8 +447,8 @@ run_test_file <- function( file
   sidefx <- new.env()
   e$report_side_effects <- capture_se(report_side_effects, sidefx)
   # internal side-effect tracker: make sure results are exported to user.
-  local_report_sidefx <- capture(report_sidefx, o)
-
+  local_report_envvar <- capture(report_envvar, o)
+  local_report_cwd    <- capture(report_cwd, o)
 
   # parse file, store source reference.
   parsed <- parse(file=file, keep.source=TRUE)
@@ -469,7 +469,8 @@ run_test_file <- function( file
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
-    local_report_sidefx(sidefx)
+    local_report_envvar(sidefx)
+    local_report_cwd(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
   }
   if (verbose == 1) print_status(prfile, o, color)

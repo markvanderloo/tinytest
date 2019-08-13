@@ -182,7 +182,8 @@ that the output of these expect-functions consist of
     When side effects are monitored, and the result is \code{SIDEFX}, a side
     effect was observed. The type of side effect is reported between square brackets.
   \begin{itemize}
-    \item \code{[envv]} An environmental variable has changed.
+    \item \code{[envv]} An environmental variable was created, changed, or deleted.
+    \item \code{[wdir]} The working directory has changed.
    \end{itemize}
   \item When relevant (see \S\ref{sect:testfiles}), the location of the test file and the relevant line numbers.
   \item When relevant, a summary of the differences between observed and expected
@@ -356,7 +357,8 @@ anywhere in the file.  The reporting functionality will compare the state of
 external variables before and after every expression in the test file and
 report any changes. 
 
-At the moment, the only variables that are monitored are environment variables.
+At the moment, the variables that can be monitored include environment
+variables and the present working directory.
 
 
 Below is an example of a test file where side effects are recorded. The third
