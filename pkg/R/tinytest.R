@@ -484,7 +484,7 @@ run_test_file <- function( file
 catf <- function(fmt,...) cat(sprintf(fmt,...))
 
 print_status <- function(filename, env, color){
-  prefix <- sprintf("\r%s %4d tests ", filename, env$ntest())
+  prefix <- sprintf("\r%s %4d tests", filename, env$ntest())
   # print status after counter
   fails <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
   else if ( env$nfail() == 0 ) sprintf(if(color) "\033[0;32mOK\033[0m" else "OK")
@@ -493,7 +493,7 @@ print_status <- function(filename, env, color){
   side <- if (env$nside() == 0) ""
   else  sprintf(if (color) "\033[0;93m%d side-effects\033[0m" else "%d side-effects", env$nside())  
 
-  cat(prefix, fails, side)
+  cat(prefix, fails, side, sep=" ")
 }
 
 
