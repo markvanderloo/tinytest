@@ -167,20 +167,26 @@ Let's have a look at an example again.
 expect_false( 1 + 1 == 2 )
 @
 
-The output of these functions is pretty self-explanatory, nevertheless we see that
-the output of these expect-functions consist of
+The output of these functions is pretty self-explanatory, nevertheless we see
+that the output of these expect-functions consist of
 \begin{itemize}
-\item The result: \code{FAILED} or \code{PASSED}.
+\item The result: \code{FAILED}, \code{PASSED} or \code{SIDEFX}. The latter only occurs
+  when side effects are monitored (see \S\ref{sect:side})
   \item The type of failure (if any) between square brackets. Current options
        are as follows.
   \begin{itemize}
     \item \code{[data]} there are differences between observed and expected values.
     \item \code{[attr]} there are differences between observed and expected attributes, such as column names.
-    \item \code{[xcpt]} an exception (warning, error) was expected but not observed. 
+    \item \code{[xcpt]} an exception (warning, error) was expected but not observed.
   \end{itemize}
+    When side effects are monitored, and the result is \code{SIDEFX}, a side
+    effect was observed. The type of side effect is reported between square brackets.
+  \begin{itemize}
+    \item \code{[envv]} An environmental variable has changed.
+   \end{itemize}
   \item When relevant (see \S\ref{sect:testfiles}), the location of the test file and the relevant line numbers.
-  \item When necessary, a summary of the differences between observed and expected
-    values or attributes.
+  \item When relevant, a summary of the differences between observed and expected
+    values or attributes, or a summary of the observed side effect.
   \item The test call.
 \end{itemize}
 
@@ -192,12 +198,11 @@ print(expect_equal(1+1, 3), type="short")
 \marginpar{\code{print} method}
 Functions that run multiple tests return an object of class \code{tinytests}
 (notice the plural). Since there may be a lot of test results, \pkg{tinytest}
-tries to be smart about printing them. The user has ultimate control over
-this behaviour. See
-<<eval=FALSE>>=
-?print.tinytests
-@
-for a full specification of the options.
+tries to be smart about printing them. The user has ultimate control over this
+behaviour. See \code{?print.tinytests} for a full specification of the options.
+
+
+
 
 
 
@@ -301,6 +306,7 @@ there is a systematic set of cases to test.
 
 
 \subsection{Running order and side effects}
+\label{sect:running}
 It is a generally a good idea to write test files that are independent from
 each other.  This means that the order of running them is unimportant for the
 test results and test files can be maintained independently. The function
@@ -314,7 +320,7 @@ after a test file is executed.
 
 
 To escape this behavior, use \code{base::Sys.setenv()} respectively
-\code{base::options()}. Alternatively use \code{remove\_side\_effects=FALSE}.
+\code{base::options()}. Alternatively use 
 <<eval=FALSE>>=
 run_test_dir("/path/to/my/testdir"
            , remove_side_effects = FALSE)
@@ -334,6 +340,33 @@ options(tt.collate="C")
 to \code{/tests/tinytest.R} before running \code{test\_package} will
 ensure bytewise sorting on most systems. See also
 \code{help("run\_test\_dir")}.
+
+\subsection{Monitoring side effects}
+\label{sect:side}
+The term 'side effect' is the technical expression for the situation where a
+function or expression changes something outside of it's scope. Examples
+include setting, removing, or changing global variables, environment variables,
+or global options. Side effects may have unwanted consequences for expressions
+or function calls after they have been set and can lead to bugs that are hard
+to trace. 
+
+If you add \code{report\_side\_effects()} anywhere in a test file, side effects
+are monitored from that point on, for that file only. It can be switched off by
+setting \code{report\_side\_effects(FALSE)}.  The \code{report\_side\_effects}
+functionality will compare the state of environment variables before and after
+every expression in the test file and report any changes. See
+\code{?report\_side\_effects} for the type of side effects that are currently
+supported.
+
+\pkg{tinytest} will still unset any options and environment
+variables after running a test file that are set explicity with \code{options}
+or \code{Sys.setenv} in a test file (See \S\ref{sect:running}).
+
+
+
+
+
+
 
 
 \section{Testing packages}

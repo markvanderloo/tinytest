@@ -1,4 +1,5 @@
 version 0.9.7
+- New function 'report_side_effects': automatically monitor side-effects.
 - Run test files in parallel, for example: test_package("pkg", ncpu=2). (Thanks
   to Dirk Eddelbuettel for the suggestion).
 - Other packages can now extend the package, see ?register_tinytest_extension

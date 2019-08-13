@@ -68,6 +68,17 @@ For tests in a script there is an alternative syntax in the style of
 [RUnit](https://CRAN.R-project.org/package=RUnit). For each function of the
 form `expect_lol` there is a function of the form `checkLol`.
 
+#### Monitor side-effects
+
+Side-effects such as altering locale settings can cause hard-to-trace
+bugs. Add the statement
+
+```
+report_side_effects()
+```
+at the top of any test file and certain side-effects, if any, are reported.
+
+
 
 #### Print options
 

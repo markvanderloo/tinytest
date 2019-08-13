@@ -424,34 +424,43 @@ expect_message <- function(current, pattern=".*"){
 
 #' Report side effects for expressions in test files
 #'
-#' Call this function from within a test file to report changes in
-#' environment variables during a test run.
+#' Call this function from within a test file to report side effects.
 #'
 #' @param report \code{[logical]} toggle capture side-effects
 #' @param envvar \code{[logical]} toggle capture changes in environment variables
 #'
 #'
 #' @section Details:
+#' A side effect causes a change in the \emph{environment} outside of the scope
+#' of a function, or test file. This includes environment variables, global 
+#' options or global variables. 
 #'
-#' The term 'side effect' is the technical expression for the situation where a
-#' function or expression changes something outside of it's scope. Examples
-#' include setting, removing, or changing global variables, environment
-#' variables, or global options. Side effects may have unwanted consequences
-#' for expressions or function calls after they have been set and can lead to
-#' bugs that are hard to trace. 
+#' If this function is called in a test file, side effects are monitored from
+#' that point in the file and only for that file. The state of the environment
+#' before and after running every expression in the file are compared.
 #'
-#' This function currently only tracks environment variables
+#' This function currently only tracks environment variables.
+#'
+#' @section Note:
+#' There could be side-effects that are untrackable by \pkg{tinytest}. This includes
+#' packages that use a global internal state within their namespace or packages
+#' that use a global state within compiled code.
+#'
+#'
+#'
+#' @return A named \code{logical}, indicating which aspects of the environment
+#' are tracked, invisibly.
 #'
 #' @examples
 #' # switch on
 #' report_side_effects()
 #' # switch off
-#' report_side_effects(envvar=FALSE)
+#' report_side_effects(FALSE)
 #'
 #' @export
 report_side_effects <- function(report=TRUE, envvar=report){
   stopifnot(is.logical(envvar))
-  return(c(envvar=envvar))
+  invisible(c(envvar=envvar))
 } 
 
 # generate user-facing function that captures 'report_side_effects'
