@@ -48,16 +48,18 @@ tinytest <- function(result, call
     , file = NA_character_
     , fst  = NA_integer_
     , lst  = NA_integer_
+    , side = NA_character_
     ,...){
 
   structure(result         # logical TRUE/FALSE
     , class    = "tinytest"
-    , call     = call  # call creating the object
+    , call     = call  # call creating or motivating the object
     , diff     = diff  # diff if isFALSE(result)
     , short    = short # short diff (4 char)
     , file     = file  # test file location
-    , fst      = fst   # first line of test call
-    , lst      = lst   # last line of test call
+    , fst      = fst   # first line of call
+    , lst      = lst   # last line of call
+    , side     = side  # description of side-effect
     , ...)
 }
 
@@ -417,6 +419,43 @@ expect_message <- function(current, pattern=".*"){
     tinytest(TRUE, call)
   }
   
+}
+
+
+
+
+
+
+
+#  old and new are Dlist variables, resulting from 
+#  calls to Sys.getenv(). The output is a string reporting
+#  added, removed, changed environment variables. Each report
+#  separated by a newline \n
+envdiff <- function(old, new){
+  
+  old.vars <- names(old)
+  new.vars <- names(new)
+
+  removed <- setdiff(old.vars, new.vars)
+  added   <- setdiff(new.vars, old.vars)
+
+  survived <- intersect(old.vars, new.vars)
+
+  changed <- survived[ old[survived] != new[survived] ]
+
+  rem <- if (length(removed) == 0 ) NULL
+         else sprintf("REMOVED envvar '%s' with value '%s'", removed, old[removed])
+  if(!is.null(rem)) rem <- paste(rem, collapse="\n")
+
+  add <- if (length(added) == 0) NULL
+         else sprintf("ADDED   envvar '%s' with value '%s'", added, new[added])
+  if (!is.null(add)) add <- paste(add, collapse="\n")
+
+  cng <- if ( length(changed) == 0 ) NULL
+         else sprintf("CHANGED envvar '%s' from '%s' to '%s'"
+          , changed, old[changed], new[changed])
+  if (!is.null(cng)) cng <- paste(cng, collapse="\n")
+  paste(c(rem, add, cng),collapse="\n")
 }
 
 
