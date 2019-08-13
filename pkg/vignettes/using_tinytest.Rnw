@@ -344,25 +344,59 @@ ensure bytewise sorting on most systems. See also
 \subsection{Monitoring side effects}
 \label{sect:side}
 The term 'side effect' is the technical expression for the situation where a
-function or expression changes something outside of it's scope. Examples
-include setting, removing, or changing global variables, environment variables,
-or global options. Side effects may have unwanted consequences for expressions
-or function calls after they have been set and can lead to bugs that are hard
-to trace. 
+function or expression changes something outside of its scope. Examples include
+creating, removing, or changing variables in R's global work space, R options,
+or environment variables of your operating system.  We will call such variables
+or options \emph{external variables}.
 
-If you add \code{report\_side\_effects()} anywhere in a test file, side effects
-are monitored from that point on, for that file only. It can be switched off by
-setting \code{report\_side\_effects(FALSE)}.  The \code{report\_side\_effects}
-functionality will compare the state of environment variables before and after
-every expression in the test file and report any changes. See
-\code{?report\_side\_effects} for the type of side effects that are currently
-supported.
+If you add \code{report\_side\_effects()} anywhere in a test file, certain
+external variables are  monitored from that point on, and for that file only.
+It can be switched off again by calling \code{report\_side\_effects(FALSE)}
+anywhere in the file.  The reporting functionality will compare the state of
+external variables before and after every expression in the test file and
+report any changes. 
 
-\pkg{tinytest} will still unset any options and environment
-variables after running a test file that are set explicity with \code{options}
-or \code{Sys.setenv} in a test file (See \S\ref{sect:running}).
+At the moment, the only variables that are monitored are environment variables.
 
 
+Below is an example of a test file where side effects are recorded. The third
+line creates an explicit side effect by creating a new environment variable
+called \code{hihi} with the value \code{"lol"}.
+\begin{verbatim}
+  # contents of test_se.R
+  report_side_effects()
+  expect_equal(1+1, 2)
+  Sys.setenv(hihi="lol")
+  expect_equal(1+1, 3)
+  Sys.setenv(hihi="lulz ftw")
+\end{verbatim}
+Running the test file yields an object of class \code{tinytests} as usual, only
+now changes in environment variables are reported.
+<<>>=
+run_test_file("test_se.R", verbose=1)
+@
+Note that as discussed in Section~\S\ref{sect:running}, \pkg{tinytest} will
+unset the environment variable \code{hihi} automatically after running the file
+because it was set directly by the author of the test file using
+\code{Sys.setenv}. The real value of the reporting functionality is that it
+also reports on external variables that are touched by other functions than
+those you call explicitly in the file.
+
+Reading and comparing versions of external variables takes some time.
+Especially when it requires a call to the operating service such as a request
+for values of environment variables. We therefore recommend this to be used
+only when you suspect a side effect. Or, for example to execute
+\code{report\_side\_effects()} conditional on \code{at\_home()}.
+
+It is not possible to catch all types of side effects, even in principle, using
+the \pkg{tinytest} reporting functionality. Examples include: packages that
+keep a global variable or environment within their namespace to store some
+state, and packages that rely on compiled code where there are global objects
+within the shared object.
+
+Side effects are to be avoided as a general and strong principle, but sometimes
+there is little or no choice. In Section~\ref{sect:devil} we give some tips on
+how to properly handle such situations.
 
 
 
@@ -526,7 +560,7 @@ make sure all tested functionality works on the user's system.
 \subsection{Using extension packages}
 
 It is possible for other packages to add custom assertions
-(\code{expect}-funcitons).  To use such a package:
+(\code{expect}-functions).  To use such a package:
 \begin{enumerate}
 \item Add the extension package to the \code{Suggests:} field in the \code{DESCRIPTION} file.
 \item Add \code{library(pkg)} or \code{require(pkg)} to the test files that use the extensions.
@@ -564,13 +598,13 @@ build_install_test("/path/to/your/package", ncpu=2)
 @
 We already mentioned that the order in which files are run is in principle
 system-dependent and it is a good practice not to rely on it. Under parallel
-sitiations, all bets on file order are off.
+situations, all bets on file order are off.
 
 
 \subsubsection*{\code{test\_package}.} 
 This function assumes that a package is installed. It can gather any
-information necessary to paralellize a test run. The simplest way to
-paralellize is to specify the number of CPUs used.
+information necessary to parallelize a test run. The simplest way to
+parallelize is to specify the number of CPUs used.
 <<eval=FALSE>>=
 test_package("PACKAGENAME", ncpu=2)
 @
@@ -584,7 +618,7 @@ Here, \code{test\_package} will
 In stead of just passing the number of CPUs it is possible to pass a
 \code{cluster} object. In that case \code{test\_package} will still load the
 package on each node. However, note that if the package gets updated and
-reinstalled, it should also be reloded.  It is in general hard to completely
+reinstalled, it should also be reloaded.  It is in general hard to completely
 unload a package in R (see \code{?detach} and \code{?unloadNamespace} for some
 details on artifacts that will not be removed). So our advice is
 to restart a cluster for each test run.
@@ -758,7 +792,44 @@ If a bug reappears during development, software engineers sometimes refer
 to this as a \emph{regression}.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Side effects are the Devil}
+\label{sect:devil}
+Since side-effects manipulate variables outside of the scope of a function, or
+even outside of R, they can cause bugs that are hard to reproduce.  R offers a
+mechanism to ensure that a function leaves the outside world as it was, once
+your code stops running. 
 
+Suppose you need to change working directory within a function, \code{source} a
+file and return to the working directory. A naive way to do this is like so.
+\marginpar{\code{on.exit}}
+<<>>=
+bad_function <- function(file){
+  oldwd <- getwd()
+  setwd(dirname(file))
+  source(basename(file))
+  setwd(oldwd)
+}
+@
+This all works fine, untill \code{file} contains faulty code and throws an
+error.  As result, the execution of \code{bad\_function} will stop and leave
+the user in a changed working directory. With \code{on.exit} you can define
+code that will be carried out before the function exits, either normally
+or with an error.
+<<>>=
+<<>>=
+good_function <- function(file){
+  oldwd <- getwd()
+  on.exit(setwd(oldwd))
+  setwd(dirname(file))
+  source(basename(file))
+}
+@
+
+
+
+
+\newpage
 
 \begin{thebibliography}{5}
   \bibitem{wickham2016testthat}
