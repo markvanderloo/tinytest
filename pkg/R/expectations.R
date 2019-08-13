@@ -48,7 +48,6 @@ tinytest <- function(result, call
     , file = NA_character_
     , fst  = NA_integer_
     , lst  = NA_integer_
-    , side = NA_character_
     ,...){
 
   structure(result         # logical TRUE/FALSE
@@ -59,7 +58,6 @@ tinytest <- function(result, call
     , file     = file  # test file location
     , fst      = fst   # first line of call
     , lst      = lst   # last line of call
-    , side     = side  # description of side-effect
     , ...)
 }
 
@@ -98,9 +96,11 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   short <- na_str(d$short)
   diff  <- d$diff
 
-  result <- if (isTRUE(x)) "PASSED      " else sprintf("FAILED[%s]",short)
+  result <- if (isTRUE(x)) "PASSED      " 
+            else if (isFALSE(x)) sprintf("FAILED[%s]",short)
+            else if (is.na(x)  ) sprintf("SIDEFX[%s]",short)
   longfmt <- "----- %s: %s<%s--%s>\n%s"
-  if (isFALSE(x)) longfmt <- paste0(longfmt, "\n%s")
+  if (isFALSE(x)||is.na(x)) longfmt <- paste0(longfmt, "\n%s")
 
   if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
@@ -422,8 +422,60 @@ expect_message <- function(current, pattern=".*"){
 }
 
 
+#' Report side effects for expressions in test files
+#'
+#' Call this function from within a test file to report changes in
+#' environment variables during a test run.
+#'
+#' @param report \code{[logical]} toggle capture side-effects
+#' @param envvar \code{[logical]} toggle capture changes in environment variables
+#'
+#'
+#' @section Details:
+#'
+#' The term 'side effect' is the technical expression for the situation where a
+#' function or expression changes something outside of it's scope. Examples
+#' include setting, removing, or changing global variables, environment
+#' variables, or global options. Side effects may have unwanted consequences
+#' for expressions or function calls after they have been set and can lead to
+#' bugs that are hard to trace. 
+#'
+#' This function currently only tracks environment variables
+#'
+#' @examples
+#' # switch on
+#' report_side_effects()
+#' # switch off
+#' report_side_effects(envvar=FALSE)
+#'
+#' @export
+report_side_effects <- function(report=TRUE, envvar=report){
+  stopifnot(is.logical(envvar))
+  return(c(envvar=envvar))
+} 
 
+# generate user-facing function that captures 'report_side_effects'
+capture_se <- function(fun, env){
+  function(...){
+    out <- fun(...)
+    env$sidefx <- out
+    if (out['envvar'])
+      env$envvar <- Sys.getenv()
+    out
+  }
+}
 
+# internal function, to be called by run_test_file after local capture.
+report_sidefx <- function(env){
+  if ( isTRUE(env$sidefx['envvar']) ){
+    current <- Sys.getenv()
+    out <- envdiff(env$envvar, current)
+    env$envvar <- current
+    out
+  } else {
+    NULL 
+  }
+}
 
 
 
@@ -432,6 +484,7 @@ expect_message <- function(current, pattern=".*"){
 #  added, removed, changed environment variables. Each report
 #  separated by a newline \n
 envdiff <- function(old, new){
+  if (identical(old,new)) return()
   
   old.vars <- names(old)
   new.vars <- names(new)
@@ -444,18 +497,27 @@ envdiff <- function(old, new){
   changed <- survived[ old[survived] != new[survived] ]
 
   rem <- if (length(removed) == 0 ) NULL
-         else sprintf("REMOVED envvar '%s' with value '%s'", removed, old[removed])
+         else sprintf("Removed envvar '%s' with value '%s'", removed, old[removed])
   if(!is.null(rem)) rem <- paste(rem, collapse="\n")
 
   add <- if (length(added) == 0) NULL
-         else sprintf("ADDED   envvar '%s' with value '%s'", added, new[added])
+         else sprintf("Added   envvar '%s' with value '%s'", added, new[added])
   if (!is.null(add)) add <- paste(add, collapse="\n")
 
   cng <- if ( length(changed) == 0 ) NULL
-         else sprintf("CHANGED envvar '%s' from '%s' to '%s'"
+         else sprintf("Changed envvar '%s' from '%s' to '%s'"
           , changed, old[changed], new[changed])
   if (!is.null(cng)) cng <- paste(cng, collapse="\n")
-  paste(c(rem, add, cng),collapse="\n")
+  long <- paste(c(rem, add, cng),collapse="\n")
+
+  if (long == "") return()
+  
+  tinytest(NA
+    , call  = sys.call(sys.parent(1))
+    , diff = long
+    , short = "envv"
+  )
+
 }
 
 

@@ -14,7 +14,7 @@ Description: Provides a lightweight (zero-dependency) and easy to use
     packages. Skip tests when not run locally (e.g. on CRAN). Flexible and 
     configurable output printing. Compare computed output with output stored 
     with the package. Run tests in parallel. Extensible by other packages.
-Version: 0.9.6.8
+Version: 0.9.6.9
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
 Imports: parallel, utils

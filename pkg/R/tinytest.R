@@ -7,13 +7,20 @@
 # of 'expect' functions
 output <- function(){
   e <- new.env()
+  r <- 0 # number of results
   n <- 0 # number of tests
   m <- 0 # number of passes
+  s <- 0 # number of side-effects
   re <- "^T[0-9]+"
   e$add <- function(x){
-    n <<- n + 1
-    e[[sprintf("T%04d",n)]] <- x
-    m <<- m + as.integer(x)
+    r <<- r + 1
+    e[[sprintf("T%04d",r)]] <- x
+    if ( isTRUE(x) || isFALSE(x) ){
+        n <<- n + 1
+        m <<- m + as.integer(x)
+    } else if (is.na(x)){
+        s <<- s + 1
+    }
   }
   e$gimme <- function(){
     vr <- ls(e,pattern = re)
@@ -23,12 +30,16 @@ output <- function(){
     x <- ls(e,pattern = re)
     i <- x[length(x)]
     if ( isTRUE(e[[i]]) ) m <<- m - 1
+    # note: we never ignore a call to envdiff,
+    # so no need to check for is.na(e[i]).
     rm(list=i, envir=e)
     n <<- n-1
+    r <<- r-1
   }
   e$ntest <- function() n
   e$npass <- function() m
   e$nfail <- function() n - m
+  e$nside <- function() s
 
   e
 }
@@ -37,12 +48,19 @@ output <- function(){
 capture <- function(fun, env){
   function(...){
     out <- fun(...)
-    attr(out,"call") <- if (env$lst - env$fst >=3) match.call(fun) else env$call
-    attr(out,"file") <- env$file
-    attr(out,"fst")  <- env$fst
-    attr(out,"lst")  <- env$lst
-    env$add(out)
-    attr(out,"env") <- env
+    if ( inherits(out, "tinytest") ){
+      attr(out,"file") <- env$file
+      attr(out,"fst")  <- env$fst
+      attr(out,"lst")  <- env$lst
+      attr(out,"call") <- env$call
+      # if not NA, the result is from an expect_ function
+      # if NA, it is a side-effect, and we do not attempt to
+      # improve the call's format
+      if (!is.na(out) && env$lst - env$fst >=3) 
+        attr(out,"call") <- match.call(fun) 
+      env$add(out)
+      attr(out,"env") <- env
+    }
     out
   }
 }
@@ -149,18 +167,18 @@ add_locally_masked_functions <- function(envir, output){
   
   # Local masking of native functions. 'manually' because
   # it is faster then loading via getFromNamespace()
-  envir$expect_equal      <- capture(expect_equal, output)
-  envir$expect_equivalent <- capture(expect_equivalent, output)
-  envir$expect_true       <- capture(expect_true, output)
-  envir$expect_false      <- capture(expect_false, output)
-  envir$expect_null       <- capture(expect_null, output)
-  envir$expect_message    <- capture(expect_message, output)
-  envir$expect_warning    <- capture(expect_warning, output)
-  envir$expect_error      <- capture(expect_error, output)
-  envir$expect_identical  <- capture(expect_identical, output)
-  envir$expect_silent     <- capture(expect_silent, output)
-  envir$ignore            <- ignore
-  envir$at_home           <- tinytest::at_home
+  envir$expect_equal        <- capture(expect_equal, output)
+  envir$expect_equivalent   <- capture(expect_equivalent, output)
+  envir$expect_true         <- capture(expect_true, output)
+  envir$expect_false        <- capture(expect_false, output)
+  envir$expect_null         <- capture(expect_null, output)
+  envir$expect_message      <- capture(expect_message, output)
+  envir$expect_warning      <- capture(expect_warning, output)
+  envir$expect_error        <- capture(expect_error, output)
+  envir$expect_identical    <- capture(expect_identical, output)
+  envir$expect_silent       <- capture(expect_silent, output)
+  envir$ignore              <- ignore
+  envir$at_home             <- tinytest::at_home
 
   ## add 'checkFoo' equivalents of 'expect_foo' (native functions only)
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(envir)
@@ -424,6 +442,14 @@ run_test_file <- function( file
   ## on exit
   e$options <- capture_options(options, oldop)
 
+  ## Make sure that we catch side-effects if the user asks for it.
+  # an environment to store side-effects, and wheter we report them.
+  sidefx <- new.env()
+  e$report_side_effects <- capture_se(report_side_effects, sidefx)
+  # internal side-effect tracker: make sure results are exported to user.
+  local_report_sidefx <- capture(report_sidefx, o)
+
+
   # parse file, store source reference.
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
@@ -443,6 +469,7 @@ run_test_file <- function( file
     o$lst  <- src[[i]][3]
     o$call <- expr
     out  <- eval(expr, envir=e)
+    local_report_sidefx(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
   }
   if (verbose == 1) print_status(prfile, o, color)
@@ -459,10 +486,14 @@ catf <- function(fmt,...) cat(sprintf(fmt,...))
 print_status <- function(filename, env, color){
   prefix <- sprintf("\r%s %4d tests ", filename, env$ntest())
   # print status after counter
-  postfix <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
+  fails <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
   else if ( env$nfail() == 0 ) sprintf(if(color) "\033[0;32mOK\033[0m" else "OK")
-  else sprintf(if (color) "\033[0;31m%d errors\033[0m" else "%d fails", env$nfail())
-  cat(prefix, postfix)
+  else sprintf(if (color) "\033[0;31m%d fails\033[0m" else "%d fails", env$nfail())
+
+  side <- if (env$nside() == 0) ""
+  else  sprintf(if (color) "\033[0;93m%d side-effects\033[0m" else "%d side-effects", env$nside())  
+
+  cat(prefix, fails, side)
 }
 
 
@@ -796,8 +827,8 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
 "
   scr <- sprintf(script
         , pkgname
-        , normalizePath(tdir, winslash="/")
-        , normalizePath(testdir,winslash="/")
+        , normalizePath(tdir, winslash="/", mustWork=FALSE)
+        , testdir
         , at_home
         , verbose
         , ncpu)

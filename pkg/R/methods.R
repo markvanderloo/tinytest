@@ -6,25 +6,27 @@
 #' @export
 summary.tinytests <- function(object, ...){
   
-  result <- factor(ifelse(sapply(object, isTRUE), "passes","fails")
-            , levels=c("passes","fails"))
+  result <- factor(sapply(object, c)
+            , levels=c(FALSE, TRUE, NA)
+            , labels=c("fails","passes","sidefx")
+            , exclude=character(0))
+
+  
 
   file   <- sapply(object, function(x) attr(x,"file"))
   if (length(object) > 0) file   <- basename(file)
 
-  tab    <- table(File = file, Results=result)
-  tab    <- cbind(tab, Tests = rowSums(tab))
-  tab    <- rbind(tab, Total = colSums(tab))
-  tab    <- as.table(tab[,c(3,1,2),drop=FALSE])
+  tab    <- table(File = file, result)
+  tab    <- cbind(tab, Results = rowSums(tab))
+  tab    <- rbind(tab, Total   = colSums(tab))
+  tab    <- as.table(tab[,c(4,1:3),drop=FALSE])
+  # remove side-effect column if it has only zeros
+  if ( sum(tab[,4]) == 0 ) tab <- tab[,-4]
   n <- dimnames(tab)
-  names(n) <- c("File", "Results")
+  names(n) <- c("File","")
   tab <- as.table(tab)
   dimnames(tab) <- n
 
-  hdr <- sprintf("tinytests object with %d results, %d passing, %d failing"
-    , length(object), sum(result=="passes"), sum(result=="failing"))
-  
-  cat(hdr,"\n\n")
   tab
 }
 
@@ -34,21 +36,21 @@ summary.tinytests <- function(object, ...){
 #' @export
 all_pass <- function(x){
   stopifnot(inherits(x,'tinytests'))
-  all(sapply(x, isTRUE))
+  all( sapply(x, function(d) isTRUE(d) || is.na(d)) )
 }
 
 #' @rdname tinytests
 #' @export
 any_pass <- function(x){
   stopifnot(inherits(x,'tinytests'))
-  any(sapply(x, isTRUE))
+  any( sapply(x, function(d) isTRUE(d) || is.na(d)) )
 }
 
 #' @rdname tinytests
 #' @export
 all_fail <- function(x){
   stopifnot(inherits(x,'tinytests'))
-   all(sapply(x, isFALSE))
+   all( sapply(x, function(d) isFALSE(d) || is.na(d)) )
 }
 
 
@@ -56,7 +58,7 @@ all_fail <- function(x){
 #' @export
 any_fail <- function(x){
   stopifnot(inherits(x,'tinytests'))
-   any(sapply(x, isFALSE))
+   any( sapply(x, function(d) isFALSE(d) || is.na(d)) )
 }
 
 
@@ -116,19 +118,26 @@ any_fail <- function(x){
 #' @export
 print.tinytests <- function(x
   , passes=getOption("tt.pr.passes", FALSE)
+  , sidefx=getOption("tt.pr.sidefx", TRUE)
   , limit =getOption("tt.pr.limit",  7)
   , nlong =getOption("tt.pr.nlong",  3),...){
 
-  ntst  <- length(x)
-  ifail <- if (ntst > 0) sapply(x, isFALSE) else logical(0)
+  nrslt  <- length(x)
+  ifail <- if (nrslt > 0) sapply(x, isFALSE) else logical(0)
+  iside <- if (nrslt > 0) sapply(x, is.na)   else logical(0)
+  ipass <- if (nrslt > 0) sapply(x, isTRUE)  else logical(0)
+
   
-  if (!passes){
-    x <- x[ifail]
-    if ( length(x) == 0 ){
-      cat(sprintf("All ok (%d results)\n", ntst))
-      return(invisible(NULL))
-    }
+  iprn <- ifail
+  if (passes)  iprn <- iprn | ipass
+  if (sidefx)  iprn <- iprn | iside
+
+  x <- x[iprn]
+  if (sum(iprn)==0){
+    print(sprintf("All ok, %d results",nrslt))
+    return(invisible(NULL))
   }
+
   limit <- min(length(x), limit)
   nlong <- min(nlong, limit)
   nshort <- max(limit - nlong,0)
@@ -138,9 +147,11 @@ print.tinytests <- function(x
 
   str <- sapply(seq_along(x), function(i) format.tinytest(x[[i]], type=type[i]))  
   cat(paste0(str,"\n"), "\n")
-  if (ntst > length(str)){
-    cat(sprintf("Showing %d out of %d test results; %d tests failed\n"
-        , length(x), ntst, sum(ifail)))
+  if (nrslt > length(str)){
+    pr1 <- sprintf("Showing %d out of %d results: ", length(x), nrslt)
+    pr2 <- sprintf("%d fails, %d passes", sum(ifail), sum(ipass))
+    pr3 <- if( any(iside) ) sprintf(", %s side effects", sum(iside)) else ""
+    cat(pr1, pr2, pr3,"\n",sep="")
   } 
 }
 
@@ -175,7 +186,7 @@ print.tinytests <- function(x
 as.data.frame.tinytests <- function(x, ...){
   L <- lapply(x, attributes)
   data.frame(
-      result = sapply(x, isTRUE)
+      result = sapply(x, c)
     , call   = sapply(L, function(y) gsub(" +"," ",paste0(capture.output(print(y$call)),collapse=" ")) )
     , diff   = sapply(L, `[[`, "diff")
     , short  = sapply(L, `[[`, "short")
