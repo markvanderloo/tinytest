@@ -439,7 +439,9 @@ expect_message <- function(current, pattern=".*"){
 #' that point in the file and only for that file. The state of the environment
 #' before and after running every expression in the file are compared.
 #'
-#' This function currently only tracks environment variables.
+#' This function currently only tracks environment variables. Note that there is
+#' a performance penalty in tracking environmental variables, since it requires
+#' a systemm call for each expression evaluated.
 #'
 #' @section Note:
 #' There could be side-effects that are untrackable by \pkg{tinytest}. This includes

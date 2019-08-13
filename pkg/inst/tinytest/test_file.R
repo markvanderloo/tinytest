@@ -20,3 +20,8 @@ expect_error(any_pass("hihi"))
 expect_error(all_fail("hihi"))
 expect_error(any_fail("hihi"))
 
+out <- run_test_file("runs/test_se.R",verbose=0)
+expect_true(is.na(out[[2]]))
+
+
+
