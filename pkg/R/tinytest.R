@@ -753,7 +753,7 @@ test_package <- function(pkgname, testdir = "tinytest"
     msg <- paste(msg, "\n")
     if (!interactive()) stop(msg, call.=FALSE)
   } else {
-    invisible(out)
+    out
   }
 }
 

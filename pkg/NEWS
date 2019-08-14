@@ -9,6 +9,7 @@ version 0.9.7
 - Improved reporting for 'expect_true', 'expect_false'
 - Added second vignette with real-life examples of tinytest tests.
 - build_install_test gains argument 'color' and 'verbose'
+- test_package returns result visibly in interactive sessions.
 - Fixed path issue for build_install_test on Windows (thanks to Jan Wijffels)
 
 
