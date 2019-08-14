@@ -332,9 +332,13 @@ register_tinytest_extension <- function(pkg, functions){
 #'
 #' @param file \code{[character]} File location of a .R file.
 #' @param at_home \code{[logical]} toggle local tests.
-#' @param verbose \code{[integer]} verbosity level. 0: be quiet, 1: print status per file, 2: print status per test expression.
+#' @param verbose \code{[integer]} verbosity level. 0: be quiet, 1: print
+#'   status per file, 2: print status per test expression.
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
-#' @param remove_side_effects \code{[logical]} toggle remove user-defined side effects? See section on side effects.
+#' @param remove_side_effects \code{[logical]} toggle remove user-defined side
+#'   effects? See section on side effects.
+#' @param side_effects \code{[logical|list]} Either a logical,
+#' or a list of arguments to pass to \code{\link{report_side_effects}}.
 #' @param ... Currently unused
 #' 
 #' @details
@@ -347,8 +351,16 @@ register_tinytest_extension <- function(pkg, functions){
 #' @section User-defined side effects:
 #' 
 #' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
-#' defined in a test file are captured and undone once the test file has run.
+#' defined in a test file are captured and undone once the test file has run,
+#' if \code{remove_side_effects} is set to \code{TRUE}.
 #' 
+#' @section Tracking side effects:
+#'
+#' Certain side effects can be tracked, even when they are not explicitly evoked
+#' in the test file. See \code{\link{report_side_effects}} for details. 
+#' Calls to \code{report_side_effects} within the test file overrule
+#' settings provided with this function.
+#'
 #' 
 #'
 #' @note
@@ -366,8 +378,12 @@ register_tinytest_extension <- function(pkg, functions){
 #' tests <- "
 #' addOne <- function(x) x + 2
 #'
+#' Sys.setenv(lolz=2)
+#' 
 #' expect_true(addOne(0) > 0)
 #' expect_equal(2, addOne(1))
+#'
+#' Sys.unsetenv('lolz')
 #' "
 #' testfile <- tempfile(pattern="test_", fileext=".R")
 #' write(tests, testfile)
@@ -378,6 +394,13 @@ register_tinytest_extension <- function(pkg, functions){
 #' # print everything in short format, include passes in print.
 #' print(out, nlong=0, passes=TRUE)
 #'
+#' # run test file, track supported side-effects
+#' run_test_file(testfile, side_effects=TRUE)
+#' 
+#' # run test file, track only changes in working directory 
+#' run_test_file(testfile, side_effects=list(pwd=TRUE, envvar=FALSE))
+#'
+#'
 #' @family test-files
 #' @seealso \code{\link{ignore}}
 #' @export
@@ -386,6 +409,7 @@ run_test_file <- function( file
                          , verbose = getOption("tt.verbose", 2)
                          , color   = getOption("tt.pr.color", TRUE)
                          , remove_side_effects = TRUE 
+                         , side_effects = FALSE
                          , ...){
 
   if (!file_test("-f", file)){
@@ -446,6 +470,7 @@ run_test_file <- function( file
   # an environment to store side-effects, and wheter we report them.
   sidefx <- new.env()
   e$report_side_effects <- capture_se(report_side_effects, sidefx)
+  do.call(e$report_side_effects, as.list(side_effects))
   # internal side-effect tracker: make sure results are exported to user.
   local_report_envvar <- capture(report_envvar, o)
   local_report_cwd    <- capture(report_cwd, o)

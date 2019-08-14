@@ -20,6 +20,7 @@ expect_error(any_pass("hihi"))
 expect_error(all_fail("hihi"))
 expect_error(any_fail("hihi"))
 
+# collect side effects using the call in the test file
 out <- run_test_file("runs/test_envvar.R",verbose=0)
 expect_true(is.na(out[[2]]))
 expect_equal(sum(is.na(sapply(out, c))),1)
@@ -27,3 +28,12 @@ expect_equal(sum(is.na(sapply(out, c))),1)
 out <- run_test_file("runs/test_cwd.R", verbose=0)
 expect_true(is.na(out[[1]]))
 expect_true(is.na(out[[2]]))
+
+# controll collecting side-effects from file runner.
+out <- run_test_file("runs/test_envvar2.R", verbose=0, side_effects=TRUE)
+expect_true(is.na(out[[2]]))
+expect_equal(sum(is.na(sapply(out, c))),1)
+# detailed control
+out <- run_test_file("runs/test_cwd2.R", side_effects=list(pwd=FALSE), verbose=0)
+expect_equal(length(out),0)
+

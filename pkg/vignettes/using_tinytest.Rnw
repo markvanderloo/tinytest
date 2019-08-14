@@ -350,6 +350,18 @@ creating, removing, or changing variables in R's global work space, R options,
 or environment variables of your operating system.  We will call such variables
 or options \emph{external variables}.
 
+To test for side-effects once, use the \code{side\_effects} argument
+to any of the test runners. For example
+<<eval=FALSE>>=
+test_package("pkg", side_effects=TRUE)
+@
+There is control over which side-effects to track. For example to prevent
+tracking changes in the working directory, do the following.
+<<eval=FALSE>>=
+test_package("pkg", side_effects=list(pwd=FALSE))
+@
+
+
 If you add \code{report\_side\_effects()} anywhere in a test file, certain
 external variables are  monitored from that point on, and for that file only.
 It can be switched off again by calling \code{report\_side\_effects(FALSE)}

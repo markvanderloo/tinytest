@@ -447,7 +447,7 @@ expect_message <- function(current, pattern=".*"){
 #' packages that use a global internal state within their namespace or packages
 #' that use a global state within compiled code.
 #'
-#'
+#' @family sidefx
 #'
 #' @return A named \code{logical}, indicating which aspects of the environment
 #' are tracked, invisibly.
@@ -464,7 +464,7 @@ expect_message <- function(current, pattern=".*"){
 #' @export
 report_side_effects <- function(report=TRUE, envvar=report, pwd=report){
   stopifnot(is.logical(envvar))
-  invisible(c(envvar=envvar, pwd=pwd))
+  list(envvar=envvar, pwd=pwd)
 } 
 
 # generate user-facing function that captures 'report_side_effects'
@@ -472,9 +472,9 @@ capture_se <- function(fun, env){
   function(...){
     out <- fun(...)
     env$sidefx <- out
-    if (out['envvar'])
+    if (out[['envvar']])
       env$envvar <- Sys.getenv()
-    if (out['pwd'])
+    if (out[['pwd']])
       env$pwd <- getwd()
     out
   }
@@ -482,7 +482,7 @@ capture_se <- function(fun, env){
 
 # internal function, to be called by run_test_file after local capture.
 report_envvar <- function(env){
-  if ( isTRUE(env$sidefx['envvar']) ){
+  if ( isTRUE(env$sidefx[['envvar']]) ){
     current <- Sys.getenv()
     out <- envdiff(env$envvar, current)
     env$envvar <- current
@@ -494,7 +494,7 @@ report_envvar <- function(env){
 
 # internal function, to be called by run_test_file after local capture.
 report_cwd <- function(env){
-  if ( !isTRUE(env$sidefx['pwd']) ) return(NULL)
+  if ( !isTRUE(env$sidefx[['pwd']]) ) return(NULL)
 
   old <- env$pwd
   current <- getwd()

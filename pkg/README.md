@@ -77,6 +77,12 @@ report_side_effects()
 ```
 to a test file and certain types of side-effects, if any, are reported.
 
+Alternatively, use the `side_effects` argument to any of the test runners,
+for example
+```
+test_all("/path/to/package", side_effects=TRUE)
+```
+
 
 
 #### Print options
