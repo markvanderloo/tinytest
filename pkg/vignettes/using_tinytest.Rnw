@@ -659,10 +659,12 @@ These function assumes that all functionality needed to run the
 tests is loaded. They accept an object of type \code{cluster}.
 The user is responsible for setting up the nodes. 
 <<eval=FALSE>>=
-cl <- parallel::makeCluster(4)
+cl <- parallel::makeCluster(4, outfile="")
 parallel::clusterCall(cl, source, "R/myfunctions.R")
 run_test_dir("inst/tinytest", cluster=cl)
 @
+where the argument \code{outfile=""} ensures that messages from each node
+are forwarded to the master node.
 It is possible to keep the cluster `alive', so modifications
 can be made to \code{"R/myfunctions.R"} and then run for
 example the following.
@@ -672,7 +674,7 @@ test_all(cluster=cl)
 stopCluster(cl)
 @
 For heavy test routines it is thus possible to keep a test cluster
-up to offload computations. 
+up to offload computations.
 
 For more complex situations, including packages that use \code{S4} classes, or
 compiled code, (re)loading takes more effort than sourcing a few R files.  In

@@ -610,7 +610,8 @@ print_status <- function(filename, env, color){
 #' cluster of worker nodes. \pkg{tinytest} will be loaded onto each cluster
 #' node. All other preparation, including loading code from the tested package,
 #' must be done by the user. It is also up to the user to clean up the cluster
-#' after running tests.
+#' after running tests. See the \href{../doc/using_tinytest.pdf}{using tinytest}
+#' vignette for examples.
 #'
 #'
 #' @return A \code{tinytests} object
@@ -649,8 +650,14 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , ... ){
 
 
-  testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
+  testfiles <- basename(dir(dir, pattern=pattern, full.names=TRUE))
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
+
+  # set pwd here, to save time in run_test_file.
+  oldwd <- getwd()
+  on.exit(setwd(oldwd))
+  setwd(dir)  
+
 
   if ( !inherits(cluster, "cluster") ){
     test_output <- lapply(testfiles, run_test_file
@@ -711,6 +718,7 @@ locale_sort <- function(x, lc_collate=NA, ...){
 #'   stored.
 #'
 #' @rdname run_test_dir
+#'
 #' @export
 test_all <- function(pkgdir="./", testdir="inst/tinytest", ...){
   run_test_dir( file.path(pkgdir,testdir), ...)
