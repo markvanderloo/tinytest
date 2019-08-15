@@ -139,6 +139,11 @@ stopCluster(cl)
 
 #### Skipping or ignoring tests 
 
+Use `exit_file()` to stop executing a test file, with an optional message.
+```
+exit("I'm too tired to test today")
+```
+
 Use `ignore(testfunction)` to run a test but not include the result in the output.
 
 ```
