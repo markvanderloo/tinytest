@@ -143,6 +143,10 @@ ignore <- function(fun){
 #'
 #'
 #' @return The exit message
+#'
+#' @examples
+#' exit("I'm too tired to test")
+#'
 #' @export
 exit <- function(msg="") msg
 
