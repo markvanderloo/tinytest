@@ -307,10 +307,10 @@ there is a systematic set of cases to test.
 
 It is possible to exit a test file prematurely. For example when there
 are a number of tests that are not relevant or possible on some OS,
-you can do the following. \marginpar{\code{exit}}
+you can do the following. \marginpar{\code{exit\_file}}
 <<>>=
 if ( Sys.info()[['sysname']] == "Windows"){
-  exit("Cannot test this on Windows")
+  exit_file("Cannot test this on Windows")
 }
 @
 This will cause \code{run\_test\_file} to stop file execution, print the

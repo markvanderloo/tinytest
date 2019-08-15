@@ -47,7 +47,7 @@ output <- function(){
   e$call <- ""
   e$file
   
-  # will be set by exit()
+  # will be set by exit_file()
   e$exit <- FALSE
   e$exitmsg <- ""
   e$exit_msg <- function(print){
@@ -145,16 +145,16 @@ ignore <- function(fun){
 #' @return The exit message
 #'
 #' @examples
-#' exit("I'm too tired to test")
+#' exit_file("I'm too tired to test")
 #'
 #' @export
-exit <- function(msg="") msg
+exit_file <- function(msg="") msg
 
 # masking function to to call within run_test_file
 capture_exit <- function(fun, env){
   function(...){
     env$exit <- TRUE
-    env$exitmsg <- exit(...)
+    env$exitmsg <- fun(...)
   }
 }
 
@@ -217,7 +217,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_error        <- capture(expect_error, output)
   envir$expect_identical    <- capture(expect_identical, output)
   envir$expect_silent       <- capture(expect_silent, output)
-  envir$exit                <- capture_exit(exit, output)
+  envir$exit_file           <- capture_exit(exit_file, output)
   envir$ignore              <- ignore
   envir$at_home             <- tinytest::at_home
 
