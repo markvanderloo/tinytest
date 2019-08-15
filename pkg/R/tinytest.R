@@ -41,6 +41,20 @@ output <- function(){
   e$nfail <- function() n - m
   e$nside <- function() s
 
+  # metadata will be provided by run_test_file
+  e$fst <- 0
+  e$lst <- 0
+  e$call <- ""
+  e$file
+  
+  # will be set by exit()
+  e$exit <- FALSE
+  e$exitmsg <- ""
+  e$exit_msg <- function(print){
+    if(print) catf("\nExited '%s' at lines %d-%d. %s"
+                 ,basename(e$file), e$fst, e$lst, e$exitmsg)
+  }
+  
   e
 }
 
@@ -58,7 +72,7 @@ capture <- function(fun, env){
       # improve the call's format
       if (!is.na(out) && env$lst - env$fst >=3) 
         attr(out,"call") <- match.call(fun) 
-      env$add(out)
+    env$add(out)
       attr(out,"env") <- env
     }
     out
@@ -121,6 +135,28 @@ ignore <- function(fun){
   }
 }
 
+#' Stop testing
+#'
+#' Call this function to exit a test file.
+#'
+#' @param msg \code{[character]} An optional message to print after exiting.
+#'
+#'
+#' @return The exit message
+#' @export
+exit <- function(msg="") msg
+
+# masking function to to call within run_test_file
+capture_exit <- function(fun, env){
+  function(...){
+    env$exit <- TRUE
+    env$exitmsg <- exit(...)
+  }
+}
+
+
+
+
 # we need a special capture function for 
 # Sys.setenv because it's return value does
 # not inlcude argument names (it is an unnamed 
@@ -177,6 +213,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_error        <- capture(expect_error, output)
   envir$expect_identical    <- capture(expect_identical, output)
   envir$expect_silent       <- capture(expect_silent, output)
+  envir$exit                <- capture_exit(exit, output)
   envir$ignore              <- ignore
   envir$at_home             <- tinytest::at_home
 
@@ -493,7 +530,11 @@ run_test_file <- function( file
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
-    out  <- eval(expr, envir=e)
+    if ( !o$exit ) eval(expr, envir=e)
+    else {
+      o$exit_msg(verbose >= 1)
+      break
+    }
     local_report_envvar(sidefx)
     local_report_cwd(sidefx)
     if (verbose == 2) print_status(prfile, o, color)

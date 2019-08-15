@@ -37,3 +37,8 @@ expect_equal(sum(is.na(sapply(out, c))),1)
 out <- run_test_file("runs/test_cwd2.R", side_effects=list(pwd=FALSE), verbose=0)
 expect_equal(length(out),0)
 
+# premature exit testing
+out <- run_test_file("runs/test_exit.R", verbose=0)
+expect_equal(length(out), 2)
+
+
