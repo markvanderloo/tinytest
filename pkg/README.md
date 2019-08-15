@@ -40,8 +40,8 @@ where `hihi` is the name of the new package.
 
 All functions return an object of class `tinytests`. Results can be printed to
 screen, summarized with `summary` or converted to data frame  with
-`as.data.frame` for analyses. The option `verbose` (default: `TRUE`) toggles
-between showing test progress in the terminal.
+`as.data.frame` for analyses. The option `verbose` (default: `2`) controls
+showing test progress in the terminal.
 
 #### Test functions
 
