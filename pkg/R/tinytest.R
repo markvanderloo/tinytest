@@ -776,7 +776,7 @@ at_home <- function(){
 #' # Create a file with the following content, to use
 #' # tinytest as your unit testing framework:
 #'   if (requireNamespace("tinytest", quietly=TRUE))
-#'     test_package("your package name")
+#'     tinytest::test_package("your package name")
 #' }
 #' @export
 test_package <- function(pkgname, testdir = "tinytest"
