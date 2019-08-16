@@ -8,6 +8,8 @@ version 0.9.7
   (Thanks to Michel Lang for the suggestion)
 - New function 'expect_null'
 - Improved reporting for 'expect_true', 'expect_false'
+- Improved reporting for expect_identical, expect_true, expect_equivalent
+  in the case of scalar values.
 - Added second vignette with real-life examples of tinytest tests.
 - build_install_test gains argument 'color' and 'verbose'
 - test_package returns result visibly in interactive sessions.
