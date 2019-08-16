@@ -558,7 +558,7 @@ catf <- function(fmt,...) cat(sprintf(fmt,...))
 print_status <- function(filename, env, color){
   prefix <- sprintf("\r%s %4d tests", filename, env$ntest())
   # print status after counter
-  fails <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
+  fails <- if ( env$ntest() == 0 ) "  " # print nothing if nothing was tested
   else if ( env$nfail() == 0 ) sprintf(if(color) "\033[0;32mOK\033[0m" else "OK")
   else sprintf(if (color) "\033[0;31m%d fails\033[0m" else "%d fails", env$nfail())
 
