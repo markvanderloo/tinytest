@@ -41,6 +41,20 @@ output <- function(){
   e$nfail <- function() n - m
   e$nside <- function() s
 
+  # metadata will be provided by run_test_file
+  e$fst <- 0
+  e$lst <- 0
+  e$call <- ""
+  e$file
+  
+  # will be set by exit_file()
+  e$exit <- FALSE
+  e$exitmsg <- ""
+  e$exit_msg <- function(print){
+    if(print) catf("\nExited '%s' at lines %d-%d. %s"
+                 ,basename(e$file), e$fst, e$lst, e$exitmsg)
+  }
+  
   e
 }
 
@@ -58,7 +72,7 @@ capture <- function(fun, env){
       # improve the call's format
       if (!is.na(out) && env$lst - env$fst >=3) 
         attr(out,"call") <- match.call(fun) 
-      env$add(out)
+    env$add(out)
       attr(out,"env") <- env
     }
     out
@@ -121,6 +135,33 @@ ignore <- function(fun){
   }
 }
 
+#' Stop testing
+#'
+#' Call this function to exit a test file.
+#'
+#' @param msg \code{[character]} An optional message to print after exiting.
+#'
+#'
+#' @return The exit message
+#'
+#' @examples
+#' exit_file("I'm too tired to test")
+#'
+#' @family test-files
+#' @export
+exit_file <- function(msg="") msg
+
+# masking function to to call within run_test_file
+capture_exit <- function(fun, env){
+  function(...){
+    env$exit <- TRUE
+    env$exitmsg <- fun(...)
+  }
+}
+
+
+
+
 # we need a special capture function for 
 # Sys.setenv because it's return value does
 # not inlcude argument names (it is an unnamed 
@@ -177,6 +218,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_error        <- capture(expect_error, output)
   envir$expect_identical    <- capture(expect_identical, output)
   envir$expect_silent       <- capture(expect_silent, output)
+  envir$exit_file           <- capture_exit(exit_file, output)
   envir$ignore              <- ignore
   envir$at_home             <- tinytest::at_home
 
@@ -493,7 +535,11 @@ run_test_file <- function( file
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
-    out  <- eval(expr, envir=e)
+    if ( !o$exit ) eval(expr, envir=e)
+    else {
+      o$exit_msg(verbose >= 1)
+      break
+    }
     local_report_envvar(sidefx)
     local_report_cwd(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
@@ -510,7 +556,7 @@ run_test_file <- function( file
 print_status <- function(filename, env, color){
   prefix <- sprintf("\r%s %4d tests", filename, env$ntest())
   # print status after counter
-  fails <- if ( env$ntest() == 0 ) "" # print nothing if nothing was tested
+  fails <- if ( env$ntest() == 0 ) "  " # print nothing if nothing was tested
   else if ( env$nfail() == 0 ) sprintf(if(color) "\033[0;32mOK\033[0m" else "OK")
   else sprintf(if (color) "\033[0;31m%d fails\033[0m" else "%d fails", env$nfail())
 
@@ -563,7 +609,8 @@ print_status <- function(filename, env, color){
 #' cluster of worker nodes. \pkg{tinytest} will be loaded onto each cluster
 #' node. All other preparation, including loading code from the tested package,
 #' must be done by the user. It is also up to the user to clean up the cluster
-#' after running tests.
+#' after running tests. See the \href{../doc/using_tinytest.pdf}{using tinytest}
+#' vignette for examples.
 #'
 #'
 #' @return A \code{tinytests} object
@@ -605,8 +652,14 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
 
+
+
   if ( !inherits(cluster, "cluster") ){
-    test_output <- lapply(testfiles, run_test_file
+    # set pwd here, to save time in run_test_file.
+    oldwd <- getwd()
+    on.exit(setwd(oldwd))
+    setwd(dir)  
+    test_output <- lapply(basename(testfiles), run_test_file
                            , at_home = at_home
                            , verbose = verbose
                            , color   = color
@@ -664,6 +717,7 @@ locale_sort <- function(x, lc_collate=NA, ...){
 #'   stored.
 #'
 #' @rdname run_test_dir
+#'
 #' @export
 test_all <- function(pkgdir="./", testdir="inst/tinytest", ...){
   run_test_dir( file.path(pkgdir,testdir), ...)

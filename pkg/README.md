@@ -40,8 +40,8 @@ where `hihi` is the name of the new package.
 
 All functions return an object of class `tinytests`. Results can be printed to
 screen, summarized with `summary` or converted to data frame  with
-`as.data.frame` for analyses. The option `verbose` (default: `TRUE`) toggles
-between showing test progress in the terminal.
+`as.data.frame` for analyses. The option `verbose` (default: `2`) controls
+showing test progress in the terminal.
 
 #### Test functions
 
@@ -138,6 +138,11 @@ stopCluster(cl)
 
 
 #### Skipping or ignoring tests 
+
+Use `exit_file()` to stop executing a test file, with an optional message.
+```
+exit_file("I'm too tired to test today")
+```
 
 Use `ignore(testfunction)` to run a test but not include the result in the output.
 

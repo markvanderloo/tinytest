@@ -3,7 +3,8 @@ version 0.9.7
 - New function 'report_side_effects': toggle monitoring side-effects within test files.
 - Run test files in parallel, for example: test_package("pkg", ncpu=2). (Thanks
   to Dirk Eddelbuettel for the suggestion).
-- Other packages can now extend the package, see ?register_tinytest_extension
+- New function 'exit_file':  stop running a test file with an optional message.
+- Other packages can now extend the package, see '?register_tinytest_extension'
   (Thanks to Michel Lang for the suggestion)
 - New function 'expect_null'
 - Improved reporting for 'expect_true', 'expect_false'
