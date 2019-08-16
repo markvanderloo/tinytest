@@ -147,6 +147,7 @@ ignore <- function(fun){
 #' @examples
 #' exit_file("I'm too tired to test")
 #'
+#' @family test-files
 #' @export
 exit_file <- function(msg="") msg
 
@@ -650,17 +651,17 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
                        , ... ){
 
 
-  testfiles <- basename(dir(dir, pattern=pattern, full.names=TRUE))
+  testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
 
-  # set pwd here, to save time in run_test_file.
-  oldwd <- getwd()
-  on.exit(setwd(oldwd))
-  setwd(dir)  
 
 
   if ( !inherits(cluster, "cluster") ){
-    test_output <- lapply(testfiles, run_test_file
+    # set pwd here, to save time in run_test_file.
+    oldwd <- getwd()
+    on.exit(setwd(oldwd))
+    setwd(dir)  
+    test_output <- lapply(basename(testfiles), run_test_file
                            , at_home = at_home
                            , verbose = verbose
                            , color   = color
