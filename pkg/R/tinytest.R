@@ -51,8 +51,13 @@ output <- function(){
   e$exit <- FALSE
   e$exitmsg <- ""
   e$exit_msg <- function(print){
-    if(print) catf("\nExited '%s' at lines %d-%d. %s"
-                 ,basename(e$file), e$fst, e$lst, e$exitmsg)
+    if(print){ 
+      plural <- e$lst != e$fst
+      if (plural) catf("\nExited '%s' at lines %d-%d. %s"
+                     , basename(e$file), e$fst, e$lst, e$exitmsg)
+      else catf("\nExited '%s' at line %d. %s"
+              , basename(e$file), e$fst, e$exitmsg)
+    }
   }
   
   e
