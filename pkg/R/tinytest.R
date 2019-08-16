@@ -506,8 +506,6 @@ run_test_file <- function( file
   structure(test_output, class="tinytests")
 }
 
-# helper functions for printing test status.
-catf <- function(fmt,...) cat(sprintf(fmt,...))
 
 print_status <- function(filename, env, color){
   prefix <- sprintf("\r%s %4d tests", filename, env$ntest())
