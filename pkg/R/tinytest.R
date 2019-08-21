@@ -65,6 +65,10 @@ output <- function(){
 
 
 capture <- function(fun, env){
+  # avoid lazy eval when looping over functions as a variable
+  # e.g. when loading extensions.
+  force(fun)
+
   function(...){
     out <- fun(...)
     if ( inherits(out, "tinytest") ){
@@ -77,8 +81,8 @@ capture <- function(fun, env){
       # improve the call's format
       if (!is.na(out) && env$lst - env$fst >=3) 
         attr(out,"call") <- match.call(fun) 
-    env$add(out)
-      attr(out,"env") <- env
+        env$add(out)
+        attr(out,"env") <- env
     }
     out
   }
@@ -242,11 +246,8 @@ add_locally_masked_functions <- function(envir, output){
 ## picked up by add_masked_extensions
 library_loading_extensions <- function(envir, output){
   function(...){
-    loaded <- .packages()
-    out <- library(...)
-    # there could be multiple pkgs loaded, curtesey of 'Depends'
-    pkgs <- setdiff(.packages(), loaded)
-    add_masked_extensions(pkgs, envir, output)
+    out <- base::library(...)
+    add_masked_extensions(out, envir, output)
     envir$tinytest_runtime <- TRUE
     invisible(out)
   }
@@ -254,11 +255,9 @@ library_loading_extensions <- function(envir, output){
 
 require_loading_extensions <- function(envir, output){
   function(...){
-    loaded <- .packages()
     out <- base::require(...)
     # there could be multiple pkgs loaded, curtesey of 'Depends'
-    pkgs <- setdiff(.packages(), loaded) 
-    add_masked_extensions(pkgs, envir, output)
+    add_masked_extensions(.packages(), envir, output)
     envir$tinytest_runtime <- TRUE
     invisible(out)
   }
@@ -279,9 +278,8 @@ add_masked_extensions <- function(pkgs, envir, output){
                             , pkg, e$message)
               warning(msg, call.=FALSE)
       })
+      
       envir[[func]] <- capture(fun, output)
-      # run once to materialize the function
-      tryCatch(envir[[func]](), warning=function(w){}, error=function(e){})
     }
   }
 }

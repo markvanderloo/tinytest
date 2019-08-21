@@ -522,14 +522,15 @@ capture_se <- function(fun, env){
 
 # internal function, to be called by run_test_file after local capture.
 report_envvar <- function(env){
-  if ( isTRUE(env$sidefx[['envvar']]) ){
-    current <- Sys.getenv()
-    out <- envdiff(env$envvar, current)
-    env$envvar <- current
-    out
-  } else {
-    NULL 
-  }
+  if ( !isTRUE(env$sidefx[['envvar']]) ) return(NULL)
+
+  old <- env$envvar
+  current <- Sys.getenv()
+  if (identical(old, current)) return(NULL)
+
+  out <- envdiff(env$envvar, current)
+  env$envvar <- current
+  out
 }
 
 # internal function, to be called by run_test_file after local capture.
