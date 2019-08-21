@@ -130,6 +130,54 @@ print.tinytest <- function(x,...){
 }
 
 
+
+is_atomic <- function(x){
+  inherits(x,"POSIXct") || (
+    length(class(x)) == 1 &&
+      class(x) %in% c(
+          "character"
+        , "logical"
+        , "factor"
+        , "ordered"
+        , "integer"
+        , "numeric"
+        , "complex")
+  )
+}
+
+is_scalar <- function(x){
+  length(x) == 1 && is_atomic(x) 
+}
+
+
+# alt: alternative output
+longdiff <- function(current, target, alt){
+  if ( identical(class(current), class(target)) && 
+       is_scalar(current) && 
+       is_scalar(target) ){
+       if ( all(class(current) %in% c("character","ordered","factor", "POSIXt","POSIXct")) ) 
+         sprintf("Expected '%s', got '%s'", current, target)
+       else sprintf("Expected %s, got %s", current, target)
+  } else {
+    paste0(" ", alt, collapse="\n")
+  }
+}
+
+
+# are there differences in data and/or attributes, or just in the attributes?
+shortdiff <- function(current, target, ...){
+  equivalent_data <- all.equal(target, current
+                       , check_attributes=FALSE
+                       , use.names=FALSE,...)
+  if (isTRUE(equivalent_data)) "attr"
+  else "data"
+}
+
+
+
+
+
+
 #' Express expectations
 #'
 #' @param current \code{[R object or expression]} Outcome or expression under scrutiny.
@@ -161,11 +209,12 @@ expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 
   check <- all.equal(target, current, tol=tol, ...)
   equal <- isTRUE(check)
-  diff  <- if (equal) NA_character_ else paste0(" ", check,collapse="\n")
-  short <- if(equal) NA_character_ else shortdiff(current, target, tolerance=tol)
+  diff  <- if (equal) NA_character_ else longdiff( current, target, check) 
+  short <- if (equal) NA_character_ else shortdiff(current, target, tolerance=tol)
 
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
 }
+
 
 
 #' @rdname expect_equal
@@ -173,21 +222,12 @@ expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
 expect_identical <- function(current, target){
   result <- identical(current, target)
   diff <-  if (result) NA_character_
-           else paste(" ", all.equal(target, current), collapse="\n")
+           else longdiff(current, target, all.equal(target, current))
   short <- if (result) NA_character_
            else shortdiff(current, target, tolerance=0)
   tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff, short=short)
 }
 
-
-# are there differences in data and/or attributes, or just in the attributes?
-shortdiff <- function(current, target, ...){
-  equivalent_data <- all.equal(target, current
-                       , check_attributes=FALSE
-                       , use.names=FALSE,...)
-  if (isTRUE(equivalent_data)) "attr"
-  else "data"
-}
 
 
 #' @details
