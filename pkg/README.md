@@ -135,6 +135,14 @@ test_all(cluster=cl)
 stopCluster(cl)
 ```
 
+#### Use extension packages
+
+Add the following to a test file to use assertions exported by
+`checkmate.tinytest`.
+```
+using(checkmate.tinytest)
+```
+
 
 
 #### Skipping or ignoring tests 

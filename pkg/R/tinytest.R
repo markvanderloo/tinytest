@@ -234,53 +234,73 @@ add_locally_masked_functions <- function(envir, output){
   ## add 'checkFoo' equivalents of 'expect_foo' (native functions only)
   if ( getOption("tt.RUnitStyle", TRUE) ) add_RUnit_style(envir)
 
-  ## mask 'library' to load extensions (if any)
-  envir$library <- library_loading_extensions(envir, output)
-  
-  envir$require <- require_loading_extensions(envir, output)
+  envir$using  <- capture_using(using, envir, output)
   
 }
 
-
-## A tinytest extending library sets specific option that is
-## picked up by add_masked_extensions
-library_loading_extensions <- function(envir, output){
-  function(...){
-    out <- base::library(...)
-    add_masked_extensions(out, envir, output)
-    envir$tinytest_runtime <- TRUE
-    invisible(out)
+#' Use an extension package.
+#'
+#' Loads and attaches a package to the search path, and picks up the
+#' \pkg{tinytest} extension functions registered by the package. Package
+#' authors \emph{must} call this function in \emph{every} test file where an
+#' extension is used, or otherwise results from the extension package are not
+#' recorded (currently without a warning). Calling \code{using} in every file
+#' where an extension is used ensures that tests can be run in parallel.
+#'
+#' 
+#' @param package the name of the extension package, given as name or character string.
+#' @param quietly Passed to \code{\link[base]{require}}.
+#' @param ... Passed to \code{\link[base]{require}} (not \code{character.only}).
+#'
+#' @return A named \code{list}, with the package name and the names of 
+#'         the functions registered by \code{package} to extend \pkg{tinytest}.
+#'
+#' @section Details:
+#'
+#' A message is emitted when the package registers no extension functions.
+#'
+#'
+#' @family extensions
+#' @export
+using <- function(package, quietly=TRUE, ...){
+  pkg <- as.character(substitute(package))
+  if (!require(pkg, quietly=TRUE, character.only=TRUE,...)){
+    stopf("Package %s could not be loaded",pkg)
   }
-}
-
-require_loading_extensions <- function(envir, output){
-  function(...){
-    out <- base::require(...)
-    # there could be multiple pkgs loaded, curtesey of 'Depends'
-    add_masked_extensions(.packages(), envir, output)
-    envir$tinytest_runtime <- TRUE
-    invisible(out)
-  }
-}
-
-## Add extensions listed in tt.extensions.
-add_masked_extensions <- function(pkgs, envir, output){
   ext <- getOption("tt.extensions", FALSE)
-  if (isFALSE(ext)) return()
+  out <- if ( isFALSE(ext) ){
+    msgf("Package '%s' registered no tinytest extensions.")
+    list(character(0))
+  } else {
+    ext
+  }
+  names(out) <- pkg
+  invisible(out)
+}
 
-  for (pkg in pkgs){
-    # we load new functions. Some may overwrite existing ones
-    functions <- ext[[pkg]] 
-    for ( func in functions ){
-      fun <- tryCatch(getFromNamespace(func, pkg)
+capture_using <- function(fun, envir, output){
+  function(...){
+    # call user-facing function
+    ext <- fun(...)
+    
+    # get package name
+    pkg <- names(ext)
+    functions <- ext[[pkg]]
+
+    for ( func in functions ){ # get funcy!
+      # get function object from namespace
+      f <- tryCatch(getFromNamespace(func, pkg)
           , error = function(e){
-              msg <- sprintf("Loading '%s' extensions failed with message:\n '%s'"
+              msg <- sprintf("Loading '%s' extensions failed with message:\n'%s'"
                             , pkg, e$message)
               warning(msg, call.=FALSE)
-      })
+            })
+
+      # mask'm like there's no tomorrow 
+      envir[[func]] <- capture(f, output)
       
-      envir[[func]] <- capture(fun, output)
     }
+    invisible(ext)
   }
 }
 
@@ -338,17 +358,6 @@ add_masked_extensions <- function(pkgs, envir, output){
 #'        when it exists, is random and cannot be relied upon for testing. }
 #' }
 #'
-#' @section Using tinytest extensions:
-#' Users can use an extension by adding \code{library(pkg)} or
-#' \code{require(pkg)}, where \code{pkg} is the name of the extending package,
-#' to any file where one of the extensions is used. For package authors this
-#' means they need to add the extension package to the \code{Suggests:} field
-#' of their \code{DESCRIPTION} file.  Extensions are available after the
-#' extending package is loaded, for the duration of the R session.  When
-#' multiple extension packages are used, the ones loaded later take precedence
-#' over the ones loaded later, in case of name collisions. It is not possible
-#' to use \code{pkg::function} because in that case results will not be
-#' captured by \code{\link{run_test_file}.}
 #'
 #' @section Minimal example packages:
 #'
@@ -358,6 +367,7 @@ add_masked_extensions <- function(pkgs, envir, output){
 #'  \item{Using a \pkg{tinytest} extension:
 #'    \href{https://github.com/markvanderloo/using.tinytest.extension}{using.tinytest.extension}.}
 #' }
+#' @family extensions
 #' @export 
 register_tinytest_extension <- function(pkg, functions){
   ext <- getOption("tt.extensions",FALSE)

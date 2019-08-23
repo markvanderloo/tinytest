@@ -593,17 +593,17 @@ It is possible for other packages to add custom assertions
 (\code{expect}-functions).  To use such a package:
 \begin{enumerate}
 \item Add the extension package to the \code{Suggests:} field in the \code{DESCRIPTION} file.
-\item Add \code{library(pkg)} or \code{require(pkg)} to the test files that use the extensions.
+\item Add \code{using(pkg)} to the test files that use the extensions. \marginpar{\code{using}}
 \end{enumerate}
 When multiple extension packages are loaded, and when there are name
 collisions, the packages loaded later takes precedence over the ones loaded
 earlier (as usual in R). This includes assertions exported by \pkg{tinytest}.
 
 \textbf{Note.} Other than in regular R, it is not possible to disambiguate
-functions using namespace resolution as in \code{pkg::expect\_something}, because
-in that case the test result will not be caught by \pkg{tinytest}.
+functions using namespace resolution as in \code{pkg::expect\_something},
+because in that case the test result will not be caught by \pkg{tinytest}.
 
-See \code{?register\_tinytest\_extension} for a complete description.
+The API for building extension packages is described in \code{?register\_tinytest\_extension}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
