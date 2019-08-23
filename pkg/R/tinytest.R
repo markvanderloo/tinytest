@@ -250,7 +250,6 @@ add_locally_masked_functions <- function(envir, output){
 #' 
 #' @param package the name of the extension package, given as name or character string.
 #' @param quietly Passed to \code{\link[base]{require}}.
-#' @param ... Passed to \code{\link[base]{require}} (not \code{character.only}).
 #'
 #' @return A named \code{list}, with the package name and the names of 
 #'         the functions registered by \code{package} to extend \pkg{tinytest}.
@@ -262,9 +261,9 @@ add_locally_masked_functions <- function(envir, output){
 #'
 #' @family extensions
 #' @export
-using <- function(package, quietly=TRUE, ...){
+using <- function(package, quietly=TRUE){
   pkg <- as.character(substitute(package))
-  if (!require(pkg, quietly=TRUE, character.only=TRUE,...)){
+  if ( !require(pkg, quietly=TRUE, character.only=TRUE) ){
     stopf("Package %s could not be loaded",pkg)
   }
   ext <- getOption("tt.extensions", FALSE)
