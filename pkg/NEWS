@@ -1,4 +1,4 @@
-version 0.9.7
+version 1.0.0
 - New argument 'side_effects' for test runners: monitor side effects while running tests.
 - New function 'report_side_effects': toggle monitoring side-effects within test files.
 - Run test files in parallel, for example: test_package("pkg", ncpu=2). (Thanks
