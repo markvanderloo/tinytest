@@ -244,20 +244,24 @@ add_locally_masked_functions <- function(envir, output){
 #' \pkg{tinytest} extension functions registered by the package. Package
 #' authors \emph{must} call this function in \emph{every} test file where an
 #' extension is used, or otherwise results from the extension package are not
-#' recorded (currently without a warning). Calling \code{using} in every file
-#' where an extension is used ensures that tests can be run in parallel.
+#' recorded (without a warning). Calling \code{using} in every file
+#' where an extension is used also ensures that tests can be run in parallel.
 #'
 #' 
 #' @param package the name of the extension package, given as name or character string.
 #' @param quietly Passed to \code{\link[base]{require}}.
 #'
-#' @return A named \code{list}, with the package name and the names of 
-#'         the functions registered by \code{package} to extend \pkg{tinytest}.
+#' @return A named \code{list}, with the package name and the names of the
+#'   functions registered by \code{package} to extend \pkg{tinytest}. A message
+#'   is emitted when the package registers no extension functions.
 #'
-#' @section Details:
-#'
-#' A message is emitted when the package registers no extension functions.
-#'
+#' @examples
+#' \dontrun{
+#'   # In interactive session: see which functions are exported
+#'   # by checkmate.tinytest
+#'   out <- using(checkmate.tinytest)
+#'   print(out)
+#' }
 #'
 #' @family extensions
 #' @export
@@ -320,13 +324,13 @@ capture_using <- function(fun, envir, output){
 #'
 #' \enumerate{
 #'  \item{The extending functions return a \code{\link{tinytest}} object.  This 
-#'        can be created by calling the constructor with the arguments
+#'        can be created by calling \code{tinytest()} with the arguments
 #'    \itemize{
-#'      \item{\code{result}: A logical scalar: \code{TRUE} or \code{FALSE} (not
+#'      \item{\code{result}: A \code{logical} scalar: \code{TRUE} or \code{FALSE} (not
 #'            \code{NA}) }
-#'      \item{\code{call}: The call to the expectation function. Usually the 
+#'      \item{\code{call}: The \code{call} to the expectation function. Usually the 
 #'            result of \code{sys.call(sys.parent(1))} }
-#'      \item{\code{diff}: A character scalar, with a long description of the 
+#'      \item{\code{diff}: A \code{character} scalar, with a long description of the 
 #'            difference. Sentences may be separated by \code{"\\n"}.}
 #'      \item{\code{short}: Either \code{"data"}, if the difference is in the 
 #'            data. \code{"attr"} when attributes differ or \code{"xcpt"} when 
@@ -336,25 +340,18 @@ capture_using <- function(fun, envir, output){
 #'    }
 #'    Observe that this requires the extending package to add \pkg{tinytest} to 
 #'    the \code{Imports} field in the package's \code{DESCRIPTION} file (this 
-#'    also holds for the following two requirements). 
+#'    also holds for the following requirement). 
 #'  }
 #' \item{Functions are registered in \code{.onLoad()} using 
 #'       \code{register_tinytest_extension()}. Functions that are already 
-#'       registered are skipped, and will not be overwritten.}
+#'       registered, including \pkg{tinytest} functions will be overwritten.}
 #' }
 #' It is \emph{recommended} to:
 #' \enumerate{
 #'   \item{Follow the syntax conventions of \pkg{tinytest} so expectation 
 #'         functions start with \code{expect_}.}
 #'   \item{Explain to users of the extension package how to use the extension 
-#'         (see below).}
-#' }
-#' The \pkg{tinytest} API offers the following further facilities.
-#' \enumerate{
-#'  \item{A registered extending function can detect wether it is run by 
-#'        \pkg{tinytest} by checking whether \code{exists("tinytest_runtime")}
-#'        evaluates to \code{TRUE}. The value of \code{tinytest_runtime},
-#'        when it exists, is random and cannot be relied upon for testing. }
+#'         (see \code{\link{using}}).}
 #' }
 #'
 #'
@@ -364,7 +361,7 @@ capture_using <- function(fun, envir, output){
 #'  \item{Extending \pkg{tinytest}:
 #'  \href{https://github.com/markvanderloo/tinytest.extension}{tinytest.extension}.}
 #'  \item{Using a \pkg{tinytest} extension:
-#'    \href{https://github.com/markvanderloo/using.tinytest.extension}{using.tinytest.extension}.}
+#'    \href{https://github.com/markvanderloo/uses.tinytest.extension}{using.tinytest.extension}.}
 #' }
 #' @family extensions
 #' @export 
@@ -621,8 +618,8 @@ print_status <- function(filename, env, color){
 #' cluster of worker nodes. \pkg{tinytest} will be loaded onto each cluster
 #' node. All other preparation, including loading code from the tested package,
 #' must be done by the user. It is also up to the user to clean up the cluster
-#' after running tests. See the \href{../doc/using_tinytest.pdf}{using tinytest}
-#' vignette for examples.
+#' after running tests. See the 'using tinytest' vignette for examples:
+#' \code{vignette("using_tinytest")}.
 #'
 #'
 #' @return A \code{tinytests} object

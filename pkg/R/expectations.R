@@ -12,12 +12,11 @@ isFALSE <- function(x){
 #' Tinytest constructor
 #'
 #'
-#' Each individual test in the package generates a \code{tinytest} object.
-#' A \code{tinytest} object behaves like a \code{logical} scalar, but
-#' it is endowed with attributes allowing to trace back where the test
-#' was run.
+#' Each individual test in the package generates a \code{tinytest} object.  A
+#' \code{tinytest} object is a \code{logical} scalar, with metadata
+#' (attributes) about the test.
 #'
-#' @param result \code{[logical]} scalar.
+#' @param result \code{[logical]} scalar. 
 #' @param call   \code{[call]} The call that created \code{result}.
 #' @param diff   \code{[character]} difference between current and target value
 #'     (if any).
@@ -27,8 +26,19 @@ isFALSE <- function(x){
 #' @param lst    \code{[integer]} Last line number in the test file (differs
 #'    from \code{fst} if the call spans multiple lines).
 #'
-#' @return A \code{tinytest} object.
+#' @section Details:
+#' The \pkg{result} can take three values.
+#' \itemize{
+#'  \item{\code{TRUE}: test was passed.}
+#'  \item{\code{FALSE}: test was failed.}
+#'  \item{\code{NA}: A side effect was detected.} 
+#' }
+#' Authors of extension packages should not use \code{NA} as a result value as
+#' this part of the interface may change in the future.
 #'
+#'
+#' @return A \code{tinytest} object.
+#' @family extensions
 #'
 #' @examples
 #' tt <- expect_equal(1+1, 2)
@@ -80,7 +90,7 @@ lineformat <- function(x){
 #'
 #' @rdname print.tinytest
 #' @export
-#'
+#' 
 #' @examples
 #' tt <- expect_equal(1+1, 3)
 #' format(tt,"long")
@@ -196,6 +206,13 @@ shortdiff <- function(current, target, ...){
 #' this makes migration from the \code{RUnit} framework a little easier, for those
 #' who wish to do so.
 #'
+#' @section More information and examples:
+#'
+#' \itemize{
+#' \item{An overview of tinytest can be found in \code{vignette("using_tinytest")}}.
+#' \item{Examples of how tinytest is used in practice can be found in
+#'    \code{vignette("tinytest_examples")}}
+#' }
 #' @family test-functions
 #'
 #' @examples

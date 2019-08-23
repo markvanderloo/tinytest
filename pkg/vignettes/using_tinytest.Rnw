@@ -593,8 +593,9 @@ It is possible for other packages to add custom assertions
 (\code{expect}-functions).  To use such a package:
 \begin{enumerate}
 \item Add the extension package to the \code{Suggests:} field in the \code{DESCRIPTION} file.
-\item Add \code{using(pkg)} to the test files that use the extensions. \marginpar{\code{using}}
+\item Add \code{using(pkg)} to \emph{each} test file that use the extensions (see \code{?using}). \marginpar{\code{using}}
 \end{enumerate}
+
 When multiple extension packages are loaded, and when there are name
 collisions, the packages loaded later takes precedence over the ones loaded
 earlier (as usual in R). This includes assertions exported by \pkg{tinytest}.
