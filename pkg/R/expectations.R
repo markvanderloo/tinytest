@@ -324,7 +324,8 @@ expect_silent <- function(current, quiet=TRUE){
   has_nullfile <- exists("nullfile")
 
   if (quiet){
-    dumpfile <- if(has_nullfile) nullfile() else tempfile()
+    # we need to use 'do.call' to avoid a NOTE on r-oldrel
+    dumpfile <- if(has_nullfile) do.call("nullfile", list()) else tempfile()
     sink(dumpfile)
   }
 
