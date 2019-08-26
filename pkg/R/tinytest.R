@@ -398,7 +398,10 @@ register_tinytest_extension <- function(pkg, functions){
 #' of the statements express an \code{\link[=expect_equal]{expectation}}.
 #' \code{run_test_file} runs the file while gathering results of the
 #' expectations in a \code{\link{tinytests}} object.
-#' 
+#'
+#' The graphics device is set to \code{pdf(file=tempfile())} for the run of the
+#' test file.
+#'
 #' @section User-defined side effects:
 #' 
 #' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
@@ -471,7 +474,10 @@ run_test_file <- function( file
   oldwd <- getwd()
   ## Do we need to change working directory?
   wd_set <- length(dirname(file)) > 0
-  
+
+  # make sure that plots get redirected to oblivion
+  pdf(file=tempfile())  
+
   ## this will store the names of all environment
   ## variables created while running the file.
   envvar <- new.env()
@@ -493,6 +499,7 @@ run_test_file <- function( file
         # reset options to the state before running 'file'
         reset_options(oldop)
       }
+      dev.off()
   })
   if (wd_set){
       setwd(dirname(file))

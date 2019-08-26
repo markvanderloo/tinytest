@@ -1,3 +1,9 @@
+version 1.1.0
+- Tests are now run with 'pdf(file=tempfile())' as graphics device. This
+  avoids writing 'Rplots.pdf' under the library directory when R CMD check is 
+  run.
+  
+
 version 1.0.0
 - New argument 'side_effects' for test runners: monitor side effects while running tests.
 - New function 'report_side_effects': toggle monitoring side-effects within test files.
