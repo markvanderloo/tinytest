@@ -487,6 +487,8 @@ expect_message <- function(current, pattern=".*"){
 #' @param report \code{[logical]} report all side-effects
 #' @param envvar \code{[logical]} changes in environment variables
 #' @param pwd    \code{[logical]} changes in working directory
+#' @param files  \code{[logical]} changes in files in the directory where the
+#'   test file lives. Also watches subdirectories.
 #'
 #' @section Details:
 #' A side effect causes a change in an external variable outside of the scope
@@ -520,9 +522,9 @@ expect_message <- function(current, pattern=".*"){
 #' report_side_effects(pwd=FALSE)
 #'
 #' @export
-report_side_effects <- function(report=TRUE, envvar=report, pwd=report){
+report_side_effects <- function(report=TRUE, envvar=report, pwd=report, files=report){
   stopifnot(is.logical(envvar))
-  list(envvar=envvar, pwd=pwd)
+  list(envvar=envvar, pwd=pwd, files=files)
 } 
 
 # generate user-facing function that captures 'report_side_effects'
@@ -534,6 +536,8 @@ capture_se <- function(fun, env){
       env$envvar <- Sys.getenv()
     if (out[['pwd']])
       env$pwd <- getwd()
+    if (out[['files']])
+      env$files <- file.info(dir("./", recursive=TRUE, full.names=TRUE))
     out
   }
 }
@@ -548,24 +552,6 @@ report_envvar <- function(env){
 
   out <- envdiff(env$envvar, current)
   env$envvar <- current
-  out
-}
-
-# internal function, to be called by run_test_file after local capture.
-report_cwd <- function(env){
-  if ( !isTRUE(env$sidefx[['pwd']]) ) return(NULL)
-
-  old <- env$pwd
-  current <- getwd()
-  if ( identical(old, current) ) return(NULL)
-
-  msg <- sprintf("Working directory changed from \n '%s'\nto\n '%s'", old, current)
-  out <- tinytest(NA
-    , call = sys.call(sys.parent(1))
-    , short = "wdir"
-    , diff = msg
-  ) 
-  env$pwd <- current
   out
 }
 
@@ -612,5 +598,64 @@ envdiff <- function(old, new){
   )
 
 }
+
+# internal function, to be called by run_test_file after local capture.
+report_cwd <- function(env){
+  if ( !isTRUE(env$sidefx[['pwd']]) ) return(NULL)
+
+  old <- env$pwd
+  current <- getwd()
+  if ( identical(old, current) ) return(NULL)
+
+  msg <- sprintf("Working directory changed from \n '%s'\nto\n '%s'", old, current)
+  out <- tinytest(NA
+    , call = sys.call(sys.parent(1))
+    , short = "wdir"
+    , diff = msg
+  ) 
+  env$pwd <- current
+  out
+}
+
+
+
+report_files <- function(env){
+  if (!isTRUE(env$sidefx[['files']])) return(NULL)
+  old <- env$files
+  new <- file.info(dir("./", recursive=TRUE, full.names=TRUE))
+
+  if ( identical(old, new) ) return(NULL)
+  on.exit(env$files <- new)
+
+  oldfiles <- rownames(old)
+  newfiles <- rownames(new)
+  
+  created <- setdiff(newfiles, oldfiles)
+  removed <- setdiff(oldfiles, newfiles)
+
+  remain  <- intersect(oldfiles, newfiles)
+  touched <- remain[old[remain,'mtime'] != new[remain, 'mtime']]
+
+  cre <- sprintf("Created: %s", if (length(created)>0) paste(created, collapse=", ") else character(0)) 
+  rem <- sprintf("Removed: %s", if (length(removed)>0) paste(removed, collapse=", ") else character(0))
+  alt <- sprintf("Touched: %s", if (length(touched)>0) paste(touched, collapse=", ") else character(0))
+  
+  diff <- paste(c(cre, rem, alt), collapse="\n")
+  # we do not record status changes, as they may mean different things
+  # on different OSs.
+  if (nchar(diff) == 0) return(NULL)
+  tinytest(NA
+    , call = sys.call(sys.parent(1))
+    , diff = diff
+    , short = "file"
+  )
+
+}
+
+
+
+
+
+
 
 
