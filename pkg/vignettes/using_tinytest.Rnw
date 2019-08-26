@@ -164,7 +164,7 @@ function of the form \code{checkLol}.
 \subsection{Interpreting the output and print options}
 Let's have a look at an example again.
 <<>>=
-expect_false( 1 + 1 == 2 )
+expect_false( 1 + 1 == 2, info="My personal message to the tester" )
 @
 
 The output of these functions is pretty self-explanatory, nevertheless we see
@@ -184,11 +184,13 @@ that the output of these expect-functions consist of
   \begin{itemize}
     \item \code{[envv]} An environmental variable was created, changed, or deleted.
     \item \code{[wdir]} The working directory has changed.
+    \item \code{[file]} A file operation occurred in the test directory or one of its subdirectories.
    \end{itemize}
   \item When relevant (see \S\ref{sect:testfiles}), the location of the test file and the relevant line numbers.
+  \item The test call.
   \item When relevant, a summary of the differences between observed and expected
     values or attributes, or a summary of the observed side effect.
-  \item The test call.
+  \item When present, a user-defined information message.
 \end{itemize}
 
 The result of an \code{expect\_} function is a \code{tinytest} object. You can

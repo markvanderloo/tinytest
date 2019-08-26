@@ -59,8 +59,31 @@ expect_false(ignore(expect_message)(stop("hihi"),"lol"))
 expect_false(ignore(expect_message)(warning("hihi"),"lol"))
 expect_message(message("hihi, I lol"),"lol")
 
+# check that info fields are filled.
+msg <- "whoO0Oop"
 
+L <- list(
+    ignore(expect_true)(TRUE, info=msg)
+  , ignore(expect_true)(FALSE, info=msg)
+  , ignore(expect_false)(TRUE, info=msg)
+  , ignore(expect_false)(FALSE, info=msg)
+  , ignore(expect_equal)(1,1, info=msg)
+  , ignore(expect_equal)(1,2, info=msg)
+  , ignore(expect_equivalent)(1,1, info=msg)
+  , ignore(expect_equivalent)(1,2, info=msg)
+  , ignore(expect_identical)(1,1, info=msg)
+  , ignore(expect_identical)(1,2, info=msg)
+  , ignore(expect_null)(NULL,info=msg)
+  , ignore(expect_null)(NA,info=msg)
+  , ignore(expect_message)(message("hihi"),info=msg)
+  , ignore(expect_message)(1+1, info=msg)
+  , ignore(expect_warning)(warning("hihi"), info=msg)
+  , ignore(expect_warning)(1+1, info=msg)
+  , ignore(expect_error)(stop("hihi"),info=msg)
+  , ignore(expect_silent)(1+1, info=msg)
+  , ignore(expect_silent)(stop("hihi"), info=msg)
+)
 
-
+for ( x in L ) expect_equal(attr(x,"info"), msg)
 
 
