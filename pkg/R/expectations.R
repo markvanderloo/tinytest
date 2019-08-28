@@ -174,8 +174,8 @@ longdiff <- function(current, target, alt){
        is_scalar(current) && 
        is_scalar(target) ){
        if ( all(class(current) %in% c("character","ordered","factor", "POSIXt","POSIXct")) ) 
-         sprintf("Expected '%s', got '%s'", current, target)
-       else sprintf("Expected %s, got %s", current, target)
+         sprintf("Expected '%s', got '%s'", target, current)
+       else sprintf("Expected %s, got %s", target, current)
   } else {
     paste0(" ", alt, collapse="\n")
   }
