@@ -10,7 +10,8 @@ version 1.1.0
 - Fixed 'diff' message for scalar comparisons in expect_equivalent, expect_equal, 
   expect_identical: 'target' and 'current' were switched in message (thanks 
   to GH user Billy34).
-
+- Fixed crash of 'build_install_test' when pkg was developed under directory
+  with spaces (thanks to Bart-Jan van Rossum).
 
 version 1.0.0
 - New argument 'side_effects' for test runners: monitor side effects while running tests.
