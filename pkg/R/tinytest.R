@@ -398,7 +398,10 @@ register_tinytest_extension <- function(pkg, functions){
 #' of the statements express an \code{\link[=expect_equal]{expectation}}.
 #' \code{run_test_file} runs the file while gathering results of the
 #' expectations in a \code{\link{tinytests}} object.
-#' 
+#'
+#' The graphics device is set to \code{pdf(file=tempfile())} for the run of the
+#' test file.
+#'
 #' @section User-defined side effects:
 #' 
 #' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
@@ -408,7 +411,8 @@ register_tinytest_extension <- function(pkg, functions){
 #' @section Tracking side effects:
 #'
 #' Certain side effects can be tracked, even when they are not explicitly evoked
-#' in the test file. See \code{\link{report_side_effects}} for details. 
+#' in the test file. See \code{\link{report_side_effects}} for side effects tracked
+#' by \pkg{tinytest}.
 #' Calls to \code{report_side_effects} within the test file overrule
 #' settings provided with this function.
 #'
@@ -469,9 +473,12 @@ run_test_file <- function( file
 
   ## where to come back after running the file
   oldwd <- getwd()
-  ## Do we need to change working directory?
-  wd_set <- length(dirname(file)) > 0
-  
+
+
+
+  # make sure that plots get redirected to oblivion
+  pdf(file=tempfile())  
+
   ## this will store the names of all environment
   ## variables created while running the file.
   envvar <- new.env()
@@ -493,11 +500,12 @@ run_test_file <- function( file
         # reset options to the state before running 'file'
         reset_options(oldop)
       }
+      dev.off()
   })
-  if (wd_set){
-      setwd(dirname(file))
-      file <- basename(file)
-  }
+
+
+  setwd(dirname(file))
+  file <- basename(file)
 
   if (at_home) Sys.setenv(TT_AT_HOME=TRUE)
 
@@ -525,6 +533,7 @@ run_test_file <- function( file
   # internal side-effect tracker: make sure results are exported to user.
   local_report_envvar <- capture(report_envvar, o)
   local_report_cwd    <- capture(report_cwd, o)
+  local_report_files  <- capture(report_files, o)
 
   # parse file, store source reference.
   parsed <- parse(file=file, keep.source=TRUE)
@@ -551,11 +560,13 @@ run_test_file <- function( file
     }
     local_report_envvar(sidefx)
     local_report_cwd(sidefx)
+    local_report_files(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
   }
   if (verbose == 1) print_status(prfile, o, color)
   if (verbose >= 1) catf("\n")
-  
+ 
+
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
   structure(test_output, class="tinytests")
@@ -836,6 +847,10 @@ test_package <- function(pkgname, testdir = "tinytest"
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param ncpu \code{[numeric]} number of CPUs to use during the testing phase.
 #' @param verbose \code{[logical]} toggle verbosity during execution
+#' @param remove_side_effects \code{[logical]} toggle remove user-defined side
+#'   effects? See section on side effects.
+#' @param side_effects \code{[logical|list]} Either a logical,
+#' or a list of arguments to pass to \code{\link{report_side_effects}}.
 #' @param keep_tempdir \code{[logical]} keep directory where the pkg is
 #'   installed and where tests are run? If \code{TRUE}, the directory is not
 #'   deleted and it's location is printed.
@@ -854,6 +869,8 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
                              , at_home=TRUE
                              , verbose=getOption("tt.verbose",2)
                              , ncpu = 1
+                             , remove_side_effects=TRUE
+                             , side_effects=FALSE
                              , keep_tempdir=FALSE){
   oldwd <- getwd()
   tdir  <- tempfile()
@@ -892,6 +909,8 @@ suppressPackageStartupMessages({
   testdir <- '%s'
   at_home <- %s
   verbose <- %d
+  remove_side_effects <- %s
+  side_effects <- %s
   ncpu    <- %d
 
   #        pkgname       tdir
@@ -907,7 +926,11 @@ if (ncpu > 1){
 }
 #                                testdir       pkgname       tdir
 out <- run_test_dir(system.file(testdir, package=pkgname, lib.loc=tdir)
-               , at_home=at_home, verbose=verbose,cluster=cluster)
+                   , at_home=at_home
+                   , verbose=verbose
+                   , remove_side_effects=remove_side_effects
+                   , side_effects=side_effects
+                   , cluster=cluster)
 
 saveRDS(out, file='output.RDS')
 
@@ -919,6 +942,8 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
         , testdir
         , at_home
         , verbose
+        , remove_side_effects
+        , side_effects
         , ncpu)
 
   write(scr, file="test.R")

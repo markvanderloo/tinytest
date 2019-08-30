@@ -21,6 +21,7 @@ isFALSE <- function(x){
 #' @param diff   \code{[character]} difference between current and target value
 #'     (if any).
 #' @param short  \code{[character]} short description of the difference
+#' @param info  \code{[character]} other information, to be printed in the long message
 #' @param file   \code{[character]} File location of the test.
 #' @param fst    \code{[integer]} First line number in the test file.
 #' @param lst    \code{[integer]} Last line number in the test file (differs
@@ -55,6 +56,7 @@ isFALSE <- function(x){
 tinytest <- function(result, call
     , diff = NA_character_
     , short= NA_character_
+    , info = NA_character_
     , file = NA_character_
     , fst  = NA_integer_
     , lst  = NA_integer_
@@ -65,6 +67,7 @@ tinytest <- function(result, call
     , call     = call  # call creating or motivating the object
     , diff     = diff  # diff if isFALSE(result)
     , short    = short # short diff (4 char)
+    , info     = info  # user-defined info
     , file     = file  # test file location
     , fst      = fst   # first line of call
     , lst      = lst   # last line of call
@@ -75,8 +78,9 @@ tinytest <- function(result, call
 na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 
 oneline <- function(x) sub("\\n.+","...",x)
-indent <- function(x, with="     ")
+indent <- function(x, with="     "){
   gsub("\\n *",paste0("\n",with),paste0(with,sub("^ +","",x)))
+}
 
 lineformat <- function(x){
   if ( is.na(x) ) ""
@@ -105,19 +109,23 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   file  <- na_str(d$file)
   short <- na_str(d$short)
   diff  <- d$diff
+  info  <- na_str(d$info)
 
   result <- if (isTRUE(x)) "PASSED      " 
             else if (isFALSE(x)) sprintf("FAILED[%s]",short)
             else if (is.na(x)  ) sprintf("SIDEFX[%s]",short)
   longfmt <- "----- %s: %s<%s--%s>\n%s"
+  # make room for diff and info fields when necessary
   if (isFALSE(x)||is.na(x)) longfmt <- paste0(longfmt, "\n%s")
+  if (!is.na(d$info)) longfmt <- paste0(longfmt,"\n%s")
 
   if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
   }  else {
     sprintf(longfmt, result, file, fst, lst
                 , indent(call, with=" call| ")
-                , indent(diff, with=" diff| "))
+                , indent(diff, with=" diff| ")
+                , indent(info, with=" info| "))
   }
 
 }
@@ -166,8 +174,8 @@ longdiff <- function(current, target, alt){
        is_scalar(current) && 
        is_scalar(target) ){
        if ( all(class(current) %in% c("character","ordered","factor", "POSIXt","POSIXct")) ) 
-         sprintf("Expected '%s', got '%s'", current, target)
-       else sprintf("Expected %s, got %s", current, target)
+         sprintf("Expected '%s', got '%s'", target, current)
+       else sprintf("Expected %s, got %s", target, current)
   } else {
     paste0(" ", alt, collapse="\n")
   }
@@ -222,27 +230,28 @@ shortdiff <- function(current, target, ...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
+expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), info=NA_character_, ...){
 
   check <- all.equal(target, current, tol=tol, ...)
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else longdiff( current, target, check) 
   short <- if (equal) NA_character_ else shortdiff(current, target, tolerance=tol)
 
-  tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short)
+  tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short, info=info)
 }
 
 
 
 #' @rdname expect_equal
 #' @export
-expect_identical <- function(current, target){
+expect_identical <- function(current, target, info=NA_character_){
   result <- identical(current, target)
   diff <-  if (result) NA_character_
            else longdiff(current, target, all.equal(target, current))
   short <- if (result) NA_character_
            else shortdiff(current, target, tolerance=0)
-  tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff, short=short)
+  tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff
+         , short=short, info=info)
 }
 
 
@@ -254,17 +263,18 @@ expect_identical <- function(current, target){
 #'
 #' @rdname expect_equal
 #' @export
-expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps), ...){
+expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps)
+                            , info=NA_character_, ...){
   out <- expect_equal(current, target
           , check.attributes=FALSE,use.names=FALSE
-          , tol=tol, ...)
+          , tol=tol, info=info, ...)
   attr(out, 'call') <- sys.call(sys.parent(1))
   out
 }
 
 #' @rdname expect_equal
 #' @export
-expect_true <- function(current){
+expect_true <- function(current, info=NA_character_){
   result <- isTRUE(current)
   call <- sys.call(sys.parent(1))
   if (!result){
@@ -273,15 +283,15 @@ expect_true <- function(current){
             else sprintf("object of class '%s'",class(current))
     diff  <- sprintf("Expected TRUE, got %s", this)
     short <- shortdiff(TRUE, FALSE)
-    tinytest(result, call=call,diff=diff, short=short)
+    tinytest(result, call=call,diff=diff, short=short, info=info)
   } else {
-    tinytest(result, call = sys.call(sys.parent(1)))
+    tinytest(result, call = sys.call(sys.parent(1)), info=info)
   }
 }
 
 #' @rdname expect_equal
 #' @export
-expect_false <- function(current){
+expect_false <- function(current, info=NA_character_){
   result <- isFALSE(current)
   call   <- sys.call(sys.parent(1))
   if (!result){
@@ -290,9 +300,9 @@ expect_false <- function(current){
             else sprintf("object of class '%s'",class(current))
     diff  <- "Expected FALSE, got TRUE"
     short <- shortdiff(TRUE, FALSE)
-    tinytest(result, call=call,diff=diff, short=short)
+    tinytest(result, call=call,diff=diff, short=short, info=info)
   } else {
-    tinytest(result, call = sys.call(sys.parent(1)))
+    tinytest(result, call = sys.call(sys.parent(1)), info=info)
   }
 }
 
@@ -316,7 +326,7 @@ expect_false <- function(current){
 #' expect_silent(print("hihi", quiet=FALSE)) # FALSE, and printed
 #'
 #' @export
-expect_silent <- function(current, quiet=TRUE){
+expect_silent <- function(current, quiet=TRUE, info=NA_character_){
 
   ## Make sure that printed output does not go to screen.
   # nullfile() was introduced at 3.6.0 and we want to be usable
@@ -366,19 +376,21 @@ expect_silent <- function(current, quiet=TRUE){
     , call  = sys.call(sys.parent(1))
     , short = if (result) NA_character_ else "xcpt"
     , diff  = diff
+    , info  = info
   )
 }
 
 
 #' @rdname expect_equal
 #' @export
-expect_null <- function(current){
+expect_null <- function(current, info=NA_character_){
   call <- sys.call(sys.parent(1))
   if (is.null(current)){
-    tinytest(TRUE, call=call)
+    tinytest(TRUE, call=call, info=info)
   } else {
     tinytest(FALSE, call=call, short="data"
       , diff = sprintf("Expected NULL, got '%s'", paste(class(current), collapse=", "))
+      , info = info
     )
   }
 }
@@ -387,7 +399,7 @@ expect_null <- function(current){
 #' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
 #' @export
-expect_error <- function(current, pattern=".*"){
+expect_error <- function(current, pattern=".*", info=NA_character_){
   result <- FALSE
   diff <- "No error"
   
@@ -401,12 +413,13 @@ expect_error <- function(current, pattern=".*"){
   })
   tinytest(result, call = sys.call(sys.parent(1))
            , short= if(result) NA_character_ else "xcpt"
-           , diff = if(result) NA_character_ else diff)
+           , diff = if(result) NA_character_ else diff
+           , info = info)
 }
 
 #' @rdname expect_equal
 #' @export
-expect_warning <- function(current, pattern=".*"){
+expect_warning <- function(current, pattern=".*", info=NA_character_){
   
   result <- FALSE
   diff <- "No warning"
@@ -425,13 +438,14 @@ expect_warning <- function(current, pattern=".*"){
 
   tinytest(result, call=sys.call(sys.parent(1))
            , short = if (result) NA_character_ else "xcpt"
-           , diff  = if (result) NA_character_ else diff)
+           , diff  = if (result) NA_character_ else diff
+           , info  = info)
 }
 
 
 #' @rdname expect_equal
 #' @export
-expect_message <- function(current, pattern=".*"){
+expect_message <- function(current, pattern=".*", info=NA_character_){
   value <- ""
   tc <- textConnection("value", open="w", local=TRUE)
   sink(file=tc,type="message", split=FALSE)
@@ -463,6 +477,7 @@ expect_message <- function(current, pattern=".*"){
       , call
       , diff  = msg
       , short = "xcpt" 
+      , info  = info
     ) 
   # we got a message, check if it matches 'pattern'
   } else if (!isTRUE(grepl(pattern, value)) ){
@@ -472,9 +487,10 @@ expect_message <- function(current, pattern=".*"){
       , call
       , diff = df
       , short = "xcpt"
+      , info  = info
     )
   } else {
-    tinytest(TRUE, call)
+    tinytest(TRUE, call, info=info)
   }
   
 }
@@ -487,6 +503,8 @@ expect_message <- function(current, pattern=".*"){
 #' @param report \code{[logical]} report all side-effects
 #' @param envvar \code{[logical]} changes in environment variables
 #' @param pwd    \code{[logical]} changes in working directory
+#' @param files  \code{[logical]} changes in files in the directory where the
+#'   test file lives. Also watches subdirectories.
 #'
 #' @section Details:
 #' A side effect causes a change in an external variable outside of the scope
@@ -520,9 +538,9 @@ expect_message <- function(current, pattern=".*"){
 #' report_side_effects(pwd=FALSE)
 #'
 #' @export
-report_side_effects <- function(report=TRUE, envvar=report, pwd=report){
+report_side_effects <- function(report=TRUE, envvar=report, pwd=report, files=report){
   stopifnot(is.logical(envvar))
-  list(envvar=envvar, pwd=pwd)
+  list(envvar=envvar, pwd=pwd, files=files)
 } 
 
 # generate user-facing function that captures 'report_side_effects'
@@ -534,6 +552,10 @@ capture_se <- function(fun, env){
       env$envvar <- Sys.getenv()
     if (out[['pwd']])
       env$pwd <- getwd()
+    if (out[['files']]){
+      env$filesdir <- getwd()
+      env$files <- file.info(dir(env$filesdir, recursive=TRUE, full.names=TRUE))
+    }
     out
   }
 }
@@ -548,24 +570,6 @@ report_envvar <- function(env){
 
   out <- envdiff(env$envvar, current)
   env$envvar <- current
-  out
-}
-
-# internal function, to be called by run_test_file after local capture.
-report_cwd <- function(env){
-  if ( !isTRUE(env$sidefx[['pwd']]) ) return(NULL)
-
-  old <- env$pwd
-  current <- getwd()
-  if ( identical(old, current) ) return(NULL)
-
-  msg <- sprintf("Working directory changed from \n '%s'\nto\n '%s'", old, current)
-  out <- tinytest(NA
-    , call = sys.call(sys.parent(1))
-    , short = "wdir"
-    , diff = msg
-  ) 
-  env$pwd <- current
   out
 }
 
@@ -612,5 +616,65 @@ envdiff <- function(old, new){
   )
 
 }
+
+# internal function, to be called by run_test_file after local capture.
+report_cwd <- function(env){
+  if ( !isTRUE(env$sidefx[['pwd']]) ) return(NULL)
+
+  old <- env$pwd
+  current <- getwd()
+  if ( identical(old, current) ) return(NULL)
+
+  msg <- sprintf("Working directory changed from \n '%s'\nto\n '%s'", old, current)
+  out <- tinytest(NA
+    , call = sys.call(sys.parent(1))
+    , short = "wdir"
+    , diff = msg
+  ) 
+  env$pwd <- current
+  out
+}
+
+
+
+report_files <- function(env){
+  if (!isTRUE(env$sidefx[['files']])) return(NULL)
+  old <- env$files
+  new <- file.info(dir(env$filesdir, recursive=TRUE, full.names=TRUE))
+
+  if ( identical(old, new) ) return(NULL)
+  on.exit(env$files <- new)
+
+  oldfiles <- rownames(old)
+  newfiles <- rownames(new)
+  
+  created <- setdiff(newfiles, oldfiles)
+  removed <- setdiff(oldfiles, newfiles)
+
+  remain  <- intersect(oldfiles, newfiles)
+  touched <- remain[old[remain,'mtime'] != new[remain, 'mtime']]
+
+  cre <- sprintf("Created: %s", if (length(created)>0) paste(created, collapse=", ") else character(0)) 
+  rem <- sprintf("Removed: %s", if (length(removed)>0) paste(removed, collapse=", ") else character(0))
+  alt <- sprintf("Touched: %s", if (length(touched)>0) paste(touched, collapse=", ") else character(0))
+  
+  diff <- paste(c(cre, rem, alt), collapse="\n")
+  # we do not record status changes, as they may mean different things
+  # on different OSs.
+  if (nchar(diff) == 0) return(NULL)
+  tinytest(NA
+    , call = sys.call(sys.parent(1))
+    , diff = diff
+    , short = "file"
+    , info  = "CRAN policy forbids writing in the package installation folder."
+  )
+
+}
+
+
+
+
+
+
 
 
