@@ -873,7 +873,8 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
   setwd(tdir)
 
   ## build package
-  build_command <- paste0("R CMD build --no-build-vignettes --no-manual ",pkg)
+  build_command <- paste0("R CMD build --no-build-vignettes --no-manual "
+    , gsub(" ", "\\\\ ", pkg))
   system(build_command)
 
 
