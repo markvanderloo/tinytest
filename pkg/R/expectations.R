@@ -21,7 +21,7 @@ isFALSE <- function(x){
 #' @param diff   \code{[character]} difference between current and target value
 #'     (if any).
 #' @param short  \code{[character]} short description of the difference
-#' @param info  \code{[character]} other information, to be printed in the long message
+#' @param info   \code{[character]} other information, to be printed in the long message
 #' @param file   \code{[character]} File location of the test.
 #' @param fst    \code{[integer]} First line number in the test file.
 #' @param lst    \code{[integer]} Last line number in the test file (differs
