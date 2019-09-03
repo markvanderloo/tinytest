@@ -477,7 +477,7 @@ run_test_file <- function( file
 
 
   # make sure that plots get redirected to oblivion
-  pdf(file=tempfile())  
+  grDevices::pdf(file=tempfile())  
 
   ## this will store the names of all environment
   ## variables created while running the file.
@@ -500,7 +500,7 @@ run_test_file <- function( file
         # reset options to the state before running 'file'
         reset_options(oldop)
       }
-      dev.off()
+      grDevices::dev.off()
   })
 
 

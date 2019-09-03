@@ -202,6 +202,9 @@ shortdiff <- function(current, target, ...){
 #' @param target \code{[R object or expression]} Expected outcome
 #' @param tol \code{[numeric]} Test equality to machine rounding. Passed
 #'     to \code{\link[base]{all.equal} (tolerance)}
+#' @param info \code{[character]} scalar. Optional user-defined message. Must
+#'  be a single character string. Multiline comments may be separated by
+#'  \code{"\\n"}.
 #' @param ... Passed to \code{all.equal}
 #'
 #' @return A \code{\link{tinytest}} object. A tinytest object is a
