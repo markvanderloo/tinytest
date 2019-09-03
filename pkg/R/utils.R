@@ -5,4 +5,8 @@ stopf <- function(fmt,...) stop(sprintf(fmt,...), call.=FALSE)
 warnf <- function(fmt,...) warning(sprintf(fmt,...), call.=FALSE)
 msgf  <- function(fmt, ...) message(sprintf(fmt,...))
 
+# detect malware
+on_windows <- function() Sys.info()[["sysname"]] == "Windows"
+
+
 
