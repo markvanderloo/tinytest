@@ -882,7 +882,7 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
            }
           })
 
-  pkg <- normalizePath(pkgdir)
+  pkg <- normalizePath(pkgdir, winslash="/")
 
   pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
 
