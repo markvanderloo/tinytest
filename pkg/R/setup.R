@@ -37,7 +37,7 @@ setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
   ## Get pkg name form DESCRIPTION
   dfile <- file.path(pkgdir,"DESCRIPTION")
   if (file.exists(dfile)){
-    dcf <- read.dcf(dfile)
+    dcf <- read.dcf(dfile, keep.white=TRUE)
     pkgname <- dcf[1]
   } else {
     stopf("No DESCRIPTION file in %s",pkgdir)
@@ -96,11 +96,11 @@ expect_equal(1 + 1, 2)
   if (!is.na(suggests) && !grepl("tinytest",suggests)){
     catf("Adding 'tinytest' to DESCRIPTION/Suggests\n")
     dcf[1,"Suggests"] <- sprintf("%s, tinytest",suggests)
-    write.dcf(dcf, dfile)
+    write.dcf(dcf, dfile, keep.white=TRUE)
   } else if ( is.na(suggests) ) {
     catf("Adding 'Suggests: tinytest' to DESCRIPTION\n")
     dcf <- cbind(dcf, Suggests = "tinytest")
-    write.dcf(dcf, dfile)
+    write.dcf(dcf, dfile, keep.white=TRUE)
   }
 
   # If another test package is already present, perhaps the user
