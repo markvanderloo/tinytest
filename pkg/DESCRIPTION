@@ -5,7 +5,11 @@ Title: Lightweight and Feature Complete Unit Testing Framework
 LazyData: no
 Type: Package
 LazyLoad: yes
-Authors@R: c( person("Mark", "van der Loo", role=c("aut","cre"),email="mark.vanderloo@gmail.com"))
+Authors@R: c( person("Mark", "van der Loo"
+              , role    = c("aut","cre")
+              , email   = "mark.vanderloo@gmail.com"
+              , comment = c(ORCID="0000-0002-9807-4686"))
+            )
 Description: Provides a lightweight (zero-dependency) and easy to use 
     unit testing framework. Main features: install tests with 
     the package. Test results are treated as data that can be stored and 
