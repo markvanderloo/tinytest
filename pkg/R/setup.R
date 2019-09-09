@@ -41,6 +41,7 @@ setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
       , "Description"
       , "Depends"
       , "Imports"
+      , "Suggests"
       , "Enhances")
 
   ## Get pkg name form DESCRIPTION
