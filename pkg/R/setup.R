@@ -48,7 +48,7 @@ setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
   dfile <- file.path(pkgdir,"DESCRIPTION")
   if (file.exists(dfile)){
     dcf <- read.dcf(dfile, keep.white=kw)
-    pkgname <- dcf[1]
+    pkgname <- dcf[, "Package"]
   } else {
     stopf("No DESCRIPTION file in %s",pkgdir)
   }
