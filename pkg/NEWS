@@ -1,19 +1,21 @@
 version 1.1.0
-- Tests are now run with 'pdf(file=tempfile())' as graphics device. This
-  avoids writing 'Rplots.pdf' under the library directory when R CMD check is 
-  run.
-- Side-effects tracking now includes file operations in the test directory
-  or subdirectories thereof.
+- Tests are now run with 'pdf(file=tempfile())' as graphics device. This avoids
+  writing 'Rplots.pdf' under the library directory when R CMD check is run.
+- Side-effects tracking now includes file operations in the test directory or
+  subdirectories thereof.
 - build_install_test now accepts arguments 'side_effects', 'remove_side_effects'  
 - expect_* functions gain argument 'info': a user-defined message that is
   printed in long output format.
-- Fixed 'diff' message for scalar comparisons in expect_equivalent, expect_equal, 
-  expect_identical: 'target' and 'current' were switched in message (thanks 
-  to GH user Billy34).
-- 'setup_tinytest' now keeps formatting for DESCRIPTION files (thanks to Bart-Jan
-   van Rossum),
+- 'run_test_dir' now selects files with "^test.*\\.[rR]$", not "^test.*\\.[rR]" 
+  (thanks to Dirk Eddelbuettel).
+- Fixed 'diff' message for scalar comparisons in expect_equivalent,
+  expect_equal, expect_identical: 'target' and 'current' were switched in
+  message (thanks to GH user Billy34).
+- 'setup_tinytest' now keeps formatting for DESCRIPTION files (thanks to
+  Bart-Jan van Rossum).
 - Fixed crash of 'build_install_test' when pkg was developed under directory
   with spaces (thanks to Bart-Jan van Rossum).
+
 
 version 1.0.0
 - New argument 'side_effects' for test runners: monitor side effects while running tests.

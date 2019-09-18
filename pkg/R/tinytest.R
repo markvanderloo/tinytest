@@ -659,7 +659,7 @@ print_status <- function(filename, env, color){
 #' \code{\link[parallel]{clusterEvalQ}}, \code{\link[parallel]{clusterExport}}
 #'
 #' @export
-run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]"
+run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
                        , at_home = TRUE
                        , verbose = getOption("tt.verbose", 2)
                        , color   = getOption("tt.pr.color",TRUE)
