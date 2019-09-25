@@ -15,6 +15,8 @@ version 1.1.0
   Bart-Jan van Rossum).
 - Fixed crash of 'build_install_test' when pkg was developed under directory
   with spaces (thanks to Bart-Jan van Rossum).
+- Fixed issue where R CMD check would hang when packages use paralellization (GH #36)
+  or certain Rcpp features (GH #37). Thanks to George G Vega Yon and Dirk Eddelbuettel.
 
 
 version 1.0.0

@@ -524,6 +524,12 @@ run_test_file <- function( file
   ## Reduce user side effects by capturing options that will be reset
   ## on exit
   e$options <- capture_options(options, oldop)
+  
+  ## Set useFancyQuotes, which is usually done by startup.Rs, the location
+  ## of which is defined by envvar R_TESTS, which we set to empty now.
+  ## See GH issues 36,37
+  options(useFancyQuotes=FALSE)
+  Sys.setenv(R_TESTS="")  
 
   ## Make sure that we catch side-effects if the user asks for it.
   # an environment to store side-effects, and wheter we report them.
