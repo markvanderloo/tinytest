@@ -1,6 +1,8 @@
 version 1.2.0
 - Argument 'tol' now renamed 'tolerance'. Also removed internal reliance on
   partial argument matching (Thanks to Michel Lang).
+- Fix: test_package() would return NULL when called interactively and the package
+  contained a failin test.
 
 version 1.1.0
 - Tests are now run with 'pdf(file=tempfile())' as graphics device. This avoids
