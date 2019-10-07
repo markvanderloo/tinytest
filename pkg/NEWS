@@ -1,3 +1,7 @@
+version 1.2.0
+- Argument 'tol' now renamed 'tolerance'. Also removed internal reliance on
+  partial argument matching (Thanks to Michel Lang).
+
 version 1.1.0
 - Tests are now run with 'pdf(file=tempfile())' as graphics device. This avoids
   writing 'Rplots.pdf' under the library directory when R CMD check is run.

@@ -200,7 +200,7 @@ shortdiff <- function(current, target, ...){
 #'
 #' @param current \code{[R object or expression]} Outcome or expression under scrutiny.
 #' @param target \code{[R object or expression]} Expected outcome
-#' @param tol \code{[numeric]} Test equality to machine rounding. Passed
+#' @param tolerance \code{[numeric]} Test equality to machine rounding. Passed
 #'     to \code{\link[base]{all.equal} (tolerance)}
 #' @param info \code{[character]} scalar. Optional user-defined message. Must
 #'  be a single character string. Multiline comments may be separated by
@@ -233,12 +233,12 @@ shortdiff <- function(current, target, ...){
 #' expect_equal(2, c(x=2))      # FALSE
 #'
 #' @export
-expect_equal <- function(current, target, tol = sqrt(.Machine$double.eps), info=NA_character_, ...){
+expect_equal <- function(current, target, tolerance = sqrt(.Machine$double.eps), info=NA_character_, ...){
 
-  check <- all.equal(target, current, tol=tol, ...)
+  check <- all.equal(target, current, tolerance=tolerance, ...)
   equal <- isTRUE(check)
   diff  <- if (equal) NA_character_ else longdiff( current, target, check) 
-  short <- if (equal) NA_character_ else shortdiff(current, target, tolerance=tol)
+  short <- if (equal) NA_character_ else shortdiff(current, target, tolerance=tolerance)
 
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short, info=info)
 }
@@ -266,11 +266,11 @@ expect_identical <- function(current, target, info=NA_character_){
 #'
 #' @rdname expect_equal
 #' @export
-expect_equivalent <- function(current, target, tol = sqrt(.Machine$double.eps)
+expect_equivalent <- function(current, target, tolerance = sqrt(.Machine$double.eps)
                             , info=NA_character_, ...){
   out <- expect_equal(current, target
           , check.attributes=FALSE,use.names=FALSE
-          , tol=tol, info=info, ...)
+          , tolerance=tolerance, info=info, ...)
   attr(out, 'call') <- sys.call(sys.parent(1))
   out
 }
