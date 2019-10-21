@@ -384,7 +384,7 @@ register_tinytest_extension <- function(pkg, functions){
 #' @param file \code{[character]} File location of a .R file.
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param verbose \code{[integer]} verbosity level. 0: be quiet, 1: print
-#'   status per file, 2: print status per test expression.
+#'   status per file, 2: print status and increase counter after each test expression.
 #' @param color \code{[logical]} toggle colorize counts in verbose mode (see Note)
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side
 #'   effects? See section on side effects.
