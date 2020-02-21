@@ -140,11 +140,12 @@ stopCluster(cl)
 #### Use extension packages
 
 Add the following to a test file to use assertions exported by
-`checkmate.tinytest`.
+[ttdo](https://CRAN.r-project.org/package=ttdo).
 ```
-using(checkmate.tinytest)
+using(ttdo)
 ```
-
+this will give you excellent diff output of the [diffobj](https://CRAN.r-project.org/package=diffobj)
+package in `tinytest` test results.
 
 
 #### Skipping or ignoring tests 
