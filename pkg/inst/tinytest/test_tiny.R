@@ -33,6 +33,16 @@ expect_false(ignore(expect_equivalent)(2,c(x=3)))
 expect_true(ignore(expect_null)(NULL))
 expect_false(ignore(expect_null)(1))
 
+fl <- tempfile()
+expect_true(ignore(expect_equal_to_reference)(1, file=fl))
+expect_true(ignore(expect_equal_to_reference)(1, file=fl))
+expect_false(ignore(expect_equal_to_reference)(2, file=fl))
+
+xx <- c(fu=1)
+expect_true(ignore(expect_equivalent_to_reference)(xx, file=fl))
+expect_false(ignore(expect_equal_to_reference)(xx, file=fl))
+
+
 
 
 # reading from file
