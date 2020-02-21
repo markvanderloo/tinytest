@@ -609,7 +609,7 @@ eetr <- function (current, file, type=c("equal","equivalent"), ...){
 #' report_side_effects(FALSE)
 #'
 #' # only report changes in environment variables
-#' report_side_effects(pwd=FALSE)
+#' report_side_effects(report=FALSE, envvar=TRUE)
 #'
 #' @export
 report_side_effects <- function(report=TRUE, envvar=report, pwd=report, files=report){
