@@ -551,9 +551,9 @@ eetr <- function (current, file, type=c("equal","equivalent"), ...){
 
     if (file.exists(file)){
         out <- if (type=="equal")
-                  tinytest:::expect_equal(current, readRDS(file), ...)
+                  tinytest::expect_equal(current, readRDS(file), ...)
                 else
-                  tinytest:::expect_equivalent(current, readRDS(file), ...)
+                  tinytest::expect_equivalent(current, readRDS(file), ...)
         if (!out){
            diff <- attr(out, "diff")
            diff <- paste(
@@ -563,7 +563,7 @@ eetr <- function (current, file, type=c("equal","equivalent"), ...){
         }
         out
     } else {
-        tinytest:::expect_null(saveRDS(current, file)
+        tinytest::expect_null(saveRDS(current, file)
                 , info=sprintf("Stored value in %s", file))
     }
 }
