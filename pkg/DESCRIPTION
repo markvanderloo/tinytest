@@ -23,5 +23,5 @@ Version: 1.1.0.2
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
 Imports: parallel, utils
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8
