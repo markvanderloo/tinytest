@@ -50,18 +50,20 @@ The syntax of test functions resembles that of
 comparing two results, the first argument represents the _observed_ value while
 the second argument represents the _desired_ value.
 
-|Function                     | description                                   |
-|-----------------------------|-----------------------------------------------|
-| `expect_true`               | Argument must evaluate to `TRUE`              |
-| `expect_false`              | Argument must evaluate to `FALSE`             |
-| `expect_equal`              | Data and attributes of arguments must be equal|
-| `expect_equivalent`         | Data of arguments must be equal               |
-| `expect_identical`          | Target and current must be `identical`        |
-| `expect_null`               | Expression must evaluate to `NULL`            |
-| `expect_message`            | Expression must yield a message               |
-| `expect_warning`            | Expression must yield a warning               |
-| `expect_error`              | Expression must yield an error                |
-| `expect_silent`             | Expect no errors, no warnings                 |
+|Function                          | description                                          |
+|----------------------------------|------------------------------------------------------|
+| `expect_true`                    | Argument must evaluate to `TRUE`                     |
+| `expect_false`                   | Argument must evaluate to `FALSE`                    |
+| `expect_equal`                   | Data and attributes of arguments must be equal       |
+| `expect_equivalent`              | Data of arguments must be equal                      |
+| `expect_identical`               | Target and current must be `identical`               |
+| `expect_null`                    | Expression must evaluate to `NULL`                   |
+| `expect_equal_to_reference`      | Object must be equal to an object stored on file     |
+| `expect_equivalent_to_reference` | Object must be equivalent to an object stored on file|
+| `expect_message`                 | Expression must yield a message                      |
+| `expect_warning`                 | Expression must yield a warning                      |
+| `expect_error`                   | Expression must yield an error                       |
+| `expect_silent`                  | Expect no errors, no warnings                        |
 
 
 For tests in a script there is an alternative syntax in the style of 
