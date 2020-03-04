@@ -1,8 +1,10 @@
 version 1.2.0
+- run_test_file gains argument 'set_env'. Set environment variables such 
+  as _R_OPTIONS_STRINGS_AS_FACTORS_=false during the test run.
 - Argument 'tol' now renamed 'tolerance'. Also removed internal reliance on
   partial argument matching (Thanks to Michel Lang).
 - Fix: test_package() would return NULL when called interactively and the package
-  contained a failin test.
+  contained a failing test.
 
 version 1.1.0
 - Tests are now run with 'pdf(file=tempfile())' as graphics device. This avoids

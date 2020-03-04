@@ -46,3 +46,8 @@ plot(1:10, 1:10)
 expect_false(exists("Rplots.pdf"))
 
 
+# test that files are run with environment variables set
+out <- run_test_file("runs/test_set_env.R", set_env=list("wa_babalooba"="ba_la_bamboo"))
+expect_true(all_pass(out))
+
+

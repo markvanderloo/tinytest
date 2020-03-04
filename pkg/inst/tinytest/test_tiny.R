@@ -87,3 +87,14 @@ L <- list(
 for ( x in L ) expect_equal(attr(x,"info"), msg)
 
 
+# check that get_call_wd() returns a path not equal to the 
+# path of this file.
+d <- getwd()
+e <- get_call_wd()
+expect_equal(getwd(), get_call_wd())
+#expect_true(dir.exists(get_call_wd()))
+
+
+
+
+

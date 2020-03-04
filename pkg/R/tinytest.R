@@ -2,6 +2,45 @@
 #' @importFrom parallel makeCluster parLapply stopCluster
 {}
 
+# directory from which run_test_file() was called (i.e. before it temporarily
+# changes directory
+
+call_wd <- local({
+  CALLDIR <- ""
+  function(dir=NULL){
+    if (is.null(dir)){
+      return(CALLDIR)
+    } else {
+      # only set when not set previously
+      if (CALLDIR == "" || dir == "") CALLDIR <<- dir
+    }
+    CALLDIR
+  }
+})
+
+
+set_call_wd <- function(dir){
+  call_wd(dir)
+}
+
+#' Get workding dir from where a test was initiated
+#'
+#' A test runner, like \code{\link{run_test_file}} changes
+#' R's working directory to the location of the test file temporarily 
+#' while the tests run. This function can be used from within the
+#' test file to get R's working directory at the time \code{run_test_file} 
+#' was called.
+#'
+#'
+#' @return \code{character}
+#' @examples
+#' get_call_wd()
+#' @export
+get_call_wd <- function(){
+  call_wd()
+}
+
+
 
 # reference object to store or ignore output
 # of 'expect' functions
@@ -390,6 +429,9 @@ register_tinytest_extension <- function(pkg, functions){
 #'   effects? See section on side effects.
 #' @param side_effects \code{[logical|list]} Either a logical,
 #' or a list of arguments to pass to \code{\link{report_side_effects}}.
+#' @param set_env \code{[named list]}. Key=value pairs of environment variables
+#' that will be set before the test file is run and reset afterwards. These are not
+#' counted as side effects of the code under scrutiny.
 #' @param ... Currently unused
 #' 
 #' @details
@@ -465,15 +507,23 @@ run_test_file <- function( file
                          , color   = getOption("tt.pr.color", TRUE)
                          , remove_side_effects = TRUE 
                          , side_effects = FALSE
+                         , set_env = list()
                          , ...){
 
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
 
+  # set environment variables (if any) to control the R environment during testing.
+  if (length(set_env) > 0){
+    # first, record current settings
+    old_env_var <- sapply(names(set_env), Sys.getenv, USE.NAMES=TRUE)
+    # new settings
+    do.call(Sys.setenv, set_env)
+  }
   ## where to come back after running the file
   oldwd <- getwd()
-
+  set_call_wd(oldwd)
 
 
   # make sure that plots get redirected to oblivion
@@ -492,6 +542,7 @@ run_test_file <- function( file
       ## Clean up tinytest side effects
       # go back to the original working directory
       setwd(oldwd)
+      set_call_wd("")
       # unset 'at_home' marker
       Sys.unsetenv("TT_AT_HOME")
       if ( remove_side_effects ){ ## Clean up user side effects
@@ -501,6 +552,8 @@ run_test_file <- function( file
         reset_options(oldop)
       }
       grDevices::dev.off()
+      # return env var to values before running run_test_file
+      sapply(names(set_env), function(x) Sys.setenv(x = old_env_var[x]))
   })
 
 
@@ -683,7 +736,8 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
   if ( !inherits(cluster, "cluster") ){
     # set pwd here, to save time in run_test_file.
     oldwd <- getwd()
-    on.exit(setwd(oldwd))
+    set_call_wd(oldwd)
+    on.exit({setwd(oldwd); set_call_wd("")})
     setwd(dir)  
     test_output <- lapply(basename(testfiles), run_test_file
                            , at_home = at_home
