@@ -498,6 +498,77 @@ expect_message <- function(current, pattern=".*", info=NA_character_){
   
 }
 
+#' Compare object with object stored in a file
+#'
+#' Compares the current value with a value stored to file with
+#' \code{\link{saveRDS}}.  If the  file does not exist, the current value is
+#' stored into file, and the test returns \code{expect_null(NULL)}.
+#'
+#' @param current \code{[R object or expression]} Outcome or expression under 
+#'        scrutiny.
+#' @param file \code{[character]} File where the \code{target} is stored. If 
+#'        \code{file} does not exist, \code{current} will be stored there.
+#' @param ... passed to \code{\link{expect_equal}}, respectively \code{\link{expect_equivalent}}.
+#'
+#' @note
+#' Be aware that on CRAN it is not allowed to write data to user space. So make
+#' sure that the file is either stored with your tests, or generated with
+#' \code{\link{tempfile}}, or the test is skipped on CRAN, using
+#' \code{\link{at_home}}.
+#' 
+#' Also note that \code{\link{build_install_test}} clones the package and
+#' builds and tests it in a separate R session in the background. This means
+#' that if you create a file located at \code{tempfile()} during the run, this
+#' file is destroyed when the separate R session is closed.
+#'
+#'
+#' @family test-functions
+#'
+#'
+#' @examples
+#' filename <- tempfile()
+#' # this gives TRUE: the file does not exist, but is created now.
+#' expect_equal_to_reference(1, file=filename)
+#' # this gives TRUE: the file now exists, and its contents is equal
+#' # to the current value
+#' expect_equal_to_reference(1, file=filename)
+#' # this gives FALSE: the file exists, but is contents is not equal
+#' # to the current value
+#' expect_equal_to_reference(2, file=filename)
+#'
+#' @export
+expect_equal_to_reference <- function(current, file, ...){
+  eetr(current=current, file=file, type="equal", ...)
+}
+
+#' @rdname expect_equal_to_reference
+#' @export
+expect_equivalent_to_reference <- function(current, file, ...){
+  eetr(current=current, file=file, type="equivalent", ...)
+}
+
+eetr <- function (current, file, type=c("equal","equivalent"), ...){
+
+    if (file.exists(file)){
+        out <- if (type=="equal")
+                  tinytest::expect_equal(current, readRDS(file), ...)
+                else
+                  tinytest::expect_equivalent(current, readRDS(file), ...)
+        if (!out){
+           diff <- attr(out, "diff")
+           diff <- paste(
+                    sprintf("current does not match target read from %s\n", file)
+                    , diff)
+           attr(out,"diff") <- diff
+        }
+        out
+    } else {
+        tinytest::expect_null(saveRDS(current, file)
+                , info=sprintf("Stored value in %s", file))
+    }
+}
+
+
 
 #' Report side effects for expressions in test files
 #'
@@ -538,7 +609,7 @@ expect_message <- function(current, pattern=".*", info=NA_character_){
 #' report_side_effects(FALSE)
 #'
 #' # only report changes in environment variables
-#' report_side_effects(pwd=FALSE)
+#' report_side_effects(report=FALSE, envvar=TRUE)
 #'
 #' @export
 report_side_effects <- function(report=TRUE, envvar=report, pwd=report, files=report){
