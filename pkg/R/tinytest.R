@@ -5,7 +5,7 @@
 # directory from which run_test_file() was called (i.e. before it temporarily
 # changes directory
 
-call_wd <- local({
+call_wd <- (function(){
   CALLDIR <- ""
   function(dir=NULL){
     if (is.null(dir)){
@@ -16,7 +16,7 @@ call_wd <- local({
     }
     CALLDIR
   }
-})
+})()
 
 
 set_call_wd <- function(dir){
