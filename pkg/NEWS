@@ -6,6 +6,8 @@ version 1.2.0
   suggesting).
 - Argument 'tol' now renamed 'tolerance'. Also removed internal reliance on
   partial argument matching (Thanks to Michel Lang).
+- New function get_call_wd() returns working directory, active when tests were
+  invoked. (Thanks to Maja Zaloznik)
 - Fix: test_package() would return NULL when called interactively and the package
   contained a failing test.
 
