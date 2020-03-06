@@ -401,17 +401,25 @@ expect_null <- function(current, info=NA_character_){
 
 #' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
+#' @param class \code{[character]} For condition signals (error, warning, message)
+#'        the class from which the condition should inherit.
 #' @export
-expect_error <- function(current, pattern=".*", info=NA_character_){
+expect_error <- function(current, pattern=".*", class="error", info=NA_character_){
   result <- FALSE
   diff <- "No error"
   
   tryCatch(current, error=function(e){
-            if (grepl(pattern, e$message)){
-                result <<- TRUE
-            } else {
+            matches <- grepl(pattern, e$message)
+            isclass <- inherits(e, class)
+
+            if (matches && isclass){
+              result <<- TRUE
+            } else if (!isclass){
+              diff <<- sprintf("Error of class '%s', does not inherit from '%s'"
+                              , paste(class(e), collapse=", "), class)
+            } else if (!matches){
               diff <<- sprintf("The error message:\n '%s'\n does not match pattern '%s'"
-                             , e$message, pattern)
+                              , e$message, pattern)
             }
   })
   tinytest(result, call = sys.call(sys.parent(1))
@@ -422,16 +430,22 @@ expect_error <- function(current, pattern=".*", info=NA_character_){
 
 #' @rdname expect_equal
 #' @export
-expect_warning <- function(current, pattern=".*", info=NA_character_){
+expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_){
   
   result <- FALSE
   diff <- "No warning"
 
   withCallingHandlers(current
     , warning = function(w){
-        if (grepl(pattern, w$message)){
+        matches <- grepl(pattern, w$message)
+        isclass <- inherits(w, class)
+
+        if ( matches && isclass ){
           result <<- TRUE
-        } else {
+        } else if ( !isclass ){
+          diff <<- sprintf("Warning of class '%s', does not inherit from '%s'"
+                          , paste(class(w), collapse=", "), class)
+        } else if (!matches){
           diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
                           , w$message, pattern)
         }
@@ -448,55 +462,104 @@ expect_warning <- function(current, pattern=".*", info=NA_character_){
 
 #' @rdname expect_equal
 #' @export
-expect_message <- function(current, pattern=".*", info=NA_character_){
-  value <- ""
-  tc <- textConnection("value", open="w", local=TRUE)
-  sink(file=tc,type="message", split=FALSE)
+expect_message <- function(current, pattern=".*", class="message", info=NA_character_){
+#  value <- ""
+#  tc <- textConnection("value", open="w", local=TRUE)
+#  sink(file=tc,type="message", split=FALSE)
   
 
-  result <- TRUE
+  result <- FALSE
   msg    <- ""
   tryCatch(current
     , error = function(e){
-        result <<- FALSE
         msg <<- sprintf("Expected message, got error:\n '%s'",e$message)
       }
     , warning = function(w){
-        result <<- FALSE
         msg <<- paste(sprintf("Expected message, got warning:\n '%s'", w$message)
                     , collapse="\n")
       }
+    , message = function(m){
+        matches <- grepl(pattern, m$message)
+        isclass <- inherits(m, class)
+        if (matches && isclass){
+          result <<- TRUE
+        } else if (!isclass){
+          result <<- FALSE
+          msg <<- sprintf("Message of class '%s', does not inherit from '%s'"
+                          , paste(class(m), collapse=", "), class)
+        } else if (!matches){
+          msg <<- sprintf("The message message\n '%s'\n does not match pattern '%s'"
+                          , m$message, pattern)
+        }
+      }
   )
-  sink(file = NULL, type="message")
-  close(tc)
+#  sink(file = NULL, type="message")
+#  close(tc)
   
-  # collapse the value string in case multiple messages were caught.
-  value <- paste(value, collapse="\n")
-  call <- sys.call(sys.parent(1))
-  # we got a warning or error instead of a message:
-  if (!result){
-    tinytest(
-        result
-      , call
-      , diff  = msg
-      , short = "xcpt" 
-      , info  = info
-    ) 
-  # we got a message, check if it matches 'pattern'
-  } else if (!isTRUE(grepl(pattern, value)) ){
-    df <- if (value == "") "No message"
-          else sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
-    tinytest(FALSE
-      , call
-      , diff = df
-      , short = "xcpt"
-      , info  = info
-    )
-  } else {
-    tinytest(TRUE, call, info=info)
-  }
-  
+  tinytest(result, call = sys.call(sys.parent(1))
+           , short= if(result) NA_character_ else "xcpt"
+           , diff = if(result) NA_character_ else msg
+           , info = info)
+#  # collapse the value string in case multiple messages were caught.
+#  value <- paste(value, collapse="\n")
+#  call <- sys.call(sys.parent(1))
+#  # we got a warning or error instead of a message:
+#  if (!result){
+#    tinytest(
+#        result
+#      , call
+#      , diff  = msg
+#      , short = "xcpt" 
+#      , info  = info
+#    ) 
+#  # we got a message, check if it matches 'pattern'
+#  } else if (!isTRUE(grepl(pattern, value)) ){
+#    df <- if (value == "") "No message"
+#          else sprintf("The message\n '%s'\n doen not match pattern '%s'",value,pattern)
+#    tinytest(FALSE
+#      , call
+#      , diff = df
+#      , short = "xcpt"
+#      , info  = info
+#    )
+#  } else {
+#    tinytest(TRUE, call, info=info)
+#  }
+#  
 }
+
+#' @rdname expect_equal
+#'
+#' @details
+#'
+#' \code{expect_stdout} Expects that output is written to \code{stdout},
+#' for example using \code{cat} or \code{print}. Use \code{pattern} to
+#' specify a regular expression matching the output.
+#'
+#'
+#' @export
+expect_stdout <- function(current, pattern=".*", info=NA_character_){
+  value <- ""
+  msg <- NA_character_
+  
+  tc <- textConnection("value", open="w", local=TRUE)
+  sink(file=tc, type="output", split=FALSE)
+    tryCatch(current
+      , error=function(e){sink(file=NULL, type="output"); stop(e)}
+    )
+  sink(file = NULL, type="output")
+  close(tc)
+
+  result <- grepl(pattern, paste0(value,""))
+  if (!result)
+    msg <- sprintf("output '%s'\n does not match pattern '%s'", value, pattern)
+
+  tinytest(result, call = sys.call(sys.parent(1))
+           , short= if(result) NA_character_ else "xcpt"
+           , diff = msg
+           , info = info)
+}
+
 
 #' Compare object with object stored in a file
 #'

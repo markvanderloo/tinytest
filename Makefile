@@ -31,7 +31,7 @@ revdep: pkg
 	rm -rf revdep
 	mkdir revdep
 	mv *.tar.gz revdep
-	R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=3); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
+	R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
 using:
 	./using_tinytest.sh

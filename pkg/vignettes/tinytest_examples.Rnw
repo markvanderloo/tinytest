@@ -57,6 +57,7 @@
 \date{\today{} | Package version \Sexpr{packageVersion("tinytest")}}
 
 \begin{document}
+
 \DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=n,formatcom=\color{graytext}}
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{fontshape=sl,formatcom=\color{graytext}}
 \newlength{\fancyvrbtopsep}
@@ -75,7 +76,8 @@
 <<echo=FALSE>>=
 options(prompt="  ",
         continue = "  ",
-        width=75)
+        width=75,
+        tt.pr.color=FALSE)
 library(tinytest)
 @
 
@@ -94,7 +96,6 @@ indicated with comment between square brackets, e.g.
 <<eval=FALSE>>=
 ## [this is an extra comment, only for this vignette] 
 @
-
 This document is probably not interesting to read front-to-back. It is more
 aimed to browse once in a while to get an idea on how \pkg{tinytest} can be 
 used in practice. 
