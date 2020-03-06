@@ -1,0 +1,10 @@
+bibentry(bibtype = "article",
+ title = "A method for deriving information from running R code"
+ , author = c(person("MPJ", "van der Loo"))
+ , year = 2020
+ , journal = "The R Journal"
+ , volume = ""
+ , issue  = ""
+ , url = "https://arxiv.org/abs/2002.07472"
+ , pages = "Accepted for publication"
+)
