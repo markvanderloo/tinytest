@@ -60,6 +60,7 @@ the second argument represents the _desired_ value.
 | `expect_null`                    | Expression must evaluate to `NULL`                   |
 | `expect_equal_to_reference`      | Object must be equal to an object stored on file     |
 | `expect_equivalent_to_reference` | Object must be equivalent to an object stored on file|
+| `expect_stdout`                  | Expect a printed message (via `print` or `cat`)      |
 | `expect_message`                 | Expression must yield a message                      |
 | `expect_warning`                 | Expression must yield a warning                      |
 | `expect_error`                   | Expression must yield an error                       |
