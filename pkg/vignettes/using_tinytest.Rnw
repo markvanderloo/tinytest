@@ -609,49 +609,22 @@ because in that case the test result will not be caught by \pkg{tinytest}.
 The API for building extension packages is described in \code{?register\_tinytest\_extension}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Preparing for R upgrades: testing with environmental variables}
+\section{Testing with environmental variables}
 \label{sect:envvar}
-The R core team hardly ever make changes to the R language that break backward
-compatibility. In the rare cases where this does happen, the current version of
-R can usually `be told' to behave like the future version by setting an
-environment variable. Let's look at two examples.
-
-\paragraph{Example 1: \code{stringsAsFactors=FALSE}.} As described in a blog
-post by R core member Kurt
-Hornik\footnote{\url{https://developer.r-project.org/Blog/public/2020/02/16/stringsasfactors/index.html}},
-the default value of argument \code{stringsAsFactors} will change from
-\code{TRUE} to \code{FALSE}. Before this becomes the default, you can set an environment variable
-called \code{\_R\_OPTIONS\_STRINGSASFACTORS\_=false} so R will already behave that way.
-
-
-\paragraph{Example 2: check length of conditions to \code{if()}} The condition
-in \code{if(condition)} is supposed to be a \code{logical} of length one: just
-a single \code{TRUE} or \code{FALSE}. For a long time, \code{R} has been fairly
-forgiving on this matter and only issues a warning when a longer logical vector
-is passed to \code{if()}.
-<<>>=
-tryCatch( if (c(TRUE, FALSE)) print("wa babalooba")
-  , warning = function(w) print(w$message))
-@
-This means that the first \code{TRUE} in \code{c(TRUE,FALSE)} is used to decide
-on the branching imposed by \code{if( c(TRUE, FALSE))}. You can set the
-environment variable \code{\_R\_CHECK\_LENGTH\_1\_CONDITION\_=true} so the warning is
-turned into an error. See
-\href{https://cran.r-project.org/doc/manuals/r-devel/R-ints.html#Tools}{Section
-8} of the `writing R extensions manual' for the complete description and more
-environment variables that control the behaviour of \code{R CMD check}.
-
-
 In \pkg{tinytest} you can run tests with custom environment variable settings
 easily. Just add the \code{set\_env} argument to any of \code{run\_test\_file()},
 \code{run\_test\_dir()} or \code{test\_package()}. Here is an example.
 <<eval=FALSE>>=
-test_package("tinytest", set_env = list("_R_OPTIONS_STRINGSASFACTORS_"="false"))
+test_package("tinytest", set_env = list(WA_BABALOOBA="BA_LA_BAMBOO"))
 @
 With this option, the environment variable will be set during testing and unset
-afterwards. 
+afterwards. Setting and unsetting environment variables like this will not be
+recorded as a side effect. If there is code in the test file that changes this
+variable, then it is recorded.
 
-
+Do note that R uses some environment variables that are read during startup,
+such as \code{\_R\_OPTIONS\_STRINGS\_AS\_FACTORS\_}. Setting these at runtime
+has no effect.
 
 
 

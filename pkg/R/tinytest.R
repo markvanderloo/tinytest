@@ -455,23 +455,22 @@ register_tinytest_extension <- function(pkg, functions){
 #' 
 #' @section Tracking side effects:
 #'
-#' Certain side effects can be tracked, even when they are not explicitly evoked
-#' in the test file. See \code{\link{report_side_effects}} for side effects tracked
-#' by \pkg{tinytest}.
-#' Calls to \code{report_side_effects} within the test file overrule
-#' settings provided with this function.
+#' Certain side effects can be tracked, even when they are not explicitly
+#' evoked in the test file. See \code{\link{report_side_effects}} for side
+#' effects tracked by \pkg{tinytest}.  Calls to \code{report_side_effects}
+#' within the test file overrule settings provided with this function.
 #'
 #' 
 #'
 #' @note
 #' Not all terminals support ansi escape characters, so colorized output can be
-#' switched off. This can also be done globally by setting \code{options(tt.pr.color=FALSE)}.
-#' Some terminals that do support ansi escape characters may contain
-#' bugs. An example is the RStudio terminal (RStudio 1.1) running on Ubuntu 16.04
-#' (and possibly other OSs).
+#' switched off. This can also be done globally by setting
+#' \code{options(tt.pr.color=FALSE)}.  Some terminals that do support ansi
+#' escape characters may contain bugs. An example is the RStudio terminal
+#' (RStudio 1.1) running on Ubuntu 16.04 (and possibly other OSs).
 #'
-#' @return   A \code{list} of class \code{tinytests}, which is a list
-#'    of \code{\link{tinytest}} objects.
+#' @return A \code{list} of class \code{tinytests}, which is a list of
+#' \code{\link{tinytest}} objects.
 #'
 #' @examples
 #' # create a test file, in temp directory
@@ -516,7 +515,6 @@ run_test_file <- function( file
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
-
   # set environment variables (if any) to control the R environment during testing.
   if (length(set_env) > 0){
     # first, record current settings

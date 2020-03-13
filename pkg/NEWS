@@ -1,11 +1,11 @@
 version 1.2.0
-- 'run_test_file' gains argument 'set_env'. Set environment variables such as
-  _R_OPTIONS_STRINGS_AS_FACTORS_="false" during the test run.
+- 'run_test_file' gains argument 'set_env'. Set environment variables during a
+  test run.
 - New functions 'expect_equal_to_reference' and 'expect_equivalent_to_reference'
   comparing/storing an object with/to an RDS file (Thanks to Jon Clayden for 
   suggesting).
 - New function 'expect_stdout' compares output of e.g. 'print' and 'cat'
-  statements to a user-defined pattern.
+  statements to a user-defined pattern. (Thanks to Michel Lang for suggesting).
 - New function get_call_wd() returns working directory, active when tests were
   invoked. (Thanks to Maja Zaloznik for the idea)
 - Functions 'expect_error', 'expect_warning', and 'expect_message' gain 'class'
