@@ -55,13 +55,13 @@ isFALSE <- function(x){
 #' @export
 tinytest <- function(result, call
     , diff = NA_character_
-    , short= NA_character_
+    , short= c(NA_character_,"data","attr","xcpt", "envv","wdir","file")
     , info = NA_character_
     , file = NA_character_
     , fst  = NA_integer_
     , lst  = NA_integer_
     ,...){
-
+  short <- match.arg(short)
   structure(result         # logical TRUE/FALSE
     , class    = "tinytest"
     , call     = call  # call creating or motivating the object

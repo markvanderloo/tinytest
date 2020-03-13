@@ -29,10 +29,11 @@ set_call_wd <- function(dir){
 #' R's working directory to the location of the test file temporarily 
 #' while the tests run. This function can be used from within the
 #' test file to get R's working directory at the time \code{run_test_file} 
+#' (or one of it's siblings)
 #' was called.
 #'
 #'
-#' @return \code{character}
+#' @return \code{[character]} A path.
 #' @examples
 #' get_call_wd()
 #' @export
@@ -361,24 +362,26 @@ capture_using <- function(fun, envir, output){
 #'
 #' @section The tinytest API:
 #'
-#' Packages can extend \pkg{tinytest} with expectation functions \emph{if and only}
-#' if the following requirements are satisfied.
+#' Packages can extend \pkg{tinytest} with expectation functions \emph{if and only
+#' if} the following requirements are satisfied.
 #'
 #' \enumerate{
 #'  \item{The extending functions return a \code{\link{tinytest}} object.  This 
-#'        can be created by calling \code{tinytest()} with the arguments
+#'        can be created by calling \code{tinytest()} with the arguments (defaults,
+#'        if any, are in brackets):
 #'    \itemize{
 #'      \item{\code{result}: A \code{logical} scalar: \code{TRUE} or \code{FALSE} (not
 #'            \code{NA}) }
 #'      \item{\code{call}: The \code{call} to the expectation function. Usually the 
 #'            result of \code{sys.call(sys.parent(1))} }
-#'      \item{\code{diff}: A \code{character} scalar, with a long description of the 
+#'      \item{\code{diff} (\code{NA_character_}): A \code{character} scalar, with a long description of the 
 #'            difference. Sentences may be separated by \code{"\\n"}.}
-#'      \item{\code{short}: Either \code{"data"}, if the difference is in the 
+#'      \item{\code{short} (\code{NA_character_}): Either \code{"data"}, if the difference is in the 
 #'            data. \code{"attr"} when attributes differ or \code{"xcpt"} when 
 #'            an expectation about an exception is not met. If there are 
 #'            differences in data and in attributes, the attributes take 
 #'            precedence.}
+#'      \item{\code{info}} (\code{NA_character_}): A user-defined message.
 #'    }
 #'    Observe that this requires the extending package to add \pkg{tinytest} to 
 #'    the \code{Imports} field in the package's \code{DESCRIPTION} file (this 
@@ -394,6 +397,8 @@ capture_using <- function(fun, envir, output){
 #'         functions start with \code{expect_}.}
 #'   \item{Explain to users of the extension package how to use the extension 
 #'         (see \code{\link{using}}).}
+#'   \item{include an \code{info} argument to \code{expect_} functions that 
+#'    is passed to \code{tinytest()}}.
 #' }
 #'
 #'
@@ -447,7 +452,7 @@ register_tinytest_extension <- function(pkg, functions){
 #' The graphics device is set to \code{pdf(file=tempfile())} for the run of the
 #' test file.
 #'
-#' @section User-defined side effects:
+#' @section Side-effects caused by test code:
 #' 
 #' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
 #' defined in a test file are captured and undone once the test file has run,
@@ -677,11 +682,11 @@ print_status <- function(filename, env, color){
 #' determines how alphabets are sorted).  For this reason it is a good idea to
 #' create test files that run independent of each other so their order of
 #' execution does not matter. In tinytest, test files cannot share variables.
-#' The default behavior of test runners furher discourages interdependence by
+#' The default behavior of test runners further discourages interdependence by
 #' resetting environment variables and options that are set in a test file
 #' after the file is executed. If an environment variable needs to survive a
 #' single file, use \code{base::Sys.setenv()} explicitly.  Similarly, if an
-#' option setting needs to survive, use \code{base::options}
+#' option setting needs to survive, use \code{base::options()}
 #'
 #' @section Parallel tests:
 #'

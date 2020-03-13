@@ -13,6 +13,7 @@ version 1.2.0
   from a certain class. (thanks to Michel Lang for suggesting)
 - Argument 'tol' now renamed 'tolerance'. Also removed internal reliance on
   partial argument matching (Thanks to Michel Lang).
+- Updated documentation on how to extend tinytest with new recommendation.
 - Breaking: function 'expect_message' no longer intercepts messages sent
   to stdout (e.g. via 'print' or 'cat'), but only messages send as a 'message'
   condition (Thanks to Michel Lang for pointing this out).
