@@ -86,6 +86,13 @@ for example
 test_all("/path/to/package", side_effects=TRUE)
 ```
 
+#### Run test with custom environment variables set
+
+Temporarily set environment variables for the run of the test. For example:
+
+```
+test_all("/path/to/package", setenv=list("wa_babalooba" = "ba_la_bamboo"))
+```
 
 
 #### Print options
@@ -145,8 +152,11 @@ Add the following to a test file to use assertions exported by
 ```
 using(ttdo)
 ```
-this will give you excellent diff output of the [diffobj](https://CRAN.r-project.org/package=diffobj)
-package in `tinytest` test results.
+this will give you excellent diff output of the
+[diffobj](https://CRAN.r-project.org/package=diffobj) package in `tinytest`
+test results. The high-performance
+[checkmate](https://CRAN.r-project.org/package=checkmate) package also extends
+`tinytest`.
 
 
 #### Skipping or ignoring tests 
