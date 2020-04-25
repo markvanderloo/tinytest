@@ -26,7 +26,11 @@ make_bash <- function(){
       deps[i] <- paste(unique(Reduce(c, json$dependencies$packages[ubuntu])), collapse=" ")
     }
   }
-  
+
+  # rstudio's repo misses some things
+  deps <- c(deps, "libprotoc-dev", "libxt-dev" )  
+
+
   depstring <- paste(sprintf("sudo apt install --assume-yes %s ",deps), collapse="\n")
   
   template <- 
