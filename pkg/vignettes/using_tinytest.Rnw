@@ -487,6 +487,46 @@ The return value is a \code{tinytests} object.
 The package is built without manual or vignettes to speed up the
 whole process.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Testing functions that are not exported: use `:::`}
+In Section~\ref{sect:spherical} it is argued that unit tests should as a rule
+of thumb focus on the functions that are visible to the user. However, there
+are cases where it may be preferred to test an internal function. For example
+when there are two user-visible functions that call the same underlying,
+unexported function with different arguments. Or when one of the internal
+functions implements a numerical algorithm that requires thorough testing.
+
+To test functions in your package that are not visible to users that load
+your package, use the triple-colon operato like so.
+<<eval=FALSE>>=
+output = pkg:::some_internal_function(1)
+expect_equal(output, 2)
+@
+This is perfectly ok, and is also accepted by \code{R CMD check --as-cran}.
+
+
+\pkg{Tinytest} does not make those internal functions directly callable like some 
+other unit testing packages do. Making internal functions callable means that 
+\begin{enumerate}
+\item \pkg{tinytest} needs to simulate loading a package, except for the namespace
+restrictions;
+\item there may be significant differences between the environment in which you
+test the functions, and the environment which a user sees when loading the
+package;
+\item the way the package is loaded during testing may differ from the way it is loaded
+      when a user loads it;
+\item exported functions are not clearly distinguished from internal functions in
+the test code.
+\end{enumerate}
+accurately simulating how R loads a package is no small matter. It would
+require a significant epansion of \code{tinytest}'s code base that would have
+to be kept synchronised with the way R loads packages (possibly with backport
+options when R would change in that area).
+
+So in short: let's keep things simple and let R do what it knows how to do.
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Using data stored in files}
@@ -722,6 +762,7 @@ this cases it is often easier to restart a clean cluster for each test round.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Make your package spherical}
+\label{sect:spherical}
 
 Larger packages typically consist of functions that are visible to the users
 (exported functions) and a number of functions that are only used by the
