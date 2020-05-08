@@ -8,7 +8,13 @@ suggests <- db[db$Package=="tinytest","Reverse suggests"]
 imports  <- db[db$Package=="tinytest","Reverse imports"]
 
 suggests <- strsplit(suggests, ", ")[[1]]
-imports  <- strsplit(imports, ", ")[[1]]
+#imports  <- strsplit(imports, ", ")[[1]]
+
+
+bioc <- data.frame(package = c("Rhdf5lib","sRACIPE")
+                   , first_suggested = c("2020-04-20","2020-04-21") )
+suggests <- suggests[!suggests %in% bioc$package ]
+
 
 S <- lapply(suggests, pkgsearch::cran_package_history)
 I <- lapply(imports, pkgsearch::cran_package_history)
@@ -30,10 +36,11 @@ s <- sapply(S, first_tt)
 i <- sapply(I, first_tt, type="Imports")
 
 sug <- data.frame(package = suggests, first_suggested=s)
-imp <- data.frame(package = imports,  first_imported =s)
+sug <- rbind(sug, bioc)
+#imp <- data.frame(package = imports,  first_imported =s)
 
 write.csv(sug, "suggested.csv", row.names=FALSE)
-write.csv(imp, "imported.csv", row.names=FALSE)
+#write.csv(imp, "imported.csv", row.names=FALSE)
 
 
 # aggregate and make plot

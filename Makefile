@@ -33,6 +33,13 @@ revdep: pkg
 	mv *.tar.gz revdep
 	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
+
+revimp: pkg
+	rm -rf revimp
+	mkdir revimp
+	mv *.tar.gz revimp
+	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revimp', Ncpus=1, reverse=list(which="Imports")); print(summary(out)); saveRDS(out, file='revimp/output.RDS')"
+
 using:
 	./using_tinytest.sh
 

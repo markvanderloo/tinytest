@@ -28,6 +28,7 @@ cd tinytest
 make install
 ```
 
+![onwards to the tinyverse](watch/growth.png)
 
 ## tinytest philosophy.
 
