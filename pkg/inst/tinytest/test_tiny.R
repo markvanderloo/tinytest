@@ -82,10 +82,24 @@ expect_true(ignore(expect_silent)(1 + 1))
 expect_false(ignore(expect_silent)(1 + "a"))
 expect_false(ignore(expect_silent)(1:3 + 1:2))
 
+
+
 expect_false(ignore(expect_message)(message("hihi"),"lol"))
 expect_false(ignore(expect_message)(stop("hihi"),"lol"))
 expect_false(ignore(expect_message)(warning("hihi"),"lol"))
 expect_message(message("hihi, I lol"),"lol")
+
+multimsg <- function(){
+  message("hihi")
+  message("haha")
+  m <- tryCatch(message("huhu"), message = function(m) m)
+  class(m) <- c("lulz", class(m))
+  message(m)
+}
+
+expect_message(multimsg(), pattern="haha")
+expect_message(multimsg(), pattern="huhu")
+expect_message(multimsg(), pattern="huhu", class="lulz")
 
 
 expect_stdout(print("hihi"),pattern="hi")
