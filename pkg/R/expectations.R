@@ -470,31 +470,40 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
 
   result <- FALSE
   msg    <- ""
-  tryCatch(current
+  testmsg <- ""
+  withCallingHandlers(current
     , error = function(e){
-        msg <<- sprintf("Expected message, got error:\n '%s'",e$message)
-      }
+      msg <<- sprintf("Expected message, got error:\n '%s'",e$message)
+    }
     , warning = function(w){
-        msg <<- paste(sprintf("Expected message, got warning:\n '%s'", w$message)
+      msg <<- paste(sprintf("Expected message, got warning:\n '%s'", w$message)
                     , collapse="\n")
-      }
+    }
     , message = function(m){
-        matches <- grepl(pattern, m$message)
-        isclass <- inherits(m, class)
-        if (matches && isclass){
-          result <<- TRUE
-        } else if (!isclass){
-          result <<- FALSE
-          msg <<- sprintf("Message of class '%s', does not inherit from '%s'"
-                          , paste(class(m), collapse=", "), class)
-        } else if (!matches){
-          msg <<- sprintf("The message message\n '%s'\n does not match pattern '%s'"
-                          , m$message, pattern)
-        }
+      isclass <- inherits(m, class)
+      if (!isclass) {
+        msg <<- sprintf("Message of class '%s', does not inherit from '%s'"
+                        , paste(class(m), collapse=", "), class)
+        break()
+      } else {
+        # accumulate emitted messages
+        testmsg <<- paste(testmsg, m$message)
       }
+    }
   )
-#  sink(file = NULL, type="message")
-#  close(tc)
+  if (msg == "") {
+    # test accumulated messages
+    # consider removing \n
+    matches <- grepl(pattern, testmsg)
+    if (matches) {
+      result <- TRUE
+    } else {
+      msg <- sprintf("The message message\n '%s'\n does not match pattern '%s'"
+                     , testmsg, pattern)
+    }
+  }
+  #  sink(file = NULL, type="message")
+  #  close(tc)
   
   tinytest(result, call = sys.call(sys.parent(1))
            , short= if(result) NA_character_ else "xcpt"
