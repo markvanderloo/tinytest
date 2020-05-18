@@ -428,38 +428,8 @@ expect_error <- function(current, pattern=".*", class="error", info=NA_character
            , info = info)
 }
 
-#' @rdname expect_equal
-#' @export
-expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_){
-  
-  result <- FALSE
-  diff <- "No warning"
 
-  withCallingHandlers(current
-    , warning = function(w){
-        matches <- grepl(pattern, w$message)
-        isclass <- inherits(w, class)
-
-        if ( matches && isclass ){
-          result <<- TRUE
-        } else if ( !isclass ){
-          diff <<- sprintf("Warning of class '%s', does not inherit from '%s'"
-                          , paste(class(w), collapse=", "), class)
-        } else if (!matches){
-          diff <<- sprintf("The warning message\n '%s'\n does not match pattern '%s'"
-                          , w$message, pattern)
-        }
-        invokeRestart("muffleWarning")
-      }
-  )
-
-  tinytest(result, call=sys.call(sys.parent(1))
-           , short = if (result) NA_character_ else "xcpt"
-           , diff  = if (result) NA_character_ else diff
-           , info  = info)
-}
-
-# format 1st three elements of a list of condition objects
+# helper: format 1st three elements of a list of condition objects
 first_n <- function(L, n=3){
   i      <- seq_len(min(length(L),n))
 
@@ -479,6 +449,73 @@ first_n <- function(L, n=3){
    
    out   <- sprintf("%s %d of class <%s>:\n  '%s'",maintype, i, msgcls, msgtxt)
    paste(out, collapse="\n")
+}
+
+
+
+#' @rdname expect_equal
+#' @export
+expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_){
+ 
+  messages <- list()
+  warnings <- list()  
+  errors   <- list()
+
+  tryCatch(withCallingHandlers(current
+      , warning = function(w){ 
+          warnings <<- append(warnings, list(w))
+          invokeRestart("muffleWarning")
+        }
+      , message = function(m) {
+          messages <<- append(messages, list(m))
+          invokeRestart("muffleMessage")
+        }
+      )
+    , error  = function(e) errors <<- append(errors, list(e))
+  )
+
+  nmsg <- length(messages)
+  nwrn <- length(warnings)
+  nerr <- length(errors)
+ 
+ 
+  results <- sapply(warnings, function(w) {
+    inherits(w, class) && grepl(pattern, w$message)
+  })
+
+  if (any(results)){ ## happy flow
+    result <- TRUE
+    short  <- diff <- NA_character_
+  } else { ## construct diff  message
+    result <- FALSE
+    short  <- "xcpt"
+    diff   <- if ( nwrn == 0 ){
+      "No warning was emitted"
+    } else {
+      n_right_class <- sum(sapply(warnings, function(w) inherits(w, class)))
+      if (n_right_class == 0){
+        head <- sprintf("Found %d warning(s), but not of class '%s'.", nwrn, class)
+        head <- paste(head, "Showing up to three warnings:\n")
+        body <- first_n(warnings)
+        paste(head, body)
+      } else {
+        wrns <- Filter(function(w) inherits(w,class), warnings)
+        head <- sprintf("Found %d warnings(s) of class '%s', but not matching '%s'."
+                      , nwrn, class, pattern)
+        head <- paste(head,"\nShowing up to three warnings:\n")
+        body <- first_n(wrns)
+        paste(head, body) 
+      }
+    }
+  }
+
+  if (!result && (nmsg > 0 || nerr > 0)) 
+    diff <- paste0(diff,sprintf("\nAlso found %d message(s) and %d error(s)"
+              , nmsg, nerr))
+
+  tinytest(result, call=sys.call(sys.parent(1))
+          , short=short, diff=diff, info=info)
+
 }
 
 

@@ -75,20 +75,34 @@ expect_false(ignore(expect_stdout)(cat("hihi"),pattern="ho"))
 expect_true(ignore(expect_error)(stop("foo")))
 expect_false(ignore(expect_error)(stop("foo"),pattern="bar"))
 
+# single warning
 expect_true(ignore(expect_warning)(warning("fu!")))
 expect_false(ignore(expect_warning)(warning("fu!"), pattern="bar"))
 
+# filtering from multiple warnings
+multiwrn <- function(){
+  warning("hihi")
+  warning("haha")
+  m <- tryCatch(warning("huhu"), warning = function(m) m)
+  class(m) <- c("lulz", class(m))
+  warning(m)
+}
+
+expect_warning(multiwrn(), pattern="haha")
+expect_warning(multiwrn(), pattern="huhu")
+expect_warning(multiwrn(), pattern="huhu", class="lulz")
+
+# single messages
 expect_true(ignore(expect_silent)(1 + 1))
 expect_false(ignore(expect_silent)(1 + "a"))
 expect_false(ignore(expect_silent)(1:3 + 1:2))
-
-
 
 expect_false(ignore(expect_message)(message("hihi"),"lol"))
 expect_false(ignore(expect_message)(stop("hihi"),"lol"))
 expect_false(ignore(expect_message)(warning("hihi"),"lol"))
 expect_message(message("hihi, I lol"),"lol")
 
+# filtering from multiple messages
 multimsg <- function(){
   message("hihi")
   message("haha")
