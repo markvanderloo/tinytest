@@ -459,6 +459,28 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
            , info  = info)
 }
 
+# format 1st three elements of a list of condition objects
+first_n <- function(L, n=3){
+  i      <- seq_len(min(length(L),n))
+
+
+
+  msgcls <- sapply(L[i], function(m) paste(class(m), collapse=", "))
+   
+  maintype <- sapply(L[i], function(m){
+    if      ( inherits(m, "message") ) "Message"
+    else if ( inherits(m, "warning") ) "Warning"
+    else if ( inherits(m, "error")   ) "Error"
+    else "Condition"
+  }) 
+
+
+   msgtxt <- sub("\\n$","", sapply(L[i], function(m) m$message))
+   
+   out   <- sprintf("%s %d of class <%s>:\n  '%s'",maintype, i, msgcls, msgtxt)
+   paste(out, collapse="\n")
+}
+
 
 #' @rdname expect_equal
 #' @export
@@ -485,9 +507,11 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
   nwrn <- length(warnings)
   nerr <- length(errors)
  
-  # TODO: better descriptions, cut msg output after more than say, 3.
  
-  results <- sapply(messages, function(m) {inherits(m, class) && grepl(pattern, m$message)} )
+  results <- sapply(messages, function(m) {
+    inherits(m, class) && grepl(pattern, m$message)
+  })
+
   if (any(results)){ ## happy flow
     result <- TRUE
     short <- diff <- NA_character_
@@ -499,18 +523,24 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
     } else {
       n_right_class <- sum(sapply(messages, function(m) inherits(m, class)))
       if (n_right_class == 0){
-       sprintf("Found %d message(s), but not of class '%s'.", nmsg, class)
+        head <- sprintf("Found %d message(s), but not of class '%s'.", nmsg, class)
+        head <- paste(head, "Showing up to three messages:\n")
+        body <- first_n(messages)
+        paste(head, body)
       } else {
-       msgs <- Filter(function(m) inherits(m,class), messages)
-       msg <- sprintf("Found %d message(s) of class '%s', but not matching '%s'."
+        msgs <- Filter(function(m) inherits(m,class), messages)
+        head <- sprintf("Found %d message(s) of class '%s', but not matching '%s'."
                       , nmsg, class, pattern)
-       paste(msg,"\n",paste(sapply(msgs,function(m) m$message),collapse="\n"))
-        
+        head <- paste(head,"\nShowing up to three messages:\n")
+        body <- first_n(msgs)
+        paste(head, body) 
       }
     }
   }
 
-  if (!result) diff <- paste0(diff,sprintf("\nFound %d warning(s) and %d error(s)", nwrn, nerr))
+  if (!result && (nwrn > 0 || nerr > 0)) 
+    diff <- paste0(diff,sprintf("\nAlso found %d warning(s) and %d error(s)"
+              , nwrn, nerr))
 
   tinytest(result, call=sys.call(sys.parent(1))
           , short=short, diff=diff, info=info)
