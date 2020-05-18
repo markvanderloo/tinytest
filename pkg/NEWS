@@ -1,7 +1,7 @@
 version 1.2.1
 - expect_message() now also detects occurrence of any message, and not
   just the first. Detecting only the first was introduced in 1.2.0 and
-  reported at GH issue #52 (Thanks to Jozef Hajnala and Ralf Herold).
+  reported at GH issue #51 (Thanks to Jozef Hajnala and Ralf Herold).
 - Better 'diff' information for expect_warning() and expect_message().
 
 version 1.2.0
