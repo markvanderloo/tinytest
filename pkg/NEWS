@@ -1,3 +1,6 @@
+version 1.2.0
+- Improved diff reporting in expect_true, and expect_false.
+
 version 1.2.1
 - expect_message() now also detects occurrence of any message, and not
   just the first. Detecting only the first was introduced in 1.2.0 and
