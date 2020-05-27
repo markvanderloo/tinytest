@@ -833,7 +833,7 @@ at_home <- function(){
 #' used by \code{R CMD check} or by a user that installed a package that
 #' uses the \pkg{tinytest} test infrastructure.
 #'
-#' @param pkgname \code{[character]} scalar. Name of the package
+#' @param pkgname \code{[character]} scalar. Name of the package, as in the \code{DESCRIPTION} file.
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
