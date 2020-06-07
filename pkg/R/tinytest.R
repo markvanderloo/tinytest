@@ -909,6 +909,9 @@ test_package <- function(pkgname, testdir = "tinytest"
 #' @param pkgdir \code{[character]} Package directory
 #' @param testdir \code{[character]} Name of directory under \code{pkgdir/inst}
 #'   containing test files.
+#' @param pattern \code{[character]} A regular expression that is used to find
+#'   scripts in \code{dir} containing tests (by default \code{.R} or \code{.r}
+#'   files starting with \code{test}).
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param ncpu \code{[numeric]} number of CPUs to use during the testing phase.
 #' @param verbose \code{[logical]} toggle verbosity during execution
@@ -916,6 +919,10 @@ test_package <- function(pkgname, testdir = "tinytest"
 #'   effects? See section on side effects.
 #' @param side_effects \code{[logical|list]} Either a logical,
 #' or a list of arguments to pass to \code{\link{report_side_effects}}.
+#' @param lc_collate \code{[character]} Locale setting used to sort the
+#'  test files into the order of execution. The default \code{NA} ensures
+#'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
+#'  and more platform-independent sorting (see details in \code{\link{run_test_dir}}.
 #' @param keep_tempdir \code{[logical]} keep directory where the pkg is
 #'   installed and where tests are run? If \code{TRUE}, the directory is not
 #'   deleted and it's location is printed.
@@ -931,11 +938,13 @@ test_package <- function(pkgname, testdir = "tinytest"
 #' @family test-files
 #' @export
 build_install_test <- function(pkgdir="./", testdir="tinytest"
+                             , pattern="test_.+[rR]$"
                              , at_home=TRUE
                              , verbose=getOption("tt.verbose",2)
                              , ncpu = 1
                              , remove_side_effects=TRUE
                              , side_effects=FALSE
+                             , lc_collate = getOption("tt.collate",NA)
                              , keep_tempdir=FALSE){
   oldwd <- getwd()
   tdir  <- tempfile()
@@ -967,6 +976,7 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
   script <- "
 suppressPackageStartupMessages({
   pkgname <- '%s'
+  pattern <- '%s'
   tdir    <- '%s'
   testdir <- '%s'
   at_home <- %s
@@ -974,6 +984,7 @@ suppressPackageStartupMessages({
   remove_side_effects <- %s
   side_effects <- %s
   ncpu    <- %d
+  lc_collate <- %s
 
   #        pkgname       tdir
   library(pkgname, lib.loc=tdir,character.only=TRUE)
@@ -989,10 +1000,12 @@ if (ncpu > 1){
 #                                testdir       pkgname       tdir
 out <- run_test_dir(system.file(testdir, package=pkgname, lib.loc=tdir)
                    , at_home=at_home
+                   , pattern=pattern
                    , verbose=verbose
                    , remove_side_effects=remove_side_effects
                    , side_effects=side_effects
-                   , cluster=cluster)
+                   , cluster=cluster
+                   , lc_collate=lc_collate)
 
 saveRDS(out, file='output.RDS')
 
@@ -1000,13 +1013,15 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
 "
   scr <- sprintf(script
         , pkgname
+        , pattern
         , normalizePath(tdir, winslash="/", mustWork=FALSE)
         , testdir
         , at_home
         , verbose
         , remove_side_effects
         , side_effects
-        , ncpu)
+        , ncpu
+        , lc_collate)
 
   write(scr, file="test.R")
   system("Rscript test.R")
