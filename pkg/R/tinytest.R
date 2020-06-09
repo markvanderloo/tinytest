@@ -960,6 +960,8 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
 
   pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
 
+  pattern <- gsub("\\", "\\\\", pattern, fixed=TRUE)
+
   dir.create(tdir)
   setwd(tdir)
 
