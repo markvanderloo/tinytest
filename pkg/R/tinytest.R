@@ -292,7 +292,7 @@ add_locally_masked_functions <- function(envir, output){
 #'
 #' 
 #' @param package the name of the extension package, given as name or character string.
-#' @param quietly Passed to \code{\link[base]{require}}.
+#' @param quietly Passed to \code{\link{require}}.
 #'
 #' @return A named \code{list}, with the package name and the names of the
 #'   functions registered by \code{package} to extend \pkg{tinytest}. A message
@@ -454,7 +454,7 @@ register_tinytest_extension <- function(pkg, functions){
 #'
 #' @section Side-effects caused by test code:
 #' 
-#' All calls to \code{\link[base]{Sys.setenv}} and \code{\link[base]{options}}
+#' All calls to \code{\link{Sys.setenv}} and \code{\link{options}}
 #' defined in a test file are captured and undone once the test file has run,
 #' if \code{remove_side_effects} is set to \code{TRUE}.
 #' 
@@ -668,7 +668,7 @@ print_status <- function(filename, env, color){
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side 
 #'  effects. Environment variables (\code{Sys.setenv()}) and options (\code{options()})
 #'  defined in a test file are reset before running the next test file (see details).
-#' @param cluster A \code{\link[parallel]{makeCluster}} object. 
+#' @param cluster A \code{\link{makeCluster}} object. 
 #' @param lc_collate \code{[character]} Locale setting used to sort the
 #'  test files into the order of execution. The default \code{NA} ensures
 #'  current locale is used. Set this e.g. to \code{"C"} to ensure bytewise
@@ -720,8 +720,8 @@ print_status <- function(filename, env, color){
 #' dat <- as.data.frame(out)
 #'
 #' @family test-files
-#' @seealso \code{\link[parallel]{makeCluster}},
-#' \code{\link[parallel]{clusterEvalQ}}, \code{\link[parallel]{clusterExport}}
+#' @seealso \code{\link{makeCluster}},
+#' \code{\link{clusterEvalQ}}, \code{\link{clusterExport}}
 #'
 #' @export
 run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
@@ -837,7 +837,7 @@ at_home <- function(){
 #' @param testdir \code{[character]} scalar. Path to installed directory, relative
 #' to the working directory of \code{R CMD check}.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
-#' @param ncpu A positive integer, or a \code{\link[parallel]{makeCluster}} object.
+#' @param ncpu A positive integer, or a \code{\link{makeCluster}} object.
 #' @param ... extra arguments passed to \code{\link{run_test_dir}} (e.g. \code{ncpu}).
 #'
 #'
