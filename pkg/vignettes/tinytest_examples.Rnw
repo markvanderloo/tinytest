@@ -521,7 +521,7 @@ ignore(expect_true)(all(
     R package version 0.3.3.5
 
   \bibitem{benchr}
-  \href{https://CRAN.R-project.org/package=RUnit}{benchr}
+  \href{https://CRAN.R-project.org/package=benchr}{benchr}
   Arttem Klevtsov (2019) \emph{High Precise Measurement of R Expressions Execution Time}.
   R package version 0.2.3-1.
 
