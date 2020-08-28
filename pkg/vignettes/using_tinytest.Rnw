@@ -648,11 +648,22 @@ because in that case the test result will not be caught by \pkg{tinytest}.
 
 The API for building extension packages is described in \code{?register\_tinytest\_extension}.
 
-\textbf{Example \href{https://cran.r-project.org/web/packages/dittodb/index.html}{\code{dittodb}}.} Extend tinytest by mocking remote database requests.
 
-To use extensions like \code{dittodb}, put the package in \code{Suggests:} in the \code{DESCRIPTION} and load in the test file. The package captures responses from SQL connections and saves them to R files. Therefore, capture the requested response prior testing by wrapping your request in \code{start_db_capturing()} and \code{stop_db_capturing()}. Optionally, specify the file path you want your mocks to be saved. For examples using \code{dittodb}, see \href{https://dittodb.jonkeane.com/}{here}.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Mocking databases}
 
-In the testing scripts, load the package and wrap your tests in \code{with_mock_path(path, with_mock_db())} like
+The \pkg{dittodb} package\cite{keane2020dittodb} is capable of mocking
+pre-recorded database requests. 
+To use extensions like \code{dittodb}, put the package in \code{Suggests:} in
+the \code{DESCRIPTION} and load it in the test file. The package captures
+responses from SQL connections and saves them to R files. Therefore, capture
+the requested response prior to testing by wrapping your request in
+\code{start\_db\_capturing()} and \code{stop\_db\_capturing()}. Optionally, specify
+the file path you want your mocks to be saved. For examples using
+\code{dittodb}, see \href{https://dittodb.jonkeane.com/}{here}.
+
+In the testing scripts, load the package and wrap your tests in
+\code{with\_mock\_path(path, with\_mock\_db())} like
 <<eval=FALSE>>=
 require(dittodb)
 with_mock_path(
@@ -662,6 +673,8 @@ with_mock_path(
     })
 )
 @
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Testing with environmental variables}
@@ -927,7 +940,6 @@ the user in a changed working directory. With \code{on.exit} you can define
 code that will be carried out before the function exits, either normally
 or with an error.
 <<>>=
-<<>>=
 good_function <- function(file){
   oldwd <- getwd()
   on.exit(setwd(oldwd))
@@ -956,13 +968,18 @@ good_function <- function(file){
 
   \bibitem{csardi2016cyclocomp}
     \href{https://cran.r-project.org/package=cyclocomp}{cyclocomp: cyclomatic complexity of R code}
-    G\'abor Cs\'ardi (2016)
+    G\'abor Cs\'ardi (2016).
     R package version 1.1.0
 
   \bibitem{hester2018covr}
     \href{https://CRAN.R-project.org/package=covr}{covr: Test Coverage for Packages}
-    Jim Hester (2018)
+    Jim Hester (2018).
     R package version 3.2.1
+
+  \bibitem{keane2020dittodb}
+    \href{https://CRAN.R-project.org/package=dittodb}{dittodb: A Test Environment for Database Requests}
+    Jonathan Keane and Mauricio Vargas (2020).
+    R package version 0.1.1
 
 \end{thebibliography}
 
