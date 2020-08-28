@@ -648,6 +648,21 @@ because in that case the test result will not be caught by \pkg{tinytest}.
 
 The API for building extension packages is described in \code{?register\_tinytest\_extension}.
 
+\textbf{Example \href{https://cran.r-project.org/web/packages/dittodb/index.html}{\code{dittodb}}.} Extend tinytest by mocking remote database requests.
+
+To use extensions like \code{dittodb}, put the package in \code{Suggests:} in the \code{DESCRIPTION} and load in the test file. The package captures responses from SQL connections and saves them to R files. Therefore, capture the requested response prior testing by wrapping your request in \code{start_db_capturing()} and \code{stop_db_capturing()}. Optionally, specify the file path you want your mocks to be saved. For examples using \code{dittodb}, see \href{https://dittodb.jonkeane.com/}{here}.
+
+In the testing scripts, load the package and wrap your tests in \code{with_mock_path(path, with_mock_db())} like
+<<eval=FALSE>>=
+require(dittodb)
+with_mock_path(
+    system.file("<path-to-your-mocks>", package = "myPackage"),
+    with_mock_db({
+    # <unit tests which rely on database connections>
+    })
+)
+@
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Testing with environmental variables}
 \label{sect:envvar}
