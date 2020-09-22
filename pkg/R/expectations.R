@@ -602,6 +602,7 @@ expect_stdout <- function(current, pattern=".*", info=NA_character_){
   msg <- NA_character_
   
   tc <- textConnection("value", open="w", local=TRUE)
+  
   sink(file=tc, type="output", split=FALSE)
     tryCatch(current
       , error=function(e){sink(file=NULL, type="output"); stop(e)}
@@ -609,7 +610,8 @@ expect_stdout <- function(current, pattern=".*", info=NA_character_){
   sink(file = NULL, type="output")
   close(tc)
 
-  result <- grepl(pattern, paste0(value,""))
+  value <- paste(value, collapse="\n")
+  result <- grepl(pattern, value)
   if (!result)
     msg <- sprintf("output '%s'\n does not match pattern '%s'", value, pattern)
 

@@ -1,6 +1,8 @@
-version 1.3.0
+version 1.2.3
 - Added example to using tinytest vignette on mocking databases 
   (Thanks to Thomas Fuchs for working this out).
+- 'expect_stdout' now handles multi-line output. (thanks to John Blishak for 
+  reporting).
 
 version 1.2.2
 - Improved diff reporting in expect_true, and expect_false.
