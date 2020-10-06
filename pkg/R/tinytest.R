@@ -601,6 +601,7 @@ run_test_file <- function( file
   local_report_files  <- capture(report_files, o)
 
   # parse file, store source reference.
+  check_triple_colon(filename=file)
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
   o$file <- file
@@ -637,6 +638,26 @@ run_test_file <- function( file
   structure(test_output, class="tinytests")
 }
 
+
+check_triple_colon <- function(filename){
+  txt <- readLines(filename, warn=FALSE)
+  i <- grepl("tinytest:::expect", txt)
+  if (!any(i)) return(NULL)
+
+  line_numbers <- which(i)
+  occurrences  <- sub("^.*tinytest:::expect","tinytest:::expect",txt[i])
+  occurrences  <- sub("\\(.*","",occurrences)
+
+  prefix <- 
+" You are using 'tinytest:::' to address test expectations.
+ The results from these tests are not collected. Found the following occurrences:
+"
+ issues  <- sprintf("> %s#%03d: %s",basename(filename),line_numbers,occurrences)
+ issues  <- paste(issues, collapse="\n ")
+ postfix <- "\n Remove the 'tinytest:::' prefix to register the test results." 
+ warning(paste(prefix, issues, postfix), call.=FALSE)
+
+}
 
 print_status <- function(filename, env, color){
   prefix <- sprintf("\r%s %4d tests", filename, env$ntest())

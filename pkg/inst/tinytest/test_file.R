@@ -53,4 +53,10 @@ expect_false(exists("Rplots.pdf"))
 out <- run_test_file("runs/test_set_env.R", set_env=list("wa_babalooba"="ba_la_bamboo"))
 expect_true(all_pass(out))
 
+expect_warning(run_test_file("runs/test_triple_colon.R"))
+expect_warning(tinytest:::check_triple_colon("runs/test_triple_colon.R"))
+
+# uncomment to see the warning with 'make test'
+# tinytest:::expect_equal(2,5)
+
 
