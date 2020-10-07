@@ -3,7 +3,7 @@ version 1.2.3
   (Thanks to Thomas Fuchs for working this out).
 - 'expect_stdout' now handles multi-line output. (Thanks to John Blischak for 
   reporting).
-- A warning is issued when a test file uses 'tinytest:::expect': such tests
+- A message is issued when a test file uses 'tinytest:::expect': such tests
   are not registered (thanks to James Thompson for issuing a ticket on this).
 
 version 1.2.2

@@ -19,9 +19,9 @@ Description: Provides a lightweight (zero-dependency) and easy to use
     configurable output printing. Compare computed output with output stored 
     with the package. Run tests in parallel. Extensible by other packages.
     Report side effects.
-Version: 1.2.2.3
+Version: 1.2.2.4
 URL: https://github.com/markvanderloo/tinytest
 BugReports: https://github.com/markvanderloo/tinytest/issues
 Imports: parallel, utils
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8

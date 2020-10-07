@@ -641,7 +641,7 @@ run_test_file <- function( file
 
 check_triple_colon <- function(filename){
   txt <- readLines(filename, warn=FALSE)
-  i <- grepl("tinytest:::expect", txt)
+  i <- grepl("tinytest:::expect", txt) & !grepl("#.*tinytest:::expect", txt) 
   if (!any(i)) return(NULL)
 
   line_numbers <- which(i)
@@ -649,13 +649,13 @@ check_triple_colon <- function(filename){
   occurrences  <- sub("\\(.*","",occurrences)
 
   prefix <- 
-" You are using 'tinytest:::' to address test expectations.
+" You are using 'tinytest:::' to express test expectations.
  The results from these tests are not collected. Found the following occurrences:
 "
  issues  <- sprintf("> %s#%03d: %s",basename(filename),line_numbers,occurrences)
  issues  <- paste(issues, collapse="\n ")
  postfix <- "\n Remove the 'tinytest:::' prefix to register the test results." 
- warning(paste(prefix, issues, postfix), call.=FALSE)
+ message(paste(prefix, issues, postfix), call.=FALSE)
 
 }
 
