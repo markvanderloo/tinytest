@@ -601,7 +601,7 @@ run_test_file <- function( file
   local_report_files  <- capture(report_files, o)
 
   # parse file, store source reference.
-  check_triple_colon(filename=file)
+  check_double_colon(filename=file)
   parsed <- parse(file=file, keep.source=TRUE)
   src <- attr(parsed, "srcref")
   o$file <- file
@@ -639,22 +639,22 @@ run_test_file <- function( file
 }
 
 
-check_triple_colon <- function(filename){
+check_double_colon <- function(filename){
   txt <- readLines(filename, warn=FALSE)
-  i <- grepl("tinytest:::expect", txt) & !grepl("#.*tinytest:::expect", txt) 
+  i <- grepl("tinytest::expect", txt) & !grepl("#.*tinytest::expect", txt) 
   if (!any(i)) return(NULL)
 
   line_numbers <- which(i)
-  occurrences  <- sub("^.*tinytest:::expect","tinytest:::expect",txt[i])
+  occurrences  <- sub("^.*tinytest::expect","tinytest::expect",txt[i])
   occurrences  <- sub("\\(.*","",occurrences)
 
   prefix <- 
-" You are using 'tinytest:::' to express test expectations.
+" You are using 'tinytest::' to express test expectations.
  The results from these tests are not collected. Found the following occurrences:
 "
  issues  <- sprintf("> %s#%03d: %s",basename(filename),line_numbers,occurrences)
  issues  <- paste(issues, collapse="\n ")
- postfix <- "\n Remove the 'tinytest:::' prefix to register the test results." 
+ postfix <- "\n Remove the 'tinytest::' prefix to register the test results." 
  message(paste(prefix, issues, postfix), call.=FALSE)
 
 }
