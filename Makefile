@@ -34,6 +34,13 @@ revdep: pkg
 	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='most'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
 
+devcheck:
+	rm -f *.tar.gz
+	rm -rf tinytest.Rcheck
+	Rdev -s -e "pkgload::load_all('pkg');roxygen2::roxygenize('pkg')"
+	Rdev CMD build pkg
+	Rdev CMD check *.tar.gz
+
 revimp: pkg
 	rm -rf revimp
 	mkdir revimp

@@ -79,7 +79,8 @@ na_str <- function(x) if ( is.na(x) ) "" else as.character(x)
 
 oneline <- function(x) sub("\\n.+","...",x)
 indent <- function(x, with="     "){
-  gsub("\\n *",paste0("\n",with),paste0(with,sub("^ +","",x)))
+  if (is.na(x)) ""
+  else gsub("\\n *",paste0("\n",with),paste0(with,sub("^ +","",x)))
 }
 
 lineformat <- function(x){
@@ -116,16 +117,17 @@ format.tinytest <- function(x,type=c("long","short"), ...){
             else if (is.na(x)  ) sprintf("SIDEFX[%s]",short)
   longfmt <- "----- %s: %s<%s--%s>\n%s"
   # make room for diff and info fields when necessary
-  if (isFALSE(x)||is.na(x)) longfmt <- paste0(longfmt, "\n%s")
-  if (!is.na(d$info)) longfmt <- paste0(longfmt,"\n%s")
+  #if (isFALSE(x)||is.na(x)) longfmt <- paste0(longfmt, "\n%s")
+  #if (!is.na(d$info)) longfmt <- paste0(longfmt,"\n%s")
 
   if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
   }  else {
-    sprintf(longfmt, result, file, fst, lst
-                , indent(call, with=" call| ")
-                , indent(diff, with=" diff| ")
-                , indent(info, with=" info| "))
+    str <- sprintf(longfmt, result, file, fst, lst
+                , indent(call, with=" call| "))
+    if (isFALSE(x)||is.na(x)) str <- paste0(str, "\n", indent(diff, with=" diff| "))
+    if (!is.na(d$info)) str <- paste0(str, "\n", indent(info, with=" info| "))
+    str
   }
 
 }

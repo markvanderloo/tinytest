@@ -1,3 +1,7 @@
+version 1.2.4
+- Internal: updated tinytest.format method to conform to new
+  R CMD check demand. (Thanks to Brian Ripley for the warning).
+
 version 1.2.3
 - Added example to using tinytest vignette on mocking databases 
   (Thanks to Thomas Fuchs for working this out).
