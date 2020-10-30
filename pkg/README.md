@@ -199,11 +199,11 @@ obtained <- compute_my_result()
 expect_equal(obtained, desired)
 ```
 If you wish to publish the package on CRAN, make sure that the files are small
-enough for the package to be acceptable. See the [cran repository
+enough for the package to be acceptable. See the [CRAN repository
 policy](https://cran.r-project.org/web/packages/policies.html) for explicit
 bounds on package size. Alternatively you can avoid installing the data and
 associated test files by adding them to
-[.Rbuildignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Building-package-tarballs).
+[.Rinstignore](https://cran.r-project.org/doc/manuals/r-release/R-exts.html#Package-subdirectories).
 
 
 #### More information
