@@ -1,4 +1,5 @@
 version 1.2.4
+- Small improvements in difference reporting.
 - Fix: default pattern for test files was "^test_", is now "^test"
   as documented. (Thanks to Sebastian Meyer for the PR).
 - Internal: updated tinytest.format method to conform to new

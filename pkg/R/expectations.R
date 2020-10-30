@@ -175,6 +175,8 @@ longdiff <- function(current, target, alt){
        if ( all(class(current) %in% c("character","ordered","factor", "POSIXt","POSIXct")) ) 
          sprintf("Expected '%s', got '%s'", target, current)
        else sprintf("Expected %s, got %s", target, current)
+  } else if (isTRUE(alt) && is.environment(current)){
+    "Equal environment objects, but with different memory location"
   } else {
     paste0(" ", alt, collapse="\n")
   }
@@ -249,7 +251,7 @@ expect_equal <- function(current, target, tolerance = sqrt(.Machine$double.eps),
 expect_identical <- function(current, target, info=NA_character_){
   result <- identical(current, target)
   diff <-  if (result) NA_character_
-           else longdiff(current, target, all.equal(target, current))
+           else longdiff(current, target, all.equal(target, current, check.attributes=TRUE))
   short <- if (result) NA_character_
            else shortdiff(current, target, tolerance=0)
   tinytest(result=result, call=sys.call(sys.parent(1)), diff=diff
