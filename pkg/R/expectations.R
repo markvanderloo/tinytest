@@ -116,9 +116,6 @@ format.tinytest <- function(x,type=c("long","short"), ...){
             else if (isFALSE(x)) sprintf("FAILED[%s]",short)
             else if (is.na(x)  ) sprintf("SIDEFX[%s]",short)
   longfmt <- "----- %s: %s<%s--%s>\n%s"
-  # make room for diff and info fields when necessary
-  #if (isFALSE(x)||is.na(x)) longfmt <- paste0(longfmt, "\n%s")
-  #if (!is.na(d$info)) longfmt <- paste0(longfmt,"\n%s")
 
   if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
