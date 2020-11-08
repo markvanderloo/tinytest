@@ -497,7 +497,7 @@ unexported function with different arguments. Or when one of the internal
 functions implements a numerical algorithm that requires thorough testing.
 
 To test functions in your package that are not visible to users that load
-your package, use the triple-colon operato like so.
+your package, use the triple-colon operator like so.
 <<eval=FALSE>>=
 output = pkg:::some_internal_function(1)
 expect_equal(output, 2)
