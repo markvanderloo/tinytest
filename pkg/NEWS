@@ -1,7 +1,10 @@
 version 1.2.4
+- duration per file is now reported.
 - Small improvements in difference reporting.
 - Fix: default pattern for test files was "^test_", is now "^test"
   as documented. (Thanks to Sebastian Meyer for the PR).
+- Fix: it is now easier to put tests that you do not want to
+  install under /tests/somedir.
 - Internal: updated tinytest.format method to conform to new
   R CMD check demand. (Thanks to Brian Ripley for the warning).
 

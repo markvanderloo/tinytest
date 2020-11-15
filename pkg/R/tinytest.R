@@ -520,6 +520,9 @@ run_test_file <- function( file
   if (!file_test("-f", file)){
     stop(sprintf("'%s' does not exist or is a directory",file),call.=FALSE)
   }
+
+  t0 <- Sys.time()
+
   # set environment variables (if any) to control the R environment during testing.
   if (length(set_env) > 0){
     # first, record current settings
@@ -629,13 +632,32 @@ run_test_file <- function( file
     local_report_files(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
   }
+  td <- abs(t0 - Sys.time())
   if (verbose == 1) print_status(prfile, o, color)
-  if (verbose >= 1) catf("\n")
+  if (verbose >= 1) catf("(%s)\n", humanize(td))
  
 
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
   structure(test_output, class="tinytests")
+}
+
+# readable output from a number of seconds.
+humanize <- function(x){
+  x <- as.numeric(x)
+  # ms units
+  if (x < 0.1) return( trimws(sprintf("%4.0fms",x)) )
+  if (x < 60 ) return( trimws(sprintf("%3.1fs",x)) )  
+  if (x < 3600){
+    m <- x %/% 60
+    s <- x - m*60
+    return( trimws(sprintf("%2.0fm %3.1fs", m, s)))
+  }
+  # fall-through: hours, minutes, seconds.
+  h <- x %/% 3600
+  m <- (x - 3600 * h)%/% 60
+  s <- x - 3600 * h - 60*m
+  sprintf("%dh %dm %3.1fs", h,m,s)
 }
 
 
@@ -855,18 +877,27 @@ at_home <- function(){
 #' uses the \pkg{tinytest} test infrastructure.
 #'
 #' @param pkgname \code{[character]} scalar. Name of the package, as in the \code{DESCRIPTION} file.
-#' @param testdir \code{[character]} scalar. Path to installed directory, relative
-#' to the working directory of \code{R CMD check}.
+#' @param testdir \code{[character]} scalar. Path to installed directory. By default 
+#'        tinytest assumes that test files are in \code{inst/tinytest/}, which means
+#'        that after installation and thus during \code{R CMD check} they are in 
+#'        \code{tinytest/}. See details for using alternate paths.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
 #' @param ncpu A positive integer, or a \code{\link{makeCluster}} object.
 #' @param ... extra arguments passed to \code{\link{run_test_dir}} (e.g. \code{ncpu}).
 #'
 #'
 #' @section Details:
-#' We set \code{at_home=FALSE} by default so \code{R CMD check} will run the same
-#' as at CRAN. See the package vignette (Section 4) for tips on how to set up
-#' the package structure.
+#' We set \code{at_home=FALSE} by default so \code{R CMD check} will run the
+#' same as at CRAN. See the package vignette (Section 4) for tips on how to set
+#' up the package structure.
 #' \code{vignette("using_tinytest",package="tinytest")}.
+#'
+#' Package authors who want to avoid installing tests with the package can
+#' create a directory under \code{tests}. If the test directoy is called
+#' \code{"tests/foo"}, use \code{test_package("pkgname", testdir="foo")} in
+#' \code{tests/tinytest.R}.
+#'
+#' 
 #'
 #' @return If \code{interactive()}, a \code{tinytests} object. If not
 #'  \code{interactive()}, an error is thrown when at least one test fails.
@@ -887,9 +918,15 @@ test_package <- function(pkgname, testdir = "tinytest"
     if ( is.numeric(ncpu) ) parallel::stopCluster(cluster)
   })
 
-  testdir <- system.file(testdir, package=pkgname)
-  if ( testdir == "" ){
-    stopf("testdir '%s' not found for package '%s'",testdir, pkgname)
+  if (!dir.exists(testdir)){ # if not customized test dir
+    # find the installed test dir
+    new_testdir <- system.file(testdir, package=pkgname)
+    if (new_testdir == ""){
+      stopf("testdir '%s' not found for package '%s'",testdir, pkgname)
+    } else {
+      testdir <- new_testdir
+    }
+
   }
 
   # set up cluster if required
