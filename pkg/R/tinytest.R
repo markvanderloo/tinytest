@@ -945,9 +945,8 @@ test_package <- function(pkgname, testdir = "tinytest"
   out <- run_test_dir(testdir, at_home=at_home, cluster=cluster,...) 
   i_fail <- sapply(out, isFALSE)
   if ( any(i_fail) && !interactive() ){
-    msg <- paste( sapply(out[i_fail], format.tinytest, type="long"), collapse="\n")
-    msg <- paste(msg, "\n")
-    stop(msg, call.=FALSE)
+    writeLines(vapply(out[i_fail], format.tinytest, "", type="long"))
+    stop(sum(i_fail), " out of ", length(out), " tests failed", call.=FALSE)
   } 
   out
 }
