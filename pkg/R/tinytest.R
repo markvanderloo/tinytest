@@ -632,14 +632,14 @@ run_test_file <- function( file
     local_report_files(sidefx)
     if (verbose == 2) print_status(prfile, o, color)
   }
-  td <- abs(t0 - Sys.time())
+  td <- abs(Sys.time() - t0)
   if (verbose == 1) print_status(prfile, o, color)
   if (verbose >= 1) catf("(%s)\n", humanize(td))
  
 
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
-  structure(test_output, class="tinytests")
+  structure(test_output, class="tinytests", duration=td)
 }
 
 # readable output from a number of seconds.
@@ -776,6 +776,7 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
                        , lc_collate = getOption("tt.collate",NA)
                        , ... ){
 
+  t0 <- Sys.time()
 
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
@@ -800,9 +801,11 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
         , run_test_file, at_home = at_home, verbose = min(verbose,1)
         , color = color, remove_side_effects = TRUE, ...)
   }
+
+  td <- abs(Sys.time() - t0)
   # by using '(parL)|(l)apply' we get a list of tinytests objects. We need to unwind
   # one level to a list of 'tinytest' objects and class it 'tinytests'.
-  structure(unlist(test_output,recursive=FALSE), class="tinytests")
+  structure(unlist(test_output,recursive=FALSE), class="tinytests", duration=td)
 }
 
 
