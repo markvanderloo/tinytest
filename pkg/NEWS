@@ -1,5 +1,5 @@
 version 1.2.4
-- duration per file is now reported.
+- Duration per file is now reported, total duration is stored.
 - Small improvements in difference reporting.
 - Fix: avoid truncated printing in case of long diff reporting (thanks to
   Sbastian Meyer for the PR)

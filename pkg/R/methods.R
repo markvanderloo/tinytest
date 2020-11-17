@@ -132,7 +132,6 @@ print.tinytests <- function(x
   duration_str <- if( is.null(duration) ) "fubar!"
                   else sprintf("(%s)", humanize(duration))
 
-
   iprn <- ifail
   if (passes)  iprn <- iprn | ipass
   if (sidefx)  iprn <- iprn | iside
@@ -156,7 +155,7 @@ print.tinytests <- function(x
     pr1 <- sprintf("Showing %d out of %d results: ", length(x), nrslt)
     pr2 <- sprintf("%d fails, %d passes", sum(ifail), sum(ipass))
     pr3 <- if( any(iside) ) sprintf(", %s side effects", sum(iside)) else ""
-    cat(pr1, pr2, pr3,duration_str, "\n",sep="")
+    cat(pr1, pr2, pr3," ", duration_str, "\n",sep="")
   } 
 }
 
