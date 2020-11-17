@@ -93,9 +93,9 @@ output <- function(){
   e$exit_msg <- function(print){
     if(print){ 
       plural <- e$lst != e$fst
-      if (plural) catf("\nExited '%s' at lines %d-%d. %s"
+      if (plural) catf("Exited '%s' at lines %d-%d. %s "
                      , basename(e$file), e$fst, e$lst, e$exitmsg)
-      else catf("\nExited '%s' at line %d. %s"
+      else catf("Exited '%s' at line %d. %s "
               , basename(e$file), e$fst, e$exitmsg)
     }
   }
