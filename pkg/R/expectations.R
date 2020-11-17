@@ -329,7 +329,7 @@ expect_false <- function(current, info=NA_character_){
 #' expect_silent(1+1)           # TRUE
 #' expect_silent(1+"a")         # FALSE
 #' expect_silent(print("hihi")) # TRUE, nothing goes to screen
-#' expect_silent(print("hihi", quiet=FALSE)) # FALSE, and printed
+#' expect_silent(print("hihi"), quiet=FALSE) # TRUE, and printed
 #'
 #' @export
 expect_silent <- function(current, quiet=TRUE, info=NA_character_){
