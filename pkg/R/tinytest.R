@@ -646,7 +646,7 @@ run_test_file <- function( file
 humanize <- function(x){
   x <- as.numeric(x)
   # ms units
-  if (x < 0.1) return( trimws(sprintf("%4.0fms",x)) )
+  if (x < 0.1) return( trimws(sprintf("%4.0fms",1000*x)) )
   if (x < 60 ) return( trimws(sprintf("%3.1fs",x)) )  
   if (x < 3600){
     m <- x %/% 60
