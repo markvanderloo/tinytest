@@ -139,6 +139,7 @@ Currently, the following expectations are implemented.
 \code{expect\_identical(current, target)}  & equality, (using, \code{identical})\\
 \code{expect\_true(current)}               & \code{current} evaluates to \code{TRUE}\\
 \code{expect\_false(current)}              & \code{current} evaluates to \code{FALSE}\\
+\code{expect\_inherits(current, class)}    & \code{current} inherits from \code{class}\\
 \code{expect\_null(current)}               & \code{current} evaluates to \code{NULL}\\
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
 \code{expect\_warning(current, pattern)}   & warning message matching \code{pattern}\\

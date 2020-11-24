@@ -29,6 +29,10 @@ expect_equivalent(2,c(x=2))
 expect_true(ignore(expect_equivalent)(2,c(x=2)))
 expect_false(ignore(expect_equivalent)(2,c(x=3)))
 
+expect_true(ignore(expect_inherits)(1, "numeric"))
+expect_false(ignore(expect_inherits)(1, c("matrix", "array")))
+
+
 # check NULL
 expect_true(ignore(expect_null)(NULL))
 expect_false(ignore(expect_null)(1))

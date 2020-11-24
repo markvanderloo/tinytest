@@ -50,10 +50,10 @@ expect_false(exists("Rplots.pdf"))
 
 
 # test that files are run with environment variables set
-out <- run_test_file("runs/test_set_env.R", set_env=list("wa_babalooba"="ba_la_bamboo"))
+out <- run_test_file("runs/test_set_env.R", set_env=list("wa_babalooba"="ba_la_bamboo"), verbose=0)
 expect_true(all_pass(out))
 
-expect_message(run_test_file("runs/test_double_colon.R"))
+expect_message(run_test_file("runs/test_double_colon.R", verbose=0))
 expect_message(tinytest:::check_double_colon("runs/test_double_colon.R"))
 
 # uncomment to see the warning with 'make test'

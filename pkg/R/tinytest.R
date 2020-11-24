@@ -261,6 +261,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_equivalent   <- capture(expect_equivalent, output)
   envir$expect_true         <- capture(expect_true, output)
   envir$expect_false        <- capture(expect_false, output)
+  envir$expect_inherits     <- capture(expect_inherits, output)
   envir$expect_null         <- capture(expect_null, output)
   envir$expect_message      <- capture(expect_message, output)
   envir$expect_warning      <- capture(expect_warning, output)

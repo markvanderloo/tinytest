@@ -1,5 +1,8 @@
 version 1.2.4
-- Duration per file is now reported, total duration is stored.
+- New function 'expect_inherits' to check the class of an object (thanks
+  to Sebastian Meyer for suggesting).
+- Duration per file is now reported, total duration is stored (thanks
+  to Dirk Eddelbuettel for suggesting)
 - Small improvements in difference reporting.
 - Fix: avoid truncated printing in case of long diff reporting (thanks to
   Sbastian Meyer for the PR)

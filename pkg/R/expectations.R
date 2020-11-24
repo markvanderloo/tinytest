@@ -401,6 +401,32 @@ expect_null <- function(current, info=NA_character_){
   }
 }
 
+class_string <- function(x){
+  paste0("<", paste(class(x), collapse=", "),">")
+}
+
+#' @rdname expect_equal
+#' 
+#' @param class \code{[character]} A class string.
+#' @details 
+#'  \code{expect_inherits} fails when \code{\link{inherits}(current,class)} returns \code{FALSE} 
+#' @export
+expect_inherits <- function(current, class, info=NA_character_){
+  call <- sys.call(sys.parent(1))
+  res  <- inherits(current, class)
+  if (isTRUE(res)){
+    tinytest(TRUE, call=call, info=info)
+  } else {
+    tinytest(FALSE, call=call, short="attr"
+      , diff = sprintf("Expected object of class %s, got %s"
+          , paste0("<", paste(class,collapse=", "),">")
+          , paste0("<", paste(class(current), collapse=", "),">")
+      , info=info))
+  }
+
+}
+
+
 
 #' @rdname expect_equal
 #' @param pattern \code{[character]} A regular expression to match the message.
