@@ -401,9 +401,6 @@ expect_null <- function(current, info=NA_character_){
   }
 }
 
-class_string <- function(x){
-  paste0("<", paste(class(x), collapse=", "),">")
-}
 
 #' @rdname expect_equal
 #' 
