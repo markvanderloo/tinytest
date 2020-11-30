@@ -1,6 +1,8 @@
 version 1.2.4
 - New function 'expect_inherits' to check the class of an object (thanks
   to Sebastian Meyer for suggesting).
+- Printing of file exit message is now shorter and on same line as test
+  report (thanks for Dirk Eddelbuettel for suggesting).
 - Duration per file is now reported, total duration is stored (thanks
   to Dirk Eddelbuettel for suggesting)
 - Small improvements in difference reporting.
@@ -12,6 +14,7 @@ version 1.2.4
   install under /tests/somedir.
 - Internal: updated tinytest.format method to conform to new
   R CMD check demand. (Thanks to Brian Ripley for the warning).
+
 
 version 1.2.3
 - Added example to using tinytest vignette on mocking databases 

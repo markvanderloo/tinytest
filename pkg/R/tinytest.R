@@ -88,17 +88,9 @@ output <- function(){
   e$file
   
   # will be set by exit_file()
-  e$exit <- FALSE
-  e$exitmsg <- ""
-  e$exit_msg <- function(print){
-    if(print){ 
-      plural <- e$lst != e$fst
-      if (plural) catf("\nExited '%s' at lines %d-%d. %s"
-                     , basename(e$file), e$fst, e$lst, e$exitmsg)
-      else catf("\nExited '%s' at line %d. %s"
-              , basename(e$file), e$fst, e$exitmsg)
-    }
-  }
+  e$exit     <- FALSE
+  e$exitmsg  <- ""
+  e$exit_msg <- function() sprintf("[Exited at #%d: %s]", e$fst, e$exitmsg)              
   
   e
 }
@@ -623,20 +615,25 @@ run_test_file <- function( file
     o$fst  <- src[[i]][1]
     o$lst  <- src[[i]][3]
     o$call <- expr
-    if ( !o$exit ) eval(expr, envir=e)
-    else {
-      o$exit_msg(verbose >= 1)
-      break
-    }
+
+    if ( !o$exit ) eval(expr, envir=e) else break
+
     local_report_envvar(sidefx)
     local_report_cwd(sidefx)
     local_report_files(sidefx)
-    if (verbose == 2) print_status(prfile, o, color)
+    if (verbose == 2) print_status(prfile, o, color, print=TRUE)
   }
   td <- abs(Sys.time() - t0)
-  if (verbose == 1) print_status(prfile, o, color)
-  if (verbose >= 1) catf("(%s)\n", humanize(td))
- 
+  tx <- humanize(td)
+  if (verbose == 1){ # always the case when run in parallel
+    str <- print_status(prfile, o, color, print=FALSE)
+    if (o$exit) catf("%s (%s) %s\n", str, tx, o$exit_msg())
+    else catf("%s (%s)\n", str, tx)
+  }
+  if (verbose >= 2){ 
+    str <- if (o$exit) catf("(%s) %s\n", tx, o$exit_msg())
+           else catf("(%s)\n", tx)
+  }
 
   # returns a 'list' of 'tinytest' objects
   test_output <- o$gimme()
@@ -682,7 +679,7 @@ check_double_colon <- function(filename){
 
 }
 
-print_status <- function(filename, env, color){
+print_status <- function(filename, env, color, print=TRUE){
   prefix <- sprintf("\r%s %4d tests", filename, env$ntest())
   # print status after counter
   fails <- if ( env$ntest() == 0 ) "  " # print nothing if nothing was tested
@@ -692,7 +689,8 @@ print_status <- function(filename, env, color){
   side <- if (env$nside() == 0) ""
   else  sprintf(if (color) "\033[0;93m%d side-effects\033[0m" else "%d side-effects", env$nside())  
 
-  cat(prefix, fails, side, sep=" ")
+  if(print) cat(prefix, fails, side, sep=" ")
+  else paste(prefix, fails, side, sep=" ")
 }
 
 
