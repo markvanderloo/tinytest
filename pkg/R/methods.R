@@ -130,7 +130,7 @@ print.tinytests <- function(x
 
   duration <- attr(x,"duration")
   duration_str <- if( is.null(duration) ) "fubar!"
-                  else sprintf("(%s)", humanize(duration))
+                  else sprintf("(%s)", humanize(duration, color=FALSE))
 
   iprn <- ifail
   if (passes)  iprn <- iprn | ipass
