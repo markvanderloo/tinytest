@@ -894,6 +894,7 @@ at_home <- function(){
 #'        tinytest assumes that test files are in \code{inst/tinytest/}, which means
 #'        that after installation and thus during \code{R CMD check} they are in 
 #'        \code{tinytest/}. See details for using alternate paths.
+#' @param lib.loc \code{[character]} scalar. location where the package is installed.
 #' @param at_home \code{[logical]} scalar. Are we at home? (see Details)
 #' @param ncpu A positive integer, or a \code{\link{makeCluster}} object.
 #' @param ... extra arguments passed to \code{\link{run_test_dir}} (e.g. \code{ncpu}).
@@ -925,7 +926,7 @@ at_home <- function(){
 #'     tinytest::test_package("your package name")
 #' }
 #' @export
-test_package <- function(pkgname, testdir = "tinytest"
+test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
                        , at_home=FALSE, ncpu=NULL, ...){
   on.exit({
     if ( is.numeric(ncpu) ) parallel::stopCluster(cluster)
@@ -933,7 +934,7 @@ test_package <- function(pkgname, testdir = "tinytest"
 
   if (!dir.exists(testdir)){ # if not customized test dir
     # find the installed test dir
-    new_testdir <- system.file(testdir, package=pkgname)
+    new_testdir <- system.file(testdir, package=pkgname, lib.loc=lib.loc)
     if (new_testdir == ""){
       stopf("testdir '%s' not found for package '%s'",testdir, pkgname)
     } else {
@@ -950,9 +951,9 @@ test_package <- function(pkgname, testdir = "tinytest"
 
   # By now we have a cluster, or NULL. Load the pkg under scrutiny.
   if ( is.null(cluster) ){
-    library(pkgname, character.only=TRUE)
+    library(pkgname, character.only=TRUE, lib.loc=lib.loc)
   } else {
-    parallel::clusterCall(cluster, library, pkgname, character.only=TRUE)
+    parallel::clusterCall(cluster, library, pkgname, character.only=TRUE, lib.loc=lib.loc)
   }
 
   out <- run_test_dir(testdir, at_home=at_home, cluster=cluster,...) 

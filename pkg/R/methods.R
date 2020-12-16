@@ -5,13 +5,18 @@
 #' @return For \code{summary} a \code{\link{table}} object
 #' @export
 summary.tinytests <- function(object, ...){
+  if (length(object)==0){
+    return(
+     as.table(array(0, dim=c(1,3),
+        dimnames=list(File="Total", c("Results", "fails","passes"))))
+    )
+  }  
   
   result <- factor(sapply(object, c)
             , levels=c(FALSE, TRUE, NA)
             , labels=c("fails","passes","sidefx")
             , exclude=character(0))
 
-  
 
   file   <- sapply(object, function(x) attr(x,"file"))
   if (length(object) > 0) file   <- basename(file)
