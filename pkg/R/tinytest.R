@@ -965,7 +965,10 @@ test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
   if ( is.null(cluster) ){
     library(pkgname, character.only=TRUE, lib.loc=lib.loc)
   } else {
-    if (!is.null(lib.loc)){ 
+    if (!is.null(lib.loc)){
+      # to prevent a R CMD check warning we must create a dummy libs here
+      # as well
+      libs <- NULL
       parallel::clusterExport(cluster, "libs", envir = e)
       parallel::clusterEvalQ(cluster, .libPaths(libs))
     }
