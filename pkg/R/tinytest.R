@@ -928,8 +928,20 @@ at_home <- function(){
 #' @export
 test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
                        , at_home=FALSE, ncpu=NULL, ...){
+  oldlibpaths <- .libPaths()
+
+  if (!is.null(lib.loc)){ 
+    e <- new.env()
+    e$libs <- c(lib.loc, oldlibpaths)
+      
+    if (!dir.exists(lib.loc)) 
+      warnf("lib.loc '%s' not found.", lib.loc)
+    .libPaths(c(lib.loc, oldlibpaths))
+  }
+
   on.exit({
     if ( is.numeric(ncpu) ) parallel::stopCluster(cluster)
+    .libPaths(oldlibpaths)
   })
 
   if (!dir.exists(testdir)){ # if not customized test dir
@@ -953,6 +965,10 @@ test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
   if ( is.null(cluster) ){
     library(pkgname, character.only=TRUE, lib.loc=lib.loc)
   } else {
+    if (!is.null(lib.loc)){ 
+      parallel::clusterExport(cluster, "libs", envir = e)
+      parallel::clusterEvalQ(cluster, .libPaths(libs))
+    }
     parallel::clusterCall(cluster, library, pkgname, character.only=TRUE, lib.loc=lib.loc)
   }
 

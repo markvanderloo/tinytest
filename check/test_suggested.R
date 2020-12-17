@@ -12,9 +12,8 @@ test_packages <- function(pkgs, lib.loc=NULL){
   i <- 0
   for (pkg in pkgs){
     envvar <- list()
-    # this ensures that each pkg runs in its own R session.
     ncpu <- 1
-    if (pkg == "Rcpp"){
+    if (pkg %in% c("Rcpp","RcppArmadillo")){
       envvar <- list(RunAllRcppTests='yes')
       ncpu   <- 6
     }

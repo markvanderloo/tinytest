@@ -21,17 +21,22 @@ make_bash <- function(){
   # harvest package names for ubuntu
   for ( i in seq_along(jsonfiles) ){
     json <- jsonlite::fromJSON(jsonfiles[i])
-    ubuntu <- sapply(json$dependencies$constraints, function(x) any(grepl("ubuntu",x$distribution)))
+    ubuntu <- sapply(json$dependencies$constraints, function(x){ 
+        any(grepl("ubuntu",x$distribution)) & (is.null(x$versions) || any(grepl("20\\.04",x$versions)))
+    })
     if (any(ubuntu)){
       deps[i] <- paste(unique(Reduce(c, json$dependencies$packages[ubuntu])), collapse=" ")
     }
   }
 
-  # rstudio's repo misses some things
-  deps <- c(deps, "libprotoc-dev", "libxt-dev" )  
-
-
-  depstring <- paste(sprintf("sudo apt install --assume-yes %s ",deps), collapse="\n")
+  # rstudio's repo misses some things, because the 'remotes' pkg ignores
+  # dependencies stated in src/Makevars. See this Comment by Jim Hester:
+  # https://github.com/r-lib/remotes/issues/558#issuecomment-736829734
+  deps <- trimws(deps)
+  deps <- unique(c(deps, "libprotoc-dev", "libxt-dev" ))
+  deps <- deps[nchar(deps) >= 2]
+  deps <- paste(deps, collapse=" \\ \n        ")
+  depstring <- paste("sudo apt install --assume-yes \\ \n ",deps)
   
   template <- 
     "
