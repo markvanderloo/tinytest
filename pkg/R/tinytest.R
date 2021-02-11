@@ -812,7 +812,7 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
         , color = color, remove_side_effects = TRUE, ...)
   }
 
-  td <- abs(Sys.time() - t0)
+  td <- abs(as.numeric(Sys.time()) - as.numeric(t0))
   # by using '(parL)|(l)apply' we get a list of tinytests objects. We need to unwind
   # one level to a list of 'tinytest' objects and class it 'tinytests'.
   structure(unlist(test_output,recursive=FALSE), class="tinytests", duration=td)

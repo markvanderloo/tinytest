@@ -1,3 +1,7 @@
+version 1.2.5
+- Fixed time measurement when directory (or pkg) is tested and tests take more
+  then an minute.
+
 version 1.2.4
 - 'test_package' gains 'lib.loc' argument.
 - New function 'expect_inherits' to check the class of an object (thanks
