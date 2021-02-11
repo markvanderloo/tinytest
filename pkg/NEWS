@@ -1,4 +1,5 @@
 version 1.2.5
+- Improved printing while running tests
 - Fixed time measurement when directory (or pkg) is tested and tests take more
   then an minute.
 

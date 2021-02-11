@@ -607,7 +607,7 @@ run_test_file <- function( file
   if (nchar(prfile) > 30 ){
     prfile <- paste0("..",substr(prfile, nchar(prfile)-27,nchar(prfile)))
   }  
-  prfile <- paste("Running",gsub(" ",".",sprintf("%-30s",basename(file))))
+  prfile <- gsub(" ",".",sprintf("%-30s",basename(file)))
 
 
   for ( i in seq_along(parsed) ){
