@@ -555,9 +555,11 @@ run_test_file <- function( file
       }
       grDevices::dev.off()
       # return env var to values before running run_test_file
-      unset <- is.na(old_env_var)
-      Sys.unsetenv(names(old_env_var)[unset])
-      if (any(!unset)) do.call(Sys.setenv, as.list(old_env_var)[!unset])
+      if (exists("old_env_var")){
+        unset <- is.na(old_env_var)
+        Sys.unsetenv(names(old_env_var)[unset])
+        if (any(!unset)) do.call(Sys.setenv, as.list(old_env_var)[!unset])
+      }
   })
 
 
