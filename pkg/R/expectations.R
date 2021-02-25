@@ -4,10 +4,13 @@ isTRUE <- function(x){
   is.logical(x) && length(x) == 1L && !is.na(x) && x
 }
 
-# define this internally, since it was introduced at R 3.5.0
-isFALSE <- function(x){
-  is.logical(x) && length(x) == 1L && !is.na(x) && !x
+if (!exists("isFALSE", mode = "function", envir = baseenv())) {
+  # define this internally, since it was introduced at R 3.5.0
+  isFALSE <- function(x){
+    is.logical(x) && length(x) == 1L && !is.na(x) && !x
+  }
 }
+
 
 #' Tinytest constructor
 #'

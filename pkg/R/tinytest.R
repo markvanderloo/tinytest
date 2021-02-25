@@ -2,6 +2,11 @@
 #' @importFrom parallel makeCluster parLapply stopCluster
 {}
 
+if (!exists("nullfile", mode = "function", envir = baseenv())) {
+  nullfile <- function() if (.Platform$OS.type == "windows") "nul:" else "/dev/null"
+}
+
+
 # directory from which run_test_file() was called (i.e. before it temporarily
 # changes directory
 
@@ -529,7 +534,7 @@ run_test_file <- function( file
 
 
   # make sure that plots get redirected to oblivion
-  grDevices::pdf(file=tempfile())  
+  grDevices::pdf(file=nullfile())  
 
   ## this will store the names of all environment
   ## variables created while running the file.
