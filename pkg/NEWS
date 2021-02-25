@@ -2,6 +2,8 @@ version 1.2.5
 - Improved printing while running tests
 - Fixed time measurement when directory (or pkg) is tested and tests take more
   then an minute.
+- Fix: set_env variables would not be unset in all cases (Thanks to Henrik
+  Bengtsson for the PR)
 
 version 1.2.4
 - 'test_package' gains 'lib.loc' argument.
