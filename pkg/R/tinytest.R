@@ -222,7 +222,7 @@ capture_envvar <- function(fun, env){
 
 unset_envvar <- function(env){
   L <- as.list(env)
-  # Sys.setenv chrashes with empty list
+  # Sys.setenv crashes with empty list
   if ( length(L)>0 ) do.call(Sys.setenv, L)
 }
 
@@ -519,7 +519,7 @@ run_test_file <- function( file
   # set environment variables (if any) to control the R environment during testing.
   if (length(set_env) > 0){
     # first, record current settings
-    old_env_var <- sapply(names(set_env), Sys.getenv, USE.NAMES=TRUE)
+    old_env_var <- sapply(names(set_env), Sys.getenv, unset=NA_character_, USE.NAMES=TRUE)
     # new settings
     do.call(Sys.setenv, set_env)
   }
@@ -555,7 +555,9 @@ run_test_file <- function( file
       }
       grDevices::dev.off()
       # return env var to values before running run_test_file
-      sapply(names(set_env), function(x) Sys.setenv(x = old_env_var[x]))
+      unset <- is.na(old_env_var)
+      Sys.unsetenv(names(old_env_var)[unset])
+      if (any(!unset)) do.call(Sys.setenv, as.list(old_env_var)[!unset])
   })
 
 
