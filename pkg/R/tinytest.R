@@ -308,7 +308,7 @@ add_locally_masked_functions <- function(envir, output){
 #' @export
 using <- function(package, quietly=TRUE){
   pkg <- as.character(substitute(package))
-  if ( !require(pkg, quietly=TRUE, character.only=TRUE) ){
+  if ( !require(pkg, quietly=quietly, character.only=TRUE) ){
     stopf("Package %s could not be loaded",pkg)
   }
   ext <- getOption("tt.extensions", FALSE)
