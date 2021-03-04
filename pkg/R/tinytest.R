@@ -113,6 +113,7 @@ capture <- function(fun, env){
       attr(out,"fst")  <- env$fst
       attr(out,"lst")  <- env$lst
       attr(out,"call") <- env$call
+      attr(out,"trace")<- sys.calls()
       # if not NA, the result is from an expect_ function
       # if NA, it is a side-effect, and we do not attempt to
       # improve the call's format

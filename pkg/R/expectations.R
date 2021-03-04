@@ -57,6 +57,7 @@ if (!exists("isFALSE", mode = "function", envir = baseenv())) {
 #' @keywords internal
 #' @export
 tinytest <- function(result, call
+    , trace= NULL
     , diff = NA_character_
     , short= c(NA_character_,"data","attr","xcpt", "envv","wdir","file")
     , info = NA_character_
@@ -68,6 +69,7 @@ tinytest <- function(result, call
   structure(result         # logical TRUE/FALSE
     , class    = "tinytest"
     , call     = call  # call creating or motivating the object
+    , trace    = trace # list containing stack trace
     , diff     = diff  # diff if isFALSE(result)
     , short    = short # short diff (4 char)
     , info     = info  # user-defined info
@@ -91,6 +93,17 @@ lineformat <- function(x){
   else sprintf("%d",x)
 }
 
+# check if 'call' is a subcall of 'x'.
+# call and x are both objects of class call.
+has_call <- function(call, x){
+  # we do this to ignore possible srcref.
+  attributes(x)    <- NULL
+  attributes(call) <- NULL
+
+  identical(x,call) || length(x) > 1 && any(sapply(x, has_call, call)) 
+
+}
+
 #' @param type \code{[logical]} Toggle format type
 #'
 #' @return A character string
@@ -107,7 +120,19 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   type <- match.arg(type)
 
   d <- attributes(x)
-  call  <- paste0(deparse(d$call), collapse="\n")
+  # trycatch to make absolutely sure that we always return to the default
+  # print, should something go wrong.
+  i <- tryCatch(sapply(d$trace, has_call, d$call), error=function(e) NULL)
+  need_trace <- any(i) && all(i < length(d$trace))
+  
+
+  call  <- if( !need_trace ){
+              paste0(deparse(d$call, control=NULL), collapse="\n")
+           } else {
+              i1 <- which(i)[length(which(i))]
+              j <- seq(i1,length(d$trace))
+              paste0(sapply(d$trace[j], deparse, control=NULL), collapse="\n-->")
+           }
   fst   <- lineformat(d$fst, ...)
   lst   <- lineformat(d$lst, ...)
   file  <- na_str(d$file)
@@ -115,16 +140,18 @@ format.tinytest <- function(x,type=c("long","short"), ...){
   diff  <- d$diff
   info  <- na_str(d$info)
 
+
   result <- if (isTRUE(x)) "PASSED      " 
             else if (isFALSE(x)) sprintf("FAILED[%s]",short)
             else if (is.na(x)  ) sprintf("SIDEFX[%s]",short)
+
   longfmt <- "----- %s: %s<%s--%s>\n%s"
 
   if (type == "short"){
     sprintf("%s: %s<%s--%s> %s", result, basename(file), fst, lst, oneline(call))
   }  else {
     str <- sprintf(longfmt, result, file, fst, lst
-                , indent(call, with=" call| "))
+                , indent(call,  with=" call| "))
     if (isFALSE(x)||is.na(x)) str <- paste0(str, "\n", indent(diff, with=" diff| "))
     if (!is.na(d$info)) str <- paste0(str, "\n", indent(info, with=" info| "))
     str
