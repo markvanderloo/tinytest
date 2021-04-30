@@ -1,3 +1,7 @@
+version 1.2.6
+- Fix in 'expect_equal': reporting in case of differing attributes (Thanks
+  to Ott Toomet for reporting #80).
+
 version 1.2.5
 - tinytest now explicitly depends on R >= 3.2.0, which it already did
   implictly by using 'trimws' and use of source references in 'parse'

@@ -199,12 +199,18 @@ is_scalar <- function(x){
 
 # alt: alternative output
 longdiff <- function(current, target, alt){
+  equivalent_data <- all.equal(target, current
+                       , check.attributes=FALSE
+                       , use.names=FALSE)
+
   if ( identical(class(current), class(target)) && 
        is_scalar(current) && 
        is_scalar(target) ){
-       if ( all(class(current) %in% c("character","ordered","factor", "POSIXt","POSIXct")) ) 
-         sprintf("Expected '%s', got '%s'", target, current)
-       else sprintf("Expected %s, got %s", target, current)
+        if (!isTRUE(equivalent_data)){ 
+          sprintf("Expected '%s', got '%s'", target, current)
+        } else {
+          "Attributes differ"
+        }
   } else if (isTRUE(alt) && is.environment(current)){
     "Equal environment objects, but with different memory location"
   } else {
@@ -216,7 +222,7 @@ longdiff <- function(current, target, alt){
 # are there differences in data and/or attributes, or just in the attributes?
 shortdiff <- function(current, target, ...){
   equivalent_data <- all.equal(target, current
-                       , check_attributes=FALSE
+                       , check.attributes=FALSE
                        , use.names=FALSE,...)
   if (isTRUE(equivalent_data)) "attr"
   else "data"
