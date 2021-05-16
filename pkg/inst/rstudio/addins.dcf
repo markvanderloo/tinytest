@@ -1,0 +1,3 @@
+Name: Run all tests in a directory
+Binding: test_all
+Interactive: false
