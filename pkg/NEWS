@@ -1,11 +1,9 @@
-version 1.2.6
-- Fix in 'expect_equal': reporting in case of differing attributes (Thanks
-  to Ott Toomet for reporting #80).
-
 version 1.2.5
-- tinytest now explicitly depends on R >= 3.2.0, which it already did
-  implictly by using 'trimws' and use of source references in 'parse'
-  (Thanks to Sebastian Meyer for figuring this out)
+- Run test directories via RStudio addin. (Thanks to Matthijs Berends
+  for PR #83)
+- tinytest now explicitly depends on R >= 3.2.0, which it already did implictly
+  by using 'trimws' and use of source references in 'parse' (Thanks to
+  Sebastian Meyer for figuring this out)
 - 'tinytest' objects now store the stack trace as a list of calls.  When
   needed, the relevant part of the trace is printed, but only when printing the
   long form. (thanks to Jonas Kristoffer Lindeloef for suggesting)
@@ -16,6 +14,8 @@ version 1.2.5
   then an minute.
 - Fix: set_env variables would not be unset in all cases (Thanks to Henrik
   Bengtsson for the PR)
+- Fix in 'expect_equal': reporting in case of differing attributes (Thanks to
+  Ott Toomet for reporting #80).
 
 
 version 1.2.4

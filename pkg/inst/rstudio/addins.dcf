@@ -1,3 +1,4 @@
-Name: Run all tests in a directory
+Name: Run all package tests
+Description: Runs all tests in ./inst/description
 Binding: test_all
 Interactive: false
