@@ -1,15 +1,16 @@
 version 1.2.5
 - Run test directories via RStudio addin. (Thanks to Matthijs Berends
   for PR #83)
-- tinytest now explicitly depends on R >= 3.2.0, which it already did implictly
-  by using 'trimws' and use of source references in 'parse' (Thanks to
-  Sebastian Meyer for figuring this out)
+- tinytest used to implicitly depend on R >= 3.2.0 because of using
+  'trimws' and 'dir.exists'. (Thanks to Sebastian Meyer for figuring
+   this out and thanks to Matthijs Berends for PR #84 solving this) 
 - 'tinytest' objects now store the stack trace as a list of calls.  When
   needed, the relevant part of the trace is printed, but only when printing the
   long form. (thanks to Jonas Kristoffer Lindeloef for suggesting)
 - Improved printing while running tests
 - Graphics produced in tests are now written to nullfile() (Thanks to Henrik
-  Bengtsson for the suggestion)
+  Bengtsson for the suggestion). (nullfile() is defined in-package when
+  built on R < 3.6.0).
 - Fixed time measurement when directory (or pkg) is tested and tests take more
   then an minute.
 - Fix: set_env variables would not be unset in all cases (Thanks to Henrik
