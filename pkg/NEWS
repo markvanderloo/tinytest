@@ -1,4 +1,6 @@
-version 1.2.5
+version 1.3.0
+- Package now also resets locale settings after each file run,
+  and 'report_side_effects' also tracks changes in locale settings.
 - Run test directories via RStudio addin. (Thanks to Matthijs Berends
   for PR #83)
 - tinytest used to implicitly depend on R >= 3.2.0 because of using
@@ -12,7 +14,7 @@ version 1.2.5
   Bengtsson for the suggestion). (nullfile() is defined in-package when
   built on R < 3.6.0).
 - Fixed time measurement when directory (or pkg) is tested and tests take more
-  then an minute.
+  than an minute.
 - Fix: set_env variables would not be unset in all cases (Thanks to Henrik
   Bengtsson for the PR)
 - Fix in 'expect_equal': reporting in case of differing attributes (Thanks to
@@ -29,7 +31,7 @@ version 1.2.4
   to Dirk Eddelbuettel for suggesting)
 - Small improvements in difference reporting.
 - Fix: avoid truncated printing in case of long diff reporting (thanks to
-  Sbastian Meyer for the PR)
+  Sebastian Meyer for the PR)
 - Fix: default pattern for test files was "^test_", is now "^test"
   as documented. (Thanks to Sebastian Meyer for the PR).
 - Fix: it is now easier to put tests that you do not want to

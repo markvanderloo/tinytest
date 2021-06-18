@@ -74,8 +74,8 @@ form `expect_lol` there is a function of the form `checkLol`.
 
 #### Monitor side-effects
 
-Side-effects, such as changing environment variables or changing the working
-directory can cause hard-to-trace bugs. Add the statement
+Side-effects, such as changing environment variables, locale settings, or
+changing the working directory can cause hard-to-trace bugs. Add the statement
 ```
 report_side_effects()
 ```

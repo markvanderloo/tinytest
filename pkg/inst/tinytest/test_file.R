@@ -27,6 +27,12 @@ out <- run_test_file("runs/test_envvar.R",verbose=0)
 expect_true(is.na(out[[2]]))
 expect_equal(sum(is.na(sapply(out, c))),1)
 
+# only perform this test when LC_COLLATE is not "C", because
+# setting this is what we try to detect.
+if (Sys.getlocale("LC_COLLATE") != "C"){
+  out <- run_test_file("runs/test_locale.R", verbose=0)
+  expect_true(is.na(out[[2]]))
+}
 
 out <- run_test_file("runs/test_cwd.R", verbose=0)
 expect_true(is.na(out[[1]]))

@@ -232,6 +232,24 @@ unset_envvar <- function(env){
   if ( length(L)>0 ) do.call(Sys.setenv, L)
 }
 
+# locale: old locale settings, recorded before running the
+# file. (character scalar).
+reset_locale <- function(locale){
+  if ( identical(locale, Sys.getlocale()) ) return()
+
+  lcs <- strsplit(locale,";")[[1]]
+  vals <- sub("^.*=","",lcs)
+  names(vals) <- sub("=.*","", lcs)
+  for ( x in names(vals) ){
+     # we use tryCatch as Sys.getlocale() may retrieve locale
+     # settings that can not be set by Sys.setlocale()
+     tryCatch(Sys.setlocale(category = x, locale = vals[x])
+        , error = function(e) NULL, warning = function(w) NULL)
+  }
+  invisible(NULL)
+}
+
+
 capture_options <- function(fun, env){
   function(...){
     out <- fun(...)
@@ -545,6 +563,10 @@ run_test_file <- function( file
   ## the user when running the file.
   oldop <- new.env()
 
+  ## Store locale settings that may be overwritten
+  ## by the user when running the file
+  locale <- Sys.getlocale()
+
   ## clean up side effects
   on.exit({
       ## Clean up tinytest side effects
@@ -558,6 +580,8 @@ run_test_file <- function( file
         unset_envvar(envvar)
         # reset options to the state before running 'file'
         reset_options(oldop)
+        # reset locale settings to starting values
+        reset_locale(locale)
       }
       grDevices::dev.off()
       # return env var to values before running run_test_file
@@ -589,7 +613,8 @@ run_test_file <- function( file
   ## Reduce user side effects by capturing options that will be reset
   ## on exit
   e$options <- capture_options(options, oldop)
-  
+ 
+ 
   ## Set useFancyQuotes, which is usually done by startup.Rs, the location
   ## of which is defined by envvar R_TESTS, which we set to empty now.
   ## See GH issues 36,37
@@ -605,6 +630,7 @@ run_test_file <- function( file
   local_report_envvar <- capture(report_envvar, o)
   local_report_cwd    <- capture(report_cwd, o)
   local_report_files  <- capture(report_files, o)
+  local_report_locale <- capture(report_locale, o)  
 
   # parse file, store source reference.
   check_double_colon(filename=file)
@@ -631,6 +657,8 @@ run_test_file <- function( file
     local_report_envvar(sidefx)
     local_report_cwd(sidefx)
     local_report_files(sidefx)
+    local_report_locale(sidefx)
+
     if (verbose == 2) print_status(prfile, o, color, print=TRUE)
   }
   td <- abs(Sys.time() - t0)
@@ -708,7 +736,7 @@ print_status <- function(filename, env, color, print=TRUE){
   else sprintf(if (color) "\033[0;31m%d fails\033[0m" else "%d fails", env$nfail())
 
   side <- if (env$nside() == 0) ""
-  else  sprintf(if (color) "\033[0;93m%d side-effects\033[0m" else "%d side-effects", env$nside())  
+  else  sprintf(if (color) "\033[0;93m%d side-effects\033[0m " else "%d side-effects ", env$nside())  
 
   if(print) cat(prefix, fails, side, sep=" ")
   else paste(prefix, fails, side, sep=" ")

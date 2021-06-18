@@ -384,12 +384,13 @@ test_package("pkg", side_effects=list(pwd=FALSE))
 If you add \code{report\_side\_effects()} anywhere in a test file, certain
 external variables are  monitored from that point on, and for that file only.
 It can be switched off again by calling \code{report\_side\_effects(FALSE)}
-anywhere in the file.  The reporting functionality will compare the state of
-external variables before and after every expression in the test file and
-report any changes. 
+anywhere in the file.  The reporting functionality will compare the external
+state before and after every expression in the test file is run and report any
+changes. 
 
-At the moment, the variables that can be monitored include environment
-variables and the present working directory.
+At the moment, effects that can be monitored include environment
+variables, locale settings, the present working directory, and file operations
+in the test directory.
 
 
 Below is an example of a test file where side effects are recorded. The third
