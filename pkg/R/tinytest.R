@@ -1086,7 +1086,7 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
 
   pkg <- normalizePath(pkgdir, winslash="/")
 
-  pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"))[1]
+  pkgname <- read.dcf(file.path(pkg, "DESCRIPTION"), fields = "Package")
 
   pattern <- gsub("\\", "\\\\", pattern, fixed=TRUE)
 
