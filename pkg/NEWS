@@ -19,6 +19,8 @@ version 1.3.0
   Bengtsson for the PR)
 - Fix in 'expect_equal': reporting in case of differing attributes (Thanks to
   Ott Toomet for reporting #80).
+- Fix in build_install_test: better reading of DESCRIPTION file (Thanks
+  to Christof Stepper for PR #87)
 
 
 version 1.2.4
