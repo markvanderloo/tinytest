@@ -465,13 +465,14 @@ expect_inherits <- function(current, class, info=NA_character_){
 #' @param pattern \code{[character]} A regular expression to match the message.
 #' @param class \code{[character]} For condition signals (error, warning, message)
 #'        the class from which the condition should inherit.
+#' @param ... passed on to \code{\link{grepl}} (useful for e.g. \code{fixed=TRUE}).
 #' @export
-expect_error <- function(current, pattern=".*", class="error", info=NA_character_){
+expect_error <- function(current, pattern=".*", class="error", info=NA_character_, ...){
   result <- FALSE
   diff <- "No error"
   
   tryCatch(current, error=function(e){
-            matches <- grepl(pattern, e$message)
+            matches <- grepl(pattern, e$message, ...)
             isclass <- inherits(e, class)
 
             if (matches && isclass){
@@ -517,7 +518,7 @@ first_n <- function(L, n=3){
 
 #' @rdname expect_equal
 #' @export
-expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_){
+expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_,...){
  
   messages <- list()
   warnings <- list()  
@@ -542,7 +543,7 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
  
  
   results <- sapply(warnings, function(w) {
-    inherits(w, class) && grepl(pattern, w$message)
+    inherits(w, class) && grepl(pattern, w$message, ...)
   })
 
   if (any(results)){ ## happy flow
@@ -583,7 +584,7 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
 
 #' @rdname expect_equal
 #' @export
-expect_message <- function(current, pattern=".*", class="message", info=NA_character_){
+expect_message <- function(current, pattern=".*", class="message", info=NA_character_, ...){
  
   messages <- list()
   warnings <- list()  
@@ -608,7 +609,7 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
  
  
   results <- sapply(messages, function(m) {
-    inherits(m, class) && grepl(pattern, m$message)
+    inherits(m, class) && grepl(pattern, m$message, ...)
   })
 
   if (any(results)){ ## happy flow
@@ -657,7 +658,7 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
 #'
 #'
 #' @export
-expect_stdout <- function(current, pattern=".*", info=NA_character_){
+expect_stdout <- function(current, pattern=".*", info=NA_character_, ...){
   value <- ""
   msg <- NA_character_
   
@@ -671,7 +672,7 @@ expect_stdout <- function(current, pattern=".*", info=NA_character_){
   close(tc)
 
   value <- paste(value, collapse="\n")
-  result <- grepl(pattern, value)
+  result <- grepl(pattern, value, ...)
   if (!result)
     msg <- sprintf("output '%s'\n does not match pattern '%s'", value, pattern)
 
