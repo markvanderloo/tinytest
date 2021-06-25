@@ -700,10 +700,15 @@ expect_stdout <- function(current, pattern=".*", info=NA_character_){
 #' \code{\link{tempfile}}, or the test is skipped on CRAN, using
 #' \code{\link{at_home}}.
 #' 
-#' Also note that \code{\link{build_install_test}} clones the package and
+#' \code{\link{build_install_test}} clones the package and
 #' builds and tests it in a separate R session in the background. This means
 #' that if you create a file located at \code{tempfile()} during the run, this
 #' file is destroyed when the separate R session is closed.
+#'
+#' \code{expect_error}, \code{expect_warning} and \code{expect_message} will
+#' concatenate all messages when multiple exceptions are thrown, before
+#' matching the message to \code{pattern}.
+#' 
 #'
 #'
 #' @family test-functions
