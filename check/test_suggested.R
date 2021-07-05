@@ -46,7 +46,7 @@ if (!dir.exists(testdir)) dir.create(testdir)
 if (!dir.exists(libdir)) dir.create(libdir, recursive=TRUE)
 
 
-ncpu    <- 7
+ncpu    <- 2
 
 #if(!require(BiocManager)){
 #  install.packages("BiocManager")
