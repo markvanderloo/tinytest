@@ -1,4 +1,4 @@
-version 1.3.0
+version 1.3.1
 - expect_error, _warning, _message, _stdout now accept ... arguments
   that are passed as extra arguments to 'grepl', when a pattern is
   provided (Thanks to Bart-Jan van Rossum for the GH issue).
