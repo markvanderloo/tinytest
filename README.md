@@ -3,8 +3,10 @@
 [![Downloads](http://cranlogs.r-pkg.org/badges/tinytest)](http://cran.r-project.org/package=tinytest/)
 
 
-# tinytest
-A lightweight, no-dependency, full-featured package for unit testing
+# tinytest <img src="img/logo_tinytest.png" width="150" align="right" alt="tinytest has no logo" />
+
+A lightweight, no-dependency, full-featured package for unit testing 
+
 
 [Overview of functionality](pkg/README.md)
 
@@ -28,7 +30,7 @@ cd tinytest
 make install
 ```
 
-![onwards to the tinyverse](watch/growth.png)
+![onwards to the tinyverse](img/growth.png)
 
 ## tinytest philosophy.
 
