@@ -8,8 +8,7 @@
 A lightweight, no-dependency, full-featured package for unit testing 
 
 
-[Overview of functionality](pkg/README.md)
-
+[Overview of functionality](pkg/README.md), or [Watch my talk at useR!2021](https://youtu.be/-PsaqMWfUIg?t=1104)
 
 ## Installing tinytest
 

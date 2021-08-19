@@ -1,5 +1,6 @@
 ### A brief overview of `tinytest`
 
+See also the [Recording of my useR2021 talk](https://youtu.be/-PsaqMWfUIg?t=1104).
 
 #### Package setup
 
