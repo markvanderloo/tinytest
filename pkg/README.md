@@ -60,6 +60,7 @@ the second argument represents the _desired_ value.
 | `expect_identical`               | Target and current must be `identical`               |
 | `expect_inherits`                | Current object must inherit from the desired class   |
 | `expect_null`                    | Expression must evaluate to `NULL`                   |
+| `expect_match`                   | String(s) must match a regular expression.           |
 | `expect_equal_to_reference`      | Object must be equal to an object stored on file     |
 | `expect_equivalent_to_reference` | Object must be equivalent to an object stored on file|
 | `expect_stdout`                  | Expect a printed message (via `print` or `cat`)      |
