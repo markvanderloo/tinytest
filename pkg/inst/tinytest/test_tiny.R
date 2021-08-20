@@ -47,6 +47,10 @@ expect_true(ignore(expect_equivalent_to_reference)(xx, file=fl))
 expect_false(ignore(expect_equal_to_reference)(xx, file=fl))
 
 
+expect_true(ignore(expect_match)("foo", "o"))
+expect_false(ignore(expect_match)("foo","a"))
+expect_false(ignore(expect_match)(c("foo", "bar"),"o"))
+
 
 
 # reading from file

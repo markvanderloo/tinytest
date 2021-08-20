@@ -281,6 +281,46 @@ expect_equal <- function(current, target, tolerance = sqrt(.Machine$double.eps),
 }
 
 
+#' Match strings to a regular expression
+#'
+#' Results in \code{TRUE} only when all elements of current match the regular
+#' expression in \code{pattern}. Matching is done by \code{\link[base]{grepl}}. 
+#' 
+#' @param current \code{[character]} String(s) to check for \code{pattern}.
+#' @param pattern \code{[character]} A regular expression.
+#' @param info \code{[character]} scalar. Optional user-defined message. Must
+#'  be a single character string. Multiline comments may be separated by
+#'  \code{"\\n"}.
+#' @param ... passed to \code{\link[base]{grepl}}
+#'
+#'
+#'
+#' @examples
+#' expect_match("hello world", "world")                    # TRUE
+#' expect_match("hello world", "^world$")                  # FALSE
+#' expect_match("HelLO woRlD", "world", ignore.case=TRUE)  # TRUE
+#' expect_match(c("apple","banana"), "a")                  # TRUE
+#' expect_match(c("apple","banana"), "b")                  # FALSE
+#'
+#' @family test-functions 
+#' @export
+expect_match <- function(current, pattern, info=NA_character_, ...){
+  result <- grepl(pattern, current, ...)
+  out <- isTRUE(all(result))
+  diff <- if (out){ 
+    NA_character_
+  } else {
+    if (length(current)==1){
+      sprintf("Expected string that matches '%s', got '%s'.", pattern, current)
+    } else {
+      sprintf("Not all strings match pattern '%s', for example element [%d]: '%s'"
+         , pattern, which(!result)[1], current[which(!result)[1]])
+    }
+  }
+
+  short <- if (out) NA_character_ else "data"
+  tinytest(result=out, call=sys.call(sys.parent(1)), diff=diff, short=short, info=info)
+}
 
 #' @rdname expect_equal
 #' @export
