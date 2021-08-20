@@ -182,17 +182,21 @@ ignore <- function(fun){
   }
 }
 
-#' Stop testing
+#' Stop testing (conditionally)
 #'
-#' Call this function to exit a test file.
+#' Use \code{exit_file} to exit a file with a custom message, or use
+#' \code{exit_if} to exit if one or more conditions are met. \code{exit_if}
+#' will create a message akin to messages created by \code{\link[base]{stopifnot}}.
 #'
 #' @param msg \code{[character]} An optional message to print after exiting.
-#'
+#' @param ... A comma-separated list of conditions.
 #'
 #' @return The exit message
 #'
 #' @examples
 #' exit_file("I'm too tired to test")
+#' exit_if_not(requireNamespace("foo",quietly=TRUE))
+#' exit_if_not(packageVersion("tinytest")  >= "1.0.0")
 #'
 #' @family test-files
 #' @export
@@ -201,10 +205,29 @@ exit_file <- function(msg="") msg
 # masking function to to call within run_test_file
 capture_exit <- function(fun, env){
   function(...){
-    env$exit <- TRUE
-    env$exitmsg <- fun(...)
+    out <- fun(...)
+    if (is.character(out)){
+      env$exit <- TRUE
+      env$exitmsg <- fun(...)
+    }
   }
 }
+
+#' @rdname exit_file
+#' @export
+exit_if_not <- function(...){
+  L <- as.list(substitute(list(...))[-1])
+  msg <- NULL
+  for ( e in L ){
+    if ( !isTRUE(eval(e)) ){
+      str <- paste0(deparse(e), collapse=" ")
+      msg <- sprintf("'%s' is not TRUE", str)
+      break
+    }
+  }
+  msg
+}
+
 
 
 
@@ -288,6 +311,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_equal_to_reference      <- capture(expect_equal_to_reference, output)
   envir$expect_equivalent_to_reference <- capture(expect_equivalent_to_reference, output)
   envir$exit_file           <- capture_exit(exit_file, output)
+  envir$exit_if_not         <- capture_exit(exit_if_not, output)
   envir$ignore              <- ignore
   envir$at_home             <- tinytest::at_home
 

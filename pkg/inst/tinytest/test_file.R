@@ -50,6 +50,11 @@ expect_equal(length(out),0)
 out <- run_test_file("runs/test_exit.R", verbose=0)
 expect_equal(length(out), 2)
 
+out <- run_test_file("runs/test_exit_if_not.R", verbose=0)
+expect_equal(length(out), 2)
+
+
+
 # plots should not cause an 'Rplots.pdf' file being created
 plot(1:10, 1:10)
 expect_false(exists("Rplots.pdf"))

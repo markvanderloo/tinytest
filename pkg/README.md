@@ -163,9 +163,11 @@ test results. The high-performance
 
 #### Skipping or ignoring tests 
 
-Use `exit_file()` to stop executing a test file, with an optional message.
+Use `exit_file()` or `exit_if_not()` to stop executing a test file, with an
+optional message.
 ```
 exit_file("I'm too tired to test today")
+exit_if_not(requireNamespace('slartibartfast', quietly=TRUE))
 ```
 
 Use `ignore(testfunction)` to run a test but not include the result in the output.

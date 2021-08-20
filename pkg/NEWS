@@ -1,5 +1,7 @@
 version 1.3.2
+- New function 'exit_if': conditionally exit a test file, akin to stopifnot.
 - package has no logo now, thanks to Reto Stauffer!
+
 
 
 version 1.3.1

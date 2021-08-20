@@ -322,6 +322,16 @@ message,  and report the information gathered up to where \code{exit} was
 called. A function like \code{test\_all} will then continue with the next file,
 so testing is not aborted completely.
 
+There is also a convenience function called \code{exit\_if\_not} that functions
+similarly to base R's \code{stopifnot}. It accepts a comma-separated list
+of expressions, and if any one of them does not result in a single \code{TRUE}
+the execution of the test file is stopped with a message. So you can
+do things like this.
+<<>>=
+exit_if_not(requireNamespace("slartibartfast", quietly=TRUE)
+           , packageVersion("slartibartfast") >= "1.0.0")
+@
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
