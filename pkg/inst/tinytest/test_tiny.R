@@ -62,15 +62,17 @@ expect_equal(women, dat)
 expect_warning(warning("foo"))
 expect_error(stop("bar"))
 
-# class of error condition
-ec <- errorCondition(message="wa babalooba", class="foo")
-expect_false(ignore(expect_error)( stop(ec), class="bar" ))
-expect_true (ignore(expect_error)( stop(ec), class="foo" ))
+if (getRversion() >= "3.6.0") {
+  # class of error condition
+  ec <- errorCondition(message="wa babalooba", class="foo")
+  expect_false(ignore(expect_error)( stop(ec), class="bar"))
+  expect_true (ignore(expect_error)( stop(ec), class="foo"))
 
-# class of warning condition
-wc <- warningCondition(message="ba la bamboo", class="foo")
-expect_false(ignore(expect_warning)( warning(wc), class="bar"))
-expect_true (ignore(expect_warning)( warning(wc), class="foo"))
+  # class of warning condition
+  wc <- warningCondition(message="ba la bamboo", class="foo")
+  expect_false(ignore(expect_warning)( warning(wc), class="bar"))
+  expect_true (ignore(expect_warning)( warning(wc), class="foo"))
+}
 
 # messages to stdout
 expect_stdout(print("hihi"))
