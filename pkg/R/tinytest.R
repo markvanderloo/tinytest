@@ -1067,6 +1067,7 @@ test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
 #' @param at_home \code{[logical]} toggle local tests.
 #' @param ncpu \code{[numeric]} number of CPUs to use during the testing phase.
 #' @param verbose \code{[logical]} toggle verbosity during execution
+#' @param color   \code{[logical]} toggle colorize output
 #' @param remove_side_effects \code{[logical]} toggle remove user-defined side
 #'   effects? See section on side effects.
 #' @param side_effects \code{[logical|list]} Either a logical,
@@ -1093,6 +1094,7 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
                              , pattern="^test.*\\.[rR]$"
                              , at_home=TRUE
                              , verbose=getOption("tt.verbose",2)
+                             , color=getOption("tt.pr.color",TRUE)
                              , ncpu = 1
                              , remove_side_effects=TRUE
                              , side_effects=FALSE
@@ -1135,6 +1137,7 @@ suppressPackageStartupMessages({
   testdir <- '%s'
   at_home <- %s
   verbose <- %d
+  color   <- %s
   remove_side_effects <- %s
   side_effects <- %s
   ncpu    <- %d
@@ -1156,6 +1159,7 @@ out <- run_test_dir(system.file(testdir, package=pkgname, lib.loc=tdir)
                    , at_home=at_home
                    , pattern=pattern
                    , verbose=verbose
+                   , color=as.logical(color)
                    , remove_side_effects=remove_side_effects
                    , side_effects=side_effects
                    , cluster=cluster
@@ -1172,6 +1176,7 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
         , testdir
         , at_home
         , verbose
+        , color
         , remove_side_effects
         , side_effects
         , ncpu
