@@ -254,6 +254,14 @@ shortdiff <- function(current, target, ...){
 #' this makes migration from the \code{RUnit} framework a little easier, for those
 #' who wish to do so.
 #'
+#' \code{expect_error}, \code{expect_warning} and \code{expect_message} will
+#' concatenate all messages when multiple exceptions are thrown, before
+#' matching the message to \code{pattern}.
+#' 
+#' When speccifying regular expression patterns for errors, warnings or messages,
+#' note that \code{\link[base]{message}} adds a LF character by default at the end
+#' of the message string. 
+#'
 #' @section More information and examples:
 #'
 #' \itemize{
@@ -745,11 +753,6 @@ expect_stdout <- function(current, pattern=".*", info=NA_character_, ...){
 #' builds and tests it in a separate R session in the background. This means
 #' that if you create a file located at \code{tempfile()} during the run, this
 #' file is destroyed when the separate R session is closed.
-#'
-#' \code{expect_error}, \code{expect_warning} and \code{expect_message} will
-#' concatenate all messages when multiple exceptions are thrown, before
-#' matching the message to \code{pattern}.
-#' 
 #'
 #'
 #' @family test-functions
