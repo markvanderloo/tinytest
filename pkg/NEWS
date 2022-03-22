@@ -6,7 +6,8 @@ version 1.3.2
 - package has no logo now, thanks to Reto Stauffer!
 - 'build_install_test' gains 'color' argument (thanks to Tim Taylor
   for suggesting)
-
+- Fixed reporting issue for class labels on conditions. (thanks to dherz 
+  for reporting)
 
 
 version 1.3.1

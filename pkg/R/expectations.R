@@ -526,8 +526,8 @@ expect_error <- function(current, pattern=".*", class="error", info=NA_character
             if (matches && isclass){
               result <<- TRUE
             } else if (!isclass){
-              diff <<- sprintf("Error of class '%s', does not inherit from '%s'"
-                              , paste(class(e), collapse=", "), class)
+              diff <<- sprintf("Error of class <%s>, does not inherit from <%s>"
+                              , paste(class(e), collapse=", "), paste(class,collapse=","))
             } else if (!matches){
               diff <<- sprintf("The error message:\n '%s'\n does not match pattern '%s'"
                               , e$message, pattern)
@@ -605,14 +605,15 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
     } else {
       n_right_class <- sum(sapply(warnings, function(w) inherits(w, class)))
       if (n_right_class == 0){
-        head <- sprintf("Found %d warning(s), but not of class '%s'.", nwrn, class)
+        head <- sprintf("Found %d warning(s), but not of class <%s>."
+                       , nwrn, paste(class,collapse=", "))
         head <- paste(head, "Showing up to three warnings:\n")
         body <- first_n(warnings)
         paste(head, body)
       } else {
         wrns <- Filter(function(w) inherits(w,class), warnings)
-        head <- sprintf("Found %d warnings(s) of class '%s', but not matching '%s'."
-                      , nwrn, class, pattern)
+        head <- sprintf("Found %d warnings(s) of class <%s>, but not matching '%s'."
+                      , nwrn, paste(class, collapse=", "), pattern)
         head <- paste(head,"\nShowing up to three warnings:\n")
         body <- first_n(wrns)
         paste(head, body) 
@@ -671,14 +672,15 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
     } else {
       n_right_class <- sum(sapply(messages, function(m) inherits(m, class)))
       if (n_right_class == 0){
-        head <- sprintf("Found %d message(s), but not of class '%s'.", nmsg, class)
+        head <- sprintf("Found %d message(s), but not of class <%s>."
+                        , nmsg, paste(class,collapse=", "))
         head <- paste(head, "Showing up to three messages:\n")
         body <- first_n(messages)
         paste(head, body)
       } else {
         msgs <- Filter(function(m) inherits(m,class), messages)
-        head <- sprintf("Found %d message(s) of class '%s', but not matching '%s'."
-                      , nmsg, class, pattern)
+        head <- sprintf("Found %d message(s) of class <%s>, but not matching '%s'."
+                      , nmsg, paste(class, collapse=", "), pattern)
         head <- paste(head,"\nShowing up to three messages:\n")
         body <- first_n(msgs)
         paste(head, body) 
