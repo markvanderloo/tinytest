@@ -481,6 +481,8 @@ register_tinytest_extension <- function(pkg, functions){
 #' @param set_env \code{[named list]}. Key=value pairs of environment variables
 #' that will be set before the test file is run and reset afterwards. These are not
 #' counted as side effects of the code under scrutiny.
+#' @param encoding \code{[character]} Define encoding argument passed to \code{\link[base]{parse}}
+#'        when parsing \code{file}.
 #' @param ... Currently unused
 #' 
 #' @details
@@ -556,6 +558,7 @@ run_test_file <- function( file
                          , remove_side_effects = TRUE 
                          , side_effects = FALSE
                          , set_env = list()
+                         , encoding="unknown"
                          , ...){
 
   if (!file_test("-f", file)){
@@ -658,7 +661,7 @@ run_test_file <- function( file
 
   # parse file, store source reference.
   check_double_colon(filename=file)
-  parsed <- parse(file=file, keep.source=TRUE)
+  parsed <- parse(file=file, keep.source=TRUE, encoding=encoding)
   src <- attr(parsed, "srcref")
   o$file <- file
 
@@ -1099,7 +1102,8 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
                              , remove_side_effects=TRUE
                              , side_effects=FALSE
                              , lc_collate = getOption("tt.collate",NA)
-                             , keep_tempdir=FALSE){
+                             , keep_tempdir=FALSE
+                             , encoding="unknown"){
   oldwd <- getwd()
   tdir  <- tempfile()
   on.exit({setwd(oldwd)
@@ -1142,6 +1146,7 @@ suppressPackageStartupMessages({
   side_effects <- %s
   ncpu    <- %d
   lc_collate <- %s
+  encoding <- '%s'
 
   #        pkgname       tdir
   library(pkgname, lib.loc=tdir,character.only=TRUE)
@@ -1163,7 +1168,8 @@ out <- run_test_dir(system.file(testdir, package=pkgname, lib.loc=tdir)
                    , remove_side_effects=remove_side_effects
                    , side_effects=side_effects
                    , cluster=cluster
-                   , lc_collate=lc_collate)
+                   , lc_collate=lc_collate
+                   , encoding=encoding)
 
 saveRDS(out, file='output.RDS')
 
@@ -1180,7 +1186,8 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
         , remove_side_effects
         , side_effects
         , ncpu
-        , lc_collate)
+        , lc_collate
+        , encoding)
 
   write(scr, file="test.R")
   system("Rscript test.R")
