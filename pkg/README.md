@@ -58,6 +58,7 @@ the second argument represents the _desired_ value.
 | `expect_equal`                   | Data and attributes of arguments must be equal       |
 | `expect_equivalent`              | Data of arguments must be equal                      |
 | `expect_identical`               | Target and current must be `identical`               |
+| `expect_length`                  | Check length of argument                             |
 | `expect_inherits`                | Current object must inherit from the desired class   |
 | `expect_null`                    | Expression must evaluate to `NULL`                   |
 | `expect_match`                   | String(s) must match a regular expression.           |

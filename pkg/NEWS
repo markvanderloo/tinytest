@@ -1,4 +1,6 @@
 version 1.3.2
+- New function 'expect_length' checks length of object (thanks to Marcel Ramos 
+  for suggesting).
 - New function 'exit_if': conditionally exit a test file, akin to stopifnot.
   (Thanks to Grant McDermott for triggering this).
 - New function 'expect_match' to test whether string output(s) match a 

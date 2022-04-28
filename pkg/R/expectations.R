@@ -288,6 +288,27 @@ expect_equal <- function(current, target, tolerance = sqrt(.Machine$double.eps),
   tinytest(result = equal, call = sys.call(sys.parent(1)), diff=diff, short=short, info=info)
 }
 
+#' Check length of an object
+#'
+#' @param current \code{[object]} An R object with a length
+#' @param length \code{[integer]} A nonnegative integer
+#' 
+#' @family test-functions
+#'
+#' @examples
+#' expect_length(3:4, 2) # TRUE
+#' expect_length(2:5, 1) # FALSE
+#'
+#' @export
+expect_length <- function(current, length, info=NA_character_,...){
+  ln <- length(current)
+  equal <- isTRUE(abs(ln - length) == 0)
+  diff <- if (equal) NA_character_ 
+          else sprintf("Expected object of length %d, got %s", length, ln)
+  short <- if (equal) NA_character_ else "data"
+
+  tinytest(result = equal, call=sys.call(sys.parent(1)), diff=diff, short=short, info=info) 
+}
 
 #' Match strings to a regular expression
 #'

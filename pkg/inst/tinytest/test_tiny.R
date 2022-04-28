@@ -52,6 +52,9 @@ expect_false(ignore(expect_match)("foo","a"))
 expect_false(ignore(expect_match)(c("foo", "bar"),"o"))
 
 
+expect_true(ignore(expect_length)(1:2,2))
+expect_false(ignore(expect_length)(1:2,3))
+
 
 # reading from file
 dat <- read.csv("women.csv")

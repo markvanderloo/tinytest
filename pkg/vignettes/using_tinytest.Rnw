@@ -137,6 +137,7 @@ Currently, the following expectations are implemented.
 \code{expect\_equal(current, target)}      & equality (using \code{all.equal})\\
 \code{expect\_equivalent(current, target)} & equality, ignoring attributes\\
 \code{expect\_identical(current, target)}  & equality, (using, \code{identical})\\
+\code{expect\_length(current, length)}     & check lenght of object\\
 \code{expect\_true(current)}               & \code{current} evaluates to \code{TRUE}\\
 \code{expect\_false(current)}              & \code{current} evaluates to \code{FALSE}\\
 \code{expect\_match(current, pattern)}     & All strings in \code{current} match \code{pattern}\\
@@ -145,7 +146,11 @@ Currently, the following expectations are implemented.
 \code{expect\_error(current, pattern)}     & error message matching \code{pattern}\\
 \code{expect\_warning(current, pattern)}   & warning message matching \code{pattern}\\
 \code{expect\_message(current, pattern)}   & message matching \code{pattern}\\
-\code{expect\_silent(current, pattern)}    & expect no warnings or errors (just run)\\
+\code{expect\_silent(current)}             & expect no warnings or errors (just run)\\
+\code{expect\_stdout(current, pattern)}    & expect output to \code{stdout} matching \code{pattern}\\
+\code{expect\_equal\_to\_reference(current, file)} & expect object equal to object stored in RDS file\\
+\code{expect\_equivalent\_to\_reference(current, file)} & expect object equivalent to object stored in RDS file\\
+
 \end{tabular}
 \end{center}
 Here, \code{target} is the intended outcome and \code{current} is the observed

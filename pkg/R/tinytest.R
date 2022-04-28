@@ -298,6 +298,7 @@ add_locally_masked_functions <- function(envir, output){
   # it is faster then loading via getFromNamespace()
   envir$expect_equal        <- capture(expect_equal, output)
   envir$expect_equivalent   <- capture(expect_equivalent, output)
+  envir$expect_length       <- capture(expect_length, output)
   envir$expect_true         <- capture(expect_true, output)
   envir$expect_false        <- capture(expect_false, output)
   envir$expect_inherits     <- capture(expect_inherits, output)
