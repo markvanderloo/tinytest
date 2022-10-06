@@ -461,7 +461,7 @@ expect_silent(plot(rule))
 expect_silent(plot(cf))
 @
 
-The \pkg{lumberjack} package creats log files that track changes in 
+The \pkg{lumberjack} package creates log files that track changes in
 data. In one test it is first tested whether a file has been generated,
 next it is tested whether it can be read properly. This is also an
 example of programming over test results, since the file is deleted
