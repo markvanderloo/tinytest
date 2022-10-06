@@ -195,9 +195,10 @@ ignore <- function(fun){
 #'
 #' @examples
 #' exit_file("I'm too tired to test")
-#' exit_if_not(requireNamespace("foo",quietly=TRUE))
 #' exit_if_not(packageVersion("tinytest")  >= "1.0.0")
-#'
+#' \dontrun{
+#' exit_if_not(requireNamespace("foo",quietly=TRUE))
+#' }
 #' @family test-files
 #' @export
 exit_file <- function(msg="") msg
@@ -1083,6 +1084,7 @@ test_package <- function(pkgname, testdir = "tinytest", lib.loc=NULL
 #' @param keep_tempdir \code{[logical]} keep directory where the pkg is
 #'   installed and where tests are run? If \code{TRUE}, the directory is not
 #'   deleted and it's location is printed.
+#' @param encoding \code{[character]} Encoding parameter passed to \code{\link[base]{parse}}.
 #'
 #'
 #' @return A \code{tinytests} object.

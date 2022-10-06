@@ -333,7 +333,7 @@ similarly to base R's \code{stopifnot}. It accepts a comma-separated list
 of expressions, and if any one of them does not result in a single \code{TRUE}
 the execution of the test file is stopped with a message. So you can
 do things like this.
-<<>>=
+<<eval=FALSE>>=
 exit_if_not(requireNamespace("slartibartfast", quietly=TRUE)
            , packageVersion("slartibartfast") >= "1.0.0")
 @

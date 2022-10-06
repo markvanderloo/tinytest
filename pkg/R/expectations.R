@@ -292,6 +292,9 @@ expect_equal <- function(current, target, tolerance = sqrt(.Machine$double.eps),
 #'
 #' @param current \code{[object]} An R object with a length
 #' @param length \code{[integer]} A nonnegative integer
+#' @param info \code{[character]} scalar. Optional user-defined message. Must
+#'  be a single character string. Multiline comments may be separated by
+#' @param ... Currently not used.
 #' 
 #' @family test-functions
 #'

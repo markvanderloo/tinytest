@@ -31,7 +31,7 @@ revdep: pkg
 	rm -rf revdep
 	mkdir revdep
 	mv *.tar.gz revdep
-	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='Suggests'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
+	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='Imports'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
 
 devcheck:
