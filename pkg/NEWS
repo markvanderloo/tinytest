@@ -1,4 +1,7 @@
-version 1.3.2
+version 1.4.0
+- expect_warning and expect_message gain argument 'strict'. This toggles
+  between failing when an exception worse than the expected one is thrown.
+  (Thanks to Joshua Ulrich for the suggestion)
 - New function 'expect_length' checks length of object (thanks to Marcel Ramos 
   for suggesting).
 - New function 'exit_if': conditionally exit a test file, akin to stopifnot.
