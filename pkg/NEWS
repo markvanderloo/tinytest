@@ -13,6 +13,8 @@ version 1.3.2
   for suggesting).
 - Fixed reporting issue for class labels on conditions. (thanks to dherz 
   for reporting)
+- Fixed bug: multiple extension packages are now possible (thanks
+  to Vincent Arel-Bundock for the PR)
 
 
 version 1.3.1
