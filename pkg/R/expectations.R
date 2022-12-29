@@ -242,6 +242,8 @@ shortdiff <- function(current, target, ...){
 #' @param info \code{[character]} scalar. Optional user-defined message. Must
 #'  be a single character string. Multiline comments may be separated by
 #'  \code{"\\n"}.
+#' @param strict \code{[logical]} scalar. If set to \code{TRUE}, any exception 
+#'        worse than the wanted exception will cause the test to fail.
 #' @param ... Passed to \code{all.equal}
 #'
 #' @return A \code{\link{tinytest}} object. A tinytest object is a
@@ -590,7 +592,8 @@ first_n <- function(L, n=3){
 
 #' @rdname expect_equal
 #' @export
-expect_warning <- function(current, pattern=".*", class="warning", info=NA_character_,...){
+expect_warning <- function(current, pattern=".*"
+                         , class="warning", info=NA_character_, strict=FALSE,...){
  
   messages <- list()
   warnings <- list()  
@@ -644,10 +647,19 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
       }
     }
   }
+  
+  if (strict && nerr > 0){
+    result <- FALSE
+  }
 
-  if (!result && (nmsg > 0 || nerr > 0)) 
-    diff <- paste0(diff,sprintf("\nAlso found %d message(s) and %d error(s)"
-              , nmsg, nerr))
+  if (!result && (nmsg > 0 || nerr > 0)){ 
+    diff <- paste0(diff,sprintf("\nFound %d message(s), %d warning(s), and %d error(s):\n"
+              , nmsg, nwrn, nerr))
+    mm <- paste(sprintf("MSG: %s",sapply(messages, function(m) m$message)), collapse="\n")
+    ww <- paste(sprintf("WRN: %s",sapply(warnings, function(w) w$message)), collapse="\n")
+    ee <- paste(sprintf("\nERR: %s",sapply(errors, function(e) e$message)), collapse="\n")
+    diff <- paste(diff,mm,ww,ee)
+  }
 
   tinytest(result, call=sys.call(sys.parent(1))
           , short=short, diff=diff, info=info)
@@ -657,7 +669,8 @@ expect_warning <- function(current, pattern=".*", class="warning", info=NA_chara
 
 #' @rdname expect_equal
 #' @export
-expect_message <- function(current, pattern=".*", class="message", info=NA_character_, ...){
+expect_message <- function(current, pattern=".*"
+                , class="message", info=NA_character_, strict=FALSE, ...){
  
   messages <- list()
   warnings <- list()  
@@ -712,9 +725,18 @@ expect_message <- function(current, pattern=".*", class="message", info=NA_chara
     }
   }
 
-  if (!result && (nwrn > 0 || nerr > 0)) 
-    diff <- paste0(diff,sprintf("\nAlso found %d warning(s) and %d error(s)"
-              , nwrn, nerr))
+  if (strict && (nwrn >0 || nerr > 0)){
+    result <- FALSE
+  }
+
+  if (!result && (nwrn > 0 || nerr > 0)){ 
+    diff <- paste0(diff,sprintf("\nFound %d message(s), %d warning(s), and %d error(s):\n"
+              , nmsg, nwrn, nerr))
+    mm <- paste(sprintf("MSG: %s",sapply(messages, function(m) m$message)), collapse="\n")
+    ww <- paste(sprintf("WRN: %s",sapply(warnings, function(w) w$message)), collapse="\n")
+    ee <- paste(sprintf("\nERR: %s",sapply(errors, function(e) e$message)), collapse="\n")
+    diff <- paste(diff,mm,ww,ee)
+  }
 
   tinytest(result, call=sys.call(sys.parent(1))
           , short=short, diff=diff, info=info)
