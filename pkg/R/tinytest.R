@@ -363,7 +363,7 @@ using <- function(package, quietly=TRUE){
   } else {
     ext
   }
-  names(out) <- pkg
+  if (length(out) == 1) names(out) <- pkg
   invisible(out)
 }
 
@@ -373,22 +373,24 @@ capture_using <- function(fun, envir, output){
     ext <- fun(...)
     
     # get package name
-    pkg <- names(ext)
-    functions <- ext[[pkg]]
+    pkgs <- names(ext)
 
-    for ( func in functions ){ # get funcy!
-      # get function object from namespace
-      f <- tryCatch(getFromNamespace(func, pkg)
-          , error = function(e){
-              msg <- sprintf("Loading '%s' extensions failed with message:\n'%s'"
-                            , pkg, e$message)
-              warning(msg, call.=FALSE)
-            })
-
-      # mask'm like there's no tomorrow 
-      envir[[func]] <- capture(f, output)
-      
+    for ( pkg in pkgs ){
+      functions <- ext[[pkg]]
+      for ( func in functions ){ # get funcy!
+        # get function object from namespace
+        f <- tryCatch(getFromNamespace(func, pkg)
+            , error = function(e){
+                msg <- sprintf("Loading '%s' extensions failed with message:\n'%s'"
+                              , pkg, e$message)
+                warning(msg, call.=FALSE)
+              })
+  
+        # mask'm like there's no tomorrow 
+        envir[[func]] <- capture(f, output)
+      }
     }
+
     invisible(ext)
   }
 }
