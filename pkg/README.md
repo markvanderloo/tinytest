@@ -222,7 +222,8 @@ vignette("using_tinytest", package="tinytest")
 For the underlying method, see MPJ van der Loo (2021) _[A Method for Deriving
 Information from Running R
 Code](https://journal.r-project.org/articles/RJ-2021-056/)_ The R journal
-**13**(1).
+**13**(1). Or watch the [useR2020 talk](https://www.youtube.com/watch?v=55sP4ytE1uc)
+on the paper.
 
 
 
