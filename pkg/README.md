@@ -219,6 +219,10 @@ See the vignette.
 vignette("using_tinytest", package="tinytest")
 ```
 
+For the underlying method, see MPJ van der Loo (2021) _[A Method for Deriving
+Information from Running R
+Code](https://journal.r-project.org/articles/RJ-2021-056/)_ The R journal
+**13**(1).
 
 
 
