@@ -618,7 +618,7 @@ expect_warning <- function(current, pattern=".*"
  
  
   results <- sapply(warnings, function(w) {
-    inherits(w, class) && grepl(pattern, w$message, ...)
+    inherits(w, class) && any(grepl(pattern, w$message, ...), na.rm = TRUE)
   })
 
   if (any(results)){ ## happy flow
