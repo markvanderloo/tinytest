@@ -207,9 +207,11 @@ exit_file <- function(msg="") msg
 capture_exit <- function(fun, env){
   function(...){
     out <- fun(...)
+    env$exit <- TRUE
     if (is.character(out)){
-      env$exit <- TRUE
-      env$exitmsg <- fun(...)
+      env$exitmsg <- out
+    } else {
+      env$exitmsg <- tryCatch(as.character(out), error=function(e) "???")
     }
   }
 }

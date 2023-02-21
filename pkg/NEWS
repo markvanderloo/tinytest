@@ -1,4 +1,4 @@
-version 1.4.0
+version 1.4.1
 - expect_warning and expect_message gain argument 'strict'. This toggles
   between failing when an exception worse than the expected one is thrown.
   (Thanks to Joshua Ulrich for the suggestion)
@@ -14,6 +14,7 @@ version 1.4.0
 - 'run_test_file' and 'build_install_test' gain 'encoding' argument that
   is passed to 'parse' for reading test files (thanks to Vincent Goulet
   for suggesting).
+- exit_file() is now safeguarded against non-character argument.
 - Fixed reporting issue for class labels on conditions. (thanks to dherz 
   for reporting)
 - Fixed bug: multiple extension packages are now possible (thanks
