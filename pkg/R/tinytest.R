@@ -316,6 +316,7 @@ add_locally_masked_functions <- function(envir, output){
   envir$expect_equivalent_to_reference <- capture(expect_equivalent_to_reference, output)
   envir$exit_file           <- capture_exit(exit_file, output)
   envir$exit_if_not         <- capture_exit(exit_if_not, output)
+  envir$expect_match        <- capture(expect_match, output)
   envir$ignore              <- ignore
   envir$at_home             <- tinytest::at_home
 
