@@ -1,3 +1,10 @@
+version 1.4.2
+- expect_match is now available when testing packages (thanks to 
+  Tim Taylor for the PR and Marcel Ramos for reporting)
+- fix in pattern matching for warnings (thanks for Matthijs Berends
+  for the PR)
+
+
 version 1.4.1
 - expect_warning and expect_message gain argument 'strict'. This toggles
   between failing when an exception worse than the expected one is thrown.
