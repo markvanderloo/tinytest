@@ -3,7 +3,8 @@ version 1.4.2
   Tim Taylor for the PR and Marcel Ramos for reporting)
 - fix in pattern matching for warnings (thanks for Matthijs Berends
   for the PR)
-
+- Fixed exit_if_not() that would always exit (thanks to Vincent 
+  Arel-Bundock for reporting)
 
 version 1.4.1
 - expect_warning and expect_message gain argument 'strict'. This toggles
