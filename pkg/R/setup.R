@@ -27,10 +27,10 @@
 #' @return \code{NULL}, invisibly.
 #'
 #' @export
-setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
+setup_tinytest <- function(pkgdir, force = FALSE, verbose = TRUE) {
   # local, verbosity-aware catf
   catf <- function(fmt, ...) if (verbose) cat(sprintf(fmt,...))
-  if (!dir.exists(pkgdir)){
+  if (!dir.exists(pkgdir)) {
     stopf("%s does not exist or is not a directory", pkgdir)
   }
 
@@ -45,31 +45,31 @@ setup_tinytest <- function(pkgdir, force=FALSE, verbose=TRUE){
       , "Enhances")
 
   ## Get pkg name form DESCRIPTION
-  dfile <- file.path(pkgdir,"DESCRIPTION")
-  if (file.exists(dfile)){
-    dcf <- read.dcf(dfile, keep.white=kw)
+  dfile <- file.path(pkgdir, "DESCRIPTION")
+  if (file.exists(dfile)) {
+    dcf <- read.dcf(dfile, keep.white = kw)
     pkgname <- dcf[, "Package"]
   } else {
-    stopf("No DESCRIPTION file in %s",pkgdir)
+    stopf("No DESCRIPTION file in %s", pkgdir)
   }
 
   ## Create pkgdir/tests
-  testdir <- file.path(pkgdir,'tests')
-  if ( !dir.exists(testdir) ){
+  testdir <- file.path(pkgdir, 'tests')
+  if (!dir.exists(testdir)) {
     catf("Creating %s\n", testdir)
     dir.create(testdir) 
   }
   
   ## Write pkgdir/tests/tinytest.R
-  testfile <- file.path(testdir,"tinytest.R")
+  testfile <- file.path(testdir, "tinytest.R")
   test_statement <- sprintf('
-if ( requireNamespace("tinytest", quietly=TRUE) ){
+if (requireNamespace("tinytest", quietly = TRUE)) {
   tinytest::test_package("%s")
 }
 ', pkgname)
 
-  if ( !file.exists(testfile) || force ){
-    catf("Creating %s\n", testfile )
+  if (!file.exists(testfile) || force) {
+    catf("Creating %s\n", testfile)
     write(test_statement, file = testfile)
   } 
 
@@ -77,14 +77,14 @@ if ( requireNamespace("tinytest", quietly=TRUE) ){
   # (dir.create with recursive=TRUE does not always work
   # on the OS that we shall not name)
   instdir <- file.path(pkgdir, "inst")
-  if (!dir.exists(instdir)){
+  if (!dir.exists(instdir)) {
     catf("Creating %s\n", instdir)
     dir.create(instdir)
   }
 
-  ttdir <- file.path(instdir,"tinytest")
-  if (!dir.exists(ttdir)){
-    catf("Creating %s\n",ttdir)
+  ttdir <- file.path(instdir, "tinytest")
+  if (!dir.exists(ttdir)) {
+    catf("Creating %s\n", ttdir)
     dir.create(ttdir)
   }
 
@@ -96,28 +96,28 @@ expect_equal(1 + 1, 2)
 '
   
   ttfile <- file.path(ttdir, sprintf("test_%s.R",pkgname))
-  if ( !file.exists(ttfile) || force ){
+  if (!file.exists(ttfile) || force) {
     catf("Creating %s\n", ttfile)
-    write(example_test, file=ttfile)
+    write(example_test, file = ttfile)
   }
 
   ## Add tinytest to DESCRIPTION file
   suggests <- if ("Suggests" %in% colnames(dcf)) dcf[1,"Suggests"] else NA
-  if (!is.na(suggests) && !grepl("tinytest",suggests)){
+  if (!is.na(suggests) && !grepl("tinytest", suggests)){
     catf("Adding 'tinytest' to DESCRIPTION/Suggests\n")
-    dcf[1,"Suggests"] <- sprintf("%s, tinytest",suggests)
-    write.dcf(dcf, dfile, keep.white=kw)
-  } else if ( is.na(suggests) ) {
+    dcf[1, "Suggests"] <- sprintf("%s, tinytest", suggests)
+    write.dcf(dcf, dfile, keep.white = kw)
+  } else if (is.na(suggests)) {
     catf("Adding 'Suggests: tinytest' to DESCRIPTION\n")
     dcf <- cbind(dcf, Suggests = "tinytest")
-    write.dcf(dcf, dfile, keep.white=kw)
+    write.dcf(dcf, dfile, keep.white = kw)
   }
 
   # If another test package is already present, perhaps the user
   # wants to take it out.
-  other_test_package <- c("RUnit","testthat","unity","testit")
-  suggested <- trimws(strsplit(dcf[1,"Suggests"], ",")[[1]])
-  if (any(other_test_package %in% suggested)){
+  other_test_package <- c("RUnit", "testthat", "unity", "testit")
+  suggested <- trimws(strsplit(dcf[1, "Suggests"], ",")[[1]])
+  if (any(other_test_package %in% suggested)) {
     pkgs <- paste(other_test_package[other_test_package %in% suggested], collapse=", ")
     catf("You may want to remove the following packages from DESCRIPTION/Suggests: %s\n", pkgs)
   }
@@ -137,8 +137,8 @@ expect_equal(1 + 1, 2)
 #'
 #' @keywords internal
 #' @export
-puppy <- function(pkgdir, force=FALSE, verbose=TRUE){
-  setup_tinytest(pkgdir=pkgdir, force=force, verbose=verbose)
+puppy <- function(pkgdir, force = FALSE, verbose = TRUE){
+  setup_tinytest(pkgdir = pkgdir, force = force, verbose = verbose)
   catf("\nThank you %s, for showing us some PUPPY LOVE <3\n",Sys.info()["user"])
   catf(doggy)
 }
@@ -150,4 +150,3 @@ doggy <- "
      { (_) }  W00F!
       `-^-'   
 "
-
