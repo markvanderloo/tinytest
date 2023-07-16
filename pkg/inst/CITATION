@@ -3,8 +3,8 @@ bibentry(bibtype = "article",
  , author = c(person("MPJ", "van der Loo"))
  , year = 2020
  , journal = "The R Journal"
- , volume = ""
- , issue  = ""
- , url = "https://arxiv.org/abs/2002.07472"
- , pages = "Accepted for publication"
+ , volume = "13"
+ , issue  = "1"
+ , url = "https://journal.r-project.org/articles/RJ-2021-056/"
+ , pages = "42-52"
 )
