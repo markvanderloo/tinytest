@@ -1,7 +1,8 @@
 version 1.4.2
 - expect_<condition> now uses conditionMessage internally. This
   should increase compatibility with packages defining custom
-  conditions. (thanks to Tim Taylor for suggesting)
+  conditions. (thanks to Tim Taylor for suggesting and Etienne Bacher
+  for reporting)
 - expect_match is now available when testing packages (thanks to 
   Tim Taylor for the PR and Marcel Ramos for reporting)
 - fix in pattern matching for warnings (thanks for Matthijs Berends
