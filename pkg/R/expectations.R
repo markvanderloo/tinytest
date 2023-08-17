@@ -472,12 +472,12 @@ expect_silent <- function(current, quiet=TRUE, info=NA_character_){
   tryCatch(current
     , error = function(e){
         result <<- FALSE 
-        msg <<- e$message
+        msg <<- conditionMessage(e)
         type <<- "An error"
     } 
     , warning = function(w){
         result <<- FALSE
-        msg <<- w$message
+        msg <<- conditionMessage(w)
         type <<- "A warning"
     }
   )
@@ -546,7 +546,7 @@ expect_error <- function(current, pattern=".*", class="error", info=NA_character
   diff <- "No error"
   
   tryCatch(current, error=function(e){
-            matches <- grepl(pattern, e$message, ...)
+            matches <- grepl(pattern, conditionMessage(e), ...)
             isclass <- inherits(e, class)
 
             if (matches && isclass){
@@ -556,7 +556,7 @@ expect_error <- function(current, pattern=".*", class="error", info=NA_character
                               , paste(class(e), collapse=", "), paste(class,collapse=","))
             } else if (!matches){
               diff <<- sprintf("The error message:\n '%s'\n does not match pattern '%s'"
-                              , e$message, pattern)
+                              , conditionMessage(e), pattern)
             }
   })
   tinytest(result, call = sys.call(sys.parent(1))
@@ -582,7 +582,7 @@ first_n <- function(L, n=3){
   }) 
 
 
-   msgtxt <- sub("\\n$","", sapply(L[i], function(m) m$message))
+   msgtxt <- sub("\\n$","", sapply(L[i], conditionMessage))
    
    out   <- sprintf("%s %d of class <%s>:\n  '%s'",maintype, i, msgcls, msgtxt)
    paste(out, collapse="\n")
@@ -618,7 +618,7 @@ expect_warning <- function(current, pattern=".*"
  
  
   results <- sapply(warnings, function(w) {
-    inherits(w, class) && any(grepl(pattern, w$message, ...), na.rm = TRUE)
+    inherits(w, class) && any(grepl(pattern, conditionMessage(w), ...), na.rm = TRUE)
   })
 
   if (any(results)){ ## happy flow
@@ -655,9 +655,9 @@ expect_warning <- function(current, pattern=".*"
   if (!result && (nmsg > 0 || nerr > 0)){ 
     diff <- paste0(diff,sprintf("\nFound %d message(s), %d warning(s), and %d error(s):\n"
               , nmsg, nwrn, nerr))
-    mm <- paste(sprintf("MSG: %s",sapply(messages, function(m) m$message)), collapse="\n")
-    ww <- paste(sprintf("WRN: %s",sapply(warnings, function(w) w$message)), collapse="\n")
-    ee <- paste(sprintf("\nERR: %s",sapply(errors, function(e) e$message)), collapse="\n")
+    mm <- paste(sprintf("MSG: %s",sapply(messages, conditionMessage)), collapse="\n")
+    ww <- paste(sprintf("WRN: %s",sapply(warnings, conditionMessage)), collapse="\n")
+    ee <- paste(sprintf("\nERR: %s",sapply(errors, conditionMessage)), collapse="\n")
     diff <- paste(diff,mm,ww,ee)
   }
 
@@ -695,7 +695,7 @@ expect_message <- function(current, pattern=".*"
  
  
   results <- sapply(messages, function(m) {
-    inherits(m, class) && grepl(pattern, m$message, ...)
+    inherits(m, class) && grepl(pattern, conditionMessage(m), ...)
   })
 
   if (any(results)){ ## happy flow
@@ -732,9 +732,9 @@ expect_message <- function(current, pattern=".*"
   if (!result && (nwrn > 0 || nerr > 0)){ 
     diff <- paste0(diff,sprintf("\nFound %d message(s), %d warning(s), and %d error(s):\n"
               , nmsg, nwrn, nerr))
-    mm <- paste(sprintf("MSG: %s",sapply(messages, function(m) m$message)), collapse="\n")
-    ww <- paste(sprintf("WRN: %s",sapply(warnings, function(w) w$message)), collapse="\n")
-    ee <- paste(sprintf("\nERR: %s",sapply(errors, function(e) e$message)), collapse="\n")
+    mm <- paste(sprintf("MSG: %s",sapply(messages, conditionMessage)), collapse="\n")
+    ww <- paste(sprintf("WRN: %s",sapply(warnings, conditionMessage)), collapse="\n")
+    ee <- paste(sprintf("\nERR: %s",sapply(errors, conditionMessage)), collapse="\n")
     diff <- paste(diff,mm,ww,ee)
   }
 
