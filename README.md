@@ -1,5 +1,5 @@
 [![CRAN](http://www.r-pkg.org/badges/version/tinytest)](http://cran.r-project.org/package=tinytest/)
-[![status](https://tinyverse.netlify.com/badge/tinytest)](https://CRAN.R-project.org/package=tinytest)
+[![status](https://tinyverse.netlify.app/badge/tinytest)](https://CRAN.R-project.org/package=tinytest)
 [![Downloads](http://cranlogs.r-pkg.org/badges/tinytest)](http://cran.r-project.org/package=tinytest/)
 
 
