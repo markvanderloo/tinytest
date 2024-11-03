@@ -780,7 +780,7 @@ print_status <- function(filename, env, color, print=TRUE){
 
 #' Run all tests in a directory
 #'
-#' \code{run\_test\_dir} runs all test files in a directory.
+#' \code{run_test_dir} runs all test files in a directory.
 #'
 #'
 #' @param dir \code{[character]} path to directory
