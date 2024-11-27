@@ -1132,7 +1132,13 @@ build_install_test <- function(pkgdir="./", testdir="tinytest"
   setwd(tdir)
 
   ## build package
-  system2("R", args=c("CMD", "build", "--no-build-vignettes", "--no-manual", shQuote(pkg)))
+  if(.Platform$OS.type == "windows") {
+      system2(file.path(R.home("bin"), "Rterm.exe")
+              , args=c("CMD", "build", "--no-build-vignettes", "--no-manual", shQuote(pkg)))
+  } else {
+      system2(file.path(R.home("bin"), "R")
+              , args=c("CMD", "build", "--no-build-vignettes", "--no-manual", shQuote(pkg)))
+  }
 
 
   ## find tar.gz and install in temporary folder.
@@ -1198,7 +1204,11 @@ if (!is.null(cluster)) parallel::stopCluster(cluster)
         , encoding)
 
   write(scr, file="test.R")
-  system("Rscript test.R")
+  if(.Platform$OS.type == "windows") {
+      system2(file.path(R.home("bin"), "Rscript.exe"), args="test.R")
+  } else {
+      system2(file.path(R.home("bin"), "Rscript"), args="test.R")
+  }
 
   readRDS(file.path(tdir, "output.RDS"))
 
