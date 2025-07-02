@@ -395,7 +395,7 @@ expect_true <- function(current, info=NA_character_){
     this <- if ( isFALSE(current) ) "FALSE"
             else if ( length(current) == 1 && is.na(current)) "NA"
             else if ( is.logical(current)) sprintf("'logical' of length %d",length(current))
-            else sprintf("object of class '%s'",class(current))
+            else sprintf("object of class '%s'",class(current)[1])
     diff  <- sprintf("Expected TRUE, got %s", this)
     short <- shortdiff(TRUE, FALSE)
     tinytest(result, call=call,diff=diff, short=short, info=info)
@@ -413,7 +413,7 @@ expect_false <- function(current, info=NA_character_){
     this <- if ( isTRUE(current) ) "TRUE"
             else if (length(current) == 1 && is.na(current)) "NA"
             else if (is.logical(current)) sprintf("'logical' of length %d",length(current))
-            else sprintf("object of class '%s'",class(current))
+            else sprintf("object of class '%s'",class(current)[1])
     diff  <- sprintf("Expected FALSE, got %s", this)
     short <- shortdiff(TRUE, FALSE)
     tinytest(result, call=call,diff=diff, short=short, info=info)
