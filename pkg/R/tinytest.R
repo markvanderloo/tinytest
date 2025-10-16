@@ -185,7 +185,7 @@ ignore <- function(fun){
 #' Stop testing (conditionally)
 #'
 #' Use \code{exit_file} to exit a file with a custom message, or use
-#' \code{exit_if} to exit if one or more conditions are met. \code{exit_if}
+#' \code{exit_if_not} to exit if one or more conditions are not met. \code{exit_if_not}
 #' will create a message akin to messages created by \code{\link[base]{stopifnot}}.
 #'
 #' @param msg \code{[character]} An optional message to print after exiting.
