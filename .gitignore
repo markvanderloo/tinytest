@@ -14,5 +14,6 @@
 *.toc
 testpkgs/
 output/
+pkg/man/
 revcheck/
 tinytest.Rcheck/
