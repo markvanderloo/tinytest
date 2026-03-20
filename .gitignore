@@ -13,7 +13,6 @@
 *.swp
 *.toc
 testpkgs/
-pkg/man/
 output/
 revcheck/
 tinytest.Rcheck/
