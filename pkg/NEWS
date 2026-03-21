@@ -1,4 +1,4 @@
-version 1.4.2
+version 1.4.3
 - tt.pr.color is now set to FALSE when the NO_COLOR environment
   variable is set. See https://no-color.org/
 - expect_<condition> now uses conditionMessage internally. This

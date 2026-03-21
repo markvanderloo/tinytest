@@ -102,7 +102,7 @@ used in practice.
 
 Package authors are invited to contribute new use cases so new users can 
 learn from them. Please contact the author of this package either by email
-or via the \href{http://github.com/markvanderloo/tinytest}{github repository}.
+or via the \href{https://github.com/markvanderloo/tinytest}{github repository}.
 
 \newpage{}
 

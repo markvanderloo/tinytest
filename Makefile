@@ -33,20 +33,6 @@ revdep: pkg
 	mv *.tar.gz revdep
 	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revdep',reverse=list(which='Imports'),Ncpus=6); print(summary(out)); saveRDS(out, file='revdep/output.RDS')"
 
-
-devcheck:
-	rm -f *.tar.gz
-	rm -rf tinytest.Rcheck
-	Rdev -s -e "pkgload::load_all('pkg');roxygen2::roxygenize('pkg')"
-	Rdev CMD build pkg
-	Rdev CMD check *.tar.gz
-
-revimp: pkg
-	rm -rf revimp
-	mkdir revimp
-	mv *.tar.gz revimp
-	xvfb-run R -s -e "out <- tools::check_packages_in_dir('revimp', Ncpus=1, reverse=list(which='Imports')); print(summary(out)); saveRDS(out, file='revimp/output.RDS')"
-
 using:
 	./using_tinytest.sh
 
