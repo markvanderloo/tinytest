@@ -860,10 +860,17 @@ run_test_dir <- function(dir="inst/tinytest", pattern="^test.*\\.[rR]$"
 
   t0 <- Sys.time()
 
+  if (!dir.exists(dir) || file.exists(dir)){
+    tinytest:::stopf("dir '%s' does not exist or is a file", dir)
+  }
+
   testfiles <- dir(dir, pattern=pattern, full.names=TRUE)
   testfiles <- locale_sort(testfiles, lc_collate=lc_collate)
 
 
+  if (length(testfiles) == 0L) {
+    tinytest:::stopf("dir '%s' does not contain test files", dir)
+  }
 
   if ( !inherits(cluster, "cluster") ){
     # set pwd here, to save time in run_test_file.
