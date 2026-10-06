@@ -118,7 +118,7 @@ any_fail <- function(x){
 #' which determines whether colored output is printed.
 #' If R is running in a dumb terminal (detected by comparing 
 #' environment variable \code{"TERM"} to \code{"dumb"}), or if the
-#' \code{NO_CODE} environment variable is set, then
+#' \code{NO_COLOR} environment variable is set, then
 #' this option is set to \code{FALSE} when the package is loaded.
 #' See also \href{https://no-color.org}{https://no-color.org}.
 #' 
