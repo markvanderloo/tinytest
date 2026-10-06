@@ -129,7 +129,7 @@ expect_equal(1 + 1, 2)
 #' The puppy for a pkgKitten
 #'
 #' Does exactly the same as \code{\link{setup_tinytest}}, but prints 
-#' a loving message aferwards (and who doesn't want that!?). Just
+#' a loving message afterwards (and who doesn't want that!?). Just
 #' think about those puppies.
 #'
 #' @inheritParams setup_tinytest
